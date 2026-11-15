@@ -14,9 +14,9 @@ import {
   RefreshCw, 
   CheckCircle, 
   Copy, 
-  Sparkles,
+  Sparkles, 
   AlertTriangle,
-  Award
+  Radio
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { CANDIDATES, RADIX_BASE } from '../utils/constants';
@@ -107,7 +107,7 @@ export function AdminView({
     fetchEncryptedVotes();
   }, [contract, isElectionOpen]);
 
-  // Handle Paillier Key Generation
+  // Handle Paillier Key Generation (Encryption & Security Identity: Violet)
   const handleGenerateKeys = async () => {
     try {
       setIsGeneratingKeys(true);
@@ -199,7 +199,7 @@ export function AdminView({
     }
   };
 
-  // Whitelist single voter
+  // Whitelist single voter (Voter Management Identity: Indigo)
   const handleAddSingleVoter = async (e) => {
     e?.preventDefault();
     if (!contract || !singleVoterAddress) return;
@@ -250,7 +250,7 @@ export function AdminView({
     }
   };
 
-  // Step 1: Compute Homomorphic Addition off-chain
+  // Step 1: Compute Homomorphic Addition off-chain (Ocean Blue / Emerald)
   const handleComputeHomomorphicAddition = () => {
     try {
       setIsAggregating(true);
@@ -273,7 +273,7 @@ export function AdminView({
     }
   };
 
-  // Step 2 & 3: Decrypt Aggregate Ciphertext & Reveal Winner
+  // Step 2 & 3: Decrypt Aggregate Ciphertext & Reveal Winner (Results Identity: Coral & Emerald)
   const handleDecryptAndTally = () => {
     try {
       setIsDecrypting(true);
@@ -314,10 +314,19 @@ export function AdminView({
       setTallyResults(results);
 
       confetti({
-        particleCount: 100,
-        spread: 70,
+        particleCount: 120,
+        spread: 80,
         origin: { y: 0.6 },
-        colors: ['#087F6A', '#4959C8', '#D99A35', '#202B2A'],
+        colors: [
+          '#087F6A', // Emerald
+          '#4959C8', // Indigo
+          '#D99A35', // Amber
+          '#E77D68', // Coral
+          '#9367C7', // Violet
+          '#3998B5', // Ocean
+          '#8BAA63', // Sage
+          '#E8B9C8', // Dusty rose
+        ],
       });
     } catch (err) {
       console.error("Decryption error:", err);
@@ -329,12 +338,12 @@ export function AdminView({
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto py-2">
-      {/* Non-Admin Warning Banner */}
+      {/* Non-Admin Warning Banner (Amber & Sand Identity) */}
       {!isAdmin && account && (
-        <div className="p-4 rounded-xl bg-saffron-light border border-saffron-border text-ink flex items-start space-x-3">
-          <AlertTriangle className="w-5 h-5 flex-shrink-0 text-saffron-dark mt-0.5" />
+        <div className="p-4 rounded-xl bg-sand-subtle border border-sand-border text-ink flex items-start space-x-3">
+          <AlertTriangle className="w-5 h-5 flex-shrink-0 text-amber-dark mt-0.5" />
           <div className="text-sm">
-            <span className="font-semibold text-saffron-dark">Connected Account is Not Election Administrator</span>
+            <span className="font-semibold text-amber-dark">Connected Account is Not Election Administrator</span>
             <p className="text-xs text-ink-secondary mt-0.5">
               Your connected account ({truncateAddress(account)}) is not the contract administrator ({truncateAddress(adminAddress)}).
               Admin transactions (whitelisting voters, starting/ending elections, setting keys) will revert if submitted from non-admin accounts.
@@ -344,41 +353,46 @@ export function AdminView({
         </div>
       )}
 
-      {/* Success Notification Alert */}
+      {/* Success Notification Alert (Emerald & Mint Identity) */}
       {whitelistSuccessMsg && (
-        <div className="p-4 rounded-xl bg-jade-light border border-jade-border text-jade-dark text-xs flex items-center space-x-2 font-medium">
-          <CheckCircle className="w-4 h-4 text-jade flex-shrink-0" />
+        <div className="p-4 rounded-xl bg-mint-subtle border border-mint-border text-emerald-dark text-xs flex items-center space-x-2 font-medium">
+          <CheckCircle className="w-4 h-4 text-emerald flex-shrink-0" />
           <span>{whitelistSuccessMsg}</span>
         </div>
       )}
 
-      {/* Error Notification Alert */}
+      {/* Error Notification Alert (Coral / Crimson Identity) */}
       {actionError && (
-        <div className="p-4 rounded-xl bg-crimson-light border border-crimson-border text-crimson text-xs flex items-center space-x-2 font-medium">
+        <div className="p-4 rounded-xl bg-coral-light border border-coral-border text-coral-dark text-xs flex items-center space-x-2 font-medium">
           <ShieldAlert className="w-4 h-4 flex-shrink-0" />
           <span>{actionError}</span>
         </div>
       )}
 
-      {/* Top Grid: Election Phase & Paillier Keys */}
+      {/* Grid: Election Lifecycle (Amber) & Paillier Keys (Violet) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Card 1: Election Lifecycle Controls */}
-        <div className="panel-card p-6 space-y-5">
+        {/* Card 1: Election Lifecycle Controls (Section Identity: Warm Amber & Warm Sand) */}
+        <div className="panel-card p-6 space-y-5 border-t-2 border-t-amber">
           <div className="flex items-center justify-between border-b border-surface-border pb-3.5">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-indigo-light text-indigo flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-sand text-amber-dark flex items-center justify-center">
                 <Cpu className="w-4 h-4 stroke-[2.2]" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-ink">Election Lifecycle Control</h3>
-                <p className="text-xs text-ink-muted">On-chain state machine</p>
+                <div className="flex items-center space-x-2">
+                  <h3 className="text-base font-bold text-ink">Election Lifecycle Control</h3>
+                  <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-sand text-amber-dark border border-sand-border">
+                    Lifecycle
+                  </span>
+                </div>
+                <p className="text-xs text-ink-muted mt-0.5">On-chain state machine</p>
               </div>
             </div>
             <div
               className={`px-2.5 py-1 rounded text-xs font-semibold border ${
                 isElectionOpen
-                  ? 'bg-jade-light text-jade-dark border-jade-border'
-                  : 'bg-surface-inset text-ink-muted border-surface-border'
+                  ? 'bg-mint text-emerald-dark border-mint-border'
+                  : 'bg-sand text-amber-dark border-sand-border'
               }`}
             >
               {isElectionOpen ? '● Active' : '○ Closed'}
@@ -386,8 +400,8 @@ export function AdminView({
           </div>
 
           <p className="text-xs text-ink-secondary leading-relaxed">
-            When <span className="font-semibold text-jade">Open</span>, verified voter accounts can broadcast encrypted ciphertexts to the contract.
-            When <span className="font-semibold text-ink">Closed</span>, no new ballots are accepted, enabling deterministic homomorphic summation.
+            When <span className="font-semibold text-emerald">Open</span>, verified voter accounts can broadcast encrypted ciphertexts to the contract.
+            When <span className="font-semibold text-amber-dark">Closed</span>, no new ballots are accepted, enabling deterministic homomorphic summation.
           </p>
 
           <div className="grid grid-cols-2 gap-3 pt-1">
@@ -396,7 +410,7 @@ export function AdminView({
               disabled={isElectionOpen || isStartingElection}
               className={`py-2.5 px-4 rounded-lg font-semibold text-xs flex items-center justify-center space-x-2 transition-all ${
                 !isElectionOpen && !isStartingElection
-                  ? 'bg-jade hover:bg-jade-hover text-white shadow-subtle'
+                  ? 'bg-emerald hover:bg-emerald-hover text-white shadow-subtle'
                   : 'bg-surface-inset text-ink-muted cursor-not-allowed border border-surface-border'
               }`}
             >
@@ -413,7 +427,7 @@ export function AdminView({
               disabled={!isElectionOpen || isEndingElection}
               className={`py-2.5 px-4 rounded-lg font-semibold text-xs flex items-center justify-center space-x-2 transition-all ${
                 isElectionOpen && !isEndingElection
-                  ? 'bg-surface-card hover:bg-crimson-light text-crimson border border-crimson-border shadow-subtle'
+                  ? 'bg-surface-card hover:bg-coral-light text-coral border border-coral-border shadow-subtle'
                   : 'bg-surface-inset text-ink-muted cursor-not-allowed border border-surface-border'
               }`}
             >
@@ -427,16 +441,21 @@ export function AdminView({
           </div>
         </div>
 
-        {/* Card 2: Paillier Key Management */}
-        <div className="panel-card p-6 space-y-5">
+        {/* Card 2: Paillier Key Management (Section Identity: Elegant Violet) */}
+        <div className="panel-card p-6 space-y-5 border-t-2 border-t-violet">
           <div className="flex items-center justify-between border-b border-surface-border pb-3.5">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-jade-light text-jade flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-violet-light text-violet flex items-center justify-center">
                 <Key className="w-4 h-4 stroke-[2.2]" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-ink">Paillier Key Management</h3>
-                <p className="text-xs text-ink-muted">Asymmetric homomorphic keypair</p>
+                <div className="flex items-center space-x-2">
+                  <h3 className="text-base font-bold text-ink">Paillier Key Management</h3>
+                  <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-violet-light text-violet-dark border border-violet-border">
+                    Security
+                  </span>
+                </div>
+                <p className="text-xs text-ink-muted mt-0.5">Asymmetric homomorphic keypair</p>
               </div>
             </div>
             <div className="text-xs font-mono text-ink-secondary bg-surface-inset px-2 py-0.5 rounded border border-surface-border">
@@ -448,7 +467,7 @@ export function AdminView({
             <button
               onClick={handleGenerateKeys}
               disabled={isGeneratingKeys}
-              className="flex-1 py-2.5 px-3 rounded-lg text-xs font-semibold bg-indigo hover:bg-indigo-hover text-white flex items-center justify-center space-x-1.5 shadow-subtle"
+              className="flex-1 py-2.5 px-3 rounded-lg text-xs font-semibold bg-violet hover:bg-violet-hover text-white flex items-center justify-center space-x-1.5 shadow-subtle"
             >
               {isGeneratingKeys ? (
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -461,12 +480,12 @@ export function AdminView({
             <button
               onClick={handlePublishKey}
               disabled={isPublishingKey || (!localPrivateKey && !publicKey)}
-              className="py-2.5 px-3.5 rounded-lg text-xs font-semibold bg-surface-card hover:bg-surface-inset text-jade border border-jade-border flex items-center space-x-1.5 disabled:opacity-50 shadow-subtle"
+              className="py-2.5 px-3.5 rounded-lg text-xs font-semibold bg-surface-card hover:bg-mint-subtle text-emerald-dark border border-emerald-border flex items-center space-x-1.5 disabled:opacity-50 shadow-subtle"
             >
               {isPublishingKey ? (
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
               ) : (
-                <Lock className="w-3.5 h-3.5" />
+                <Lock className="w-3.5 h-3.5 text-emerald" />
               )}
               <span>Publish to Contract</span>
             </button>
@@ -482,7 +501,7 @@ export function AdminView({
             </div>
             <div className="bg-surface-subtle p-3 rounded-lg border border-surface-border">
               <span className="text-[11px] text-ink-muted uppercase font-semibold block mb-0.5">Private Key (λ, μ)</span>
-              <span className="font-mono text-jade-dark font-medium block truncate">
+              <span className="font-mono text-violet-dark font-medium block truncate">
                 {localPrivateKey ? 'Active in Session' : 'Not Loaded'}
               </span>
             </div>
@@ -490,15 +509,20 @@ export function AdminView({
         </div>
       </div>
 
-      {/* Voter Whitelisting Center */}
-      <section className="panel-card p-6 sm:p-7 space-y-6">
+      {/* Voter Whitelisting Engine (Section Identity: Royal Indigo) */}
+      <section className="panel-card p-6 sm:p-7 space-y-6 border-t-2 border-t-indigo">
         <div className="flex items-center space-x-3 border-b border-surface-border pb-4">
           <div className="w-8 h-8 rounded-lg bg-indigo-light text-indigo flex items-center justify-center">
             <Users className="w-4 h-4 stroke-[2.2]" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-ink">Voter Whitelisting Engine</h3>
-            <p className="text-xs text-ink-muted">Authorize voter addresses on Ethereum to submit encrypted ballots</p>
+            <div className="flex items-center space-x-2">
+              <h3 className="text-base font-bold text-ink">Voter Whitelisting Engine</h3>
+              <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-indigo-light text-indigo-dark border border-indigo-border">
+                Voter Management
+              </span>
+            </div>
+            <p className="text-xs text-ink-muted mt-0.5">Authorize voter addresses on Ethereum to submit encrypted ballots</p>
           </div>
         </div>
 
@@ -514,12 +538,12 @@ export function AdminView({
                 placeholder="0x..."
                 value={singleVoterAddress}
                 onChange={(e) => setSingleVoterAddress(e.target.value)}
-                className="flex-1 px-3.5 py-2.5 rounded-lg bg-surface-subtle border border-surface-border text-ink placeholder-ink-muted font-mono text-xs focus:outline-none focus:border-jade focus:bg-surface-card"
+                className="flex-1 px-3.5 py-2.5 rounded-lg bg-surface-subtle border border-surface-border text-ink placeholder-ink-muted font-mono text-xs focus:outline-none focus:border-indigo focus:bg-surface-card"
               />
               <button
                 type="submit"
                 disabled={isWhitelisting || !singleVoterAddress}
-                className="px-4 py-2.5 rounded-lg text-xs font-semibold bg-jade hover:bg-jade-hover text-white flex items-center space-x-1.5 disabled:opacity-50 shadow-subtle"
+                className="px-4 py-2.5 rounded-lg text-xs font-semibold bg-indigo hover:bg-indigo-hover text-white flex items-center space-x-1.5 disabled:opacity-50 shadow-subtle"
               >
                 {isWhitelisting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <UserPlus className="w-3.5 h-3.5" />}
                 <span>Add</span>
@@ -543,7 +567,7 @@ export function AdminView({
                     "0x70997970C51812dc3A010C7d01b50e0d17dc79C8\n0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC\n0x90F79bf6EB2c4f870365E785982E1f101E93b906"
                   );
                 }}
-                className="text-[11px] text-jade hover:text-jade-hover underline font-medium"
+                className="text-[11px] text-indigo hover:text-indigo-hover underline font-medium"
               >
                 Fill Hardhat Test Accounts
               </button>
@@ -553,12 +577,12 @@ export function AdminView({
               placeholder="0x709979...&#10;0x3C44Cd...&#10;0x90F79b..."
               value={batchVoterAddresses}
               onChange={(e) => setBatchVoterAddresses(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-lg bg-surface-subtle border border-surface-border text-ink placeholder-ink-muted font-mono text-xs focus:outline-none focus:border-jade focus:bg-surface-card"
+              className="w-full px-3.5 py-2.5 rounded-lg bg-surface-subtle border border-surface-border text-ink placeholder-ink-muted font-mono text-xs focus:outline-none focus:border-indigo focus:bg-surface-card"
             />
             <button
               type="submit"
               disabled={isWhitelisting || !batchVoterAddresses}
-              className="w-full py-2.5 px-4 rounded-lg text-xs font-semibold bg-surface-subtle hover:bg-surface-inset text-ink border border-surface-border flex items-center justify-center space-x-1.5 disabled:opacity-50"
+              className="w-full py-2.5 px-4 rounded-lg text-xs font-semibold bg-surface-subtle hover:bg-indigo-light text-indigo-dark border border-indigo-border flex items-center justify-center space-x-1.5 disabled:opacity-50"
             >
               {isWhitelisting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Users className="w-3.5 h-3.5 text-indigo" />}
               <span>Batch Whitelist Addresses</span>
@@ -567,16 +591,21 @@ export function AdminView({
         </div>
       </section>
 
-      {/* Encrypted Ballots Ledger & Homomorphic Tallying */}
-      <section className="panel-card p-6 sm:p-7 space-y-6">
+      {/* Homomorphic Tally & Results (Section Identity: Coral & Emerald with Dusty Rose & Sage) */}
+      <section className="panel-card p-6 sm:p-7 space-y-6 border-t-2 border-t-coral">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-surface-border pb-4">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-lg bg-saffron-light text-saffron-dark flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-coral-light text-coral flex items-center justify-center">
               <Trophy className="w-4 h-4 stroke-[2.2]" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-ink">Homomorphic Tally & Winner Decryption</h3>
-              <p className="text-xs text-ink-muted">Aggregate encrypted ballots directly in ciphertext space off-chain</p>
+              <div className="flex items-center space-x-2">
+                <h3 className="text-base font-bold text-ink">Homomorphic Tally & Results</h3>
+                <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-coral-light text-coral-dark border border-coral-border">
+                  Election Results
+                </span>
+              </div>
+              <p className="text-xs text-ink-muted mt-0.5">Aggregate encrypted ballots directly in ciphertext space off-chain</p>
             </div>
           </div>
 
@@ -626,7 +655,7 @@ export function AdminView({
           <div className="text-right">
             <span className="text-[11px] text-ink-muted uppercase font-semibold">Ready for Tally:</span>
             <div className={`text-xs font-bold mt-0.5 ${
-              !isElectionOpen && encryptedVotesList.length > 0 ? 'text-jade' : 'text-saffron-dark'
+              !isElectionOpen && encryptedVotesList.length > 0 ? 'text-emerald' : 'text-amber-dark'
             }`}>
               {!isElectionOpen && encryptedVotesList.length > 0
                 ? 'Yes (Election Closed)'
@@ -644,14 +673,14 @@ export function AdminView({
             disabled={encryptedVotesList.length === 0 || isAggregating}
             className={`py-3 px-4 rounded-lg font-semibold text-xs flex items-center justify-center space-x-2 transition-all ${
               encryptedVotesList.length > 0 && !isAggregating
-                ? 'bg-surface-subtle hover:bg-surface-inset text-ink border border-surface-border shadow-subtle'
+                ? 'bg-ocean-light hover:bg-ocean/15 text-ocean-dark border border-ocean-border shadow-subtle'
                 : 'bg-surface-inset text-ink-muted cursor-not-allowed border border-surface-border'
             }`}
           >
             {isAggregating ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-jade" />
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-ocean" />
             ) : (
-              <Cpu className="w-3.5 h-3.5 text-jade" />
+              <Cpu className="w-3.5 h-3.5 text-ocean" />
             )}
             <span>Step 1: Compute Homomorphic Sum (∏ cᵢ mod n²)</span>
           </button>
@@ -661,7 +690,7 @@ export function AdminView({
             disabled={!homomorphicSumCiphertext || !localPrivateKey || isDecrypting}
             className={`py-3 px-4 rounded-lg font-semibold text-xs flex items-center justify-center space-x-2 transition-all ${
               homomorphicSumCiphertext && localPrivateKey && !isDecrypting
-                ? 'bg-jade hover:bg-jade-hover text-white shadow-subtle'
+                ? 'bg-coral hover:bg-coral-hover text-white shadow-subtle'
                 : 'bg-surface-inset text-ink-muted cursor-not-allowed border border-surface-border'
             }`}
           >
@@ -670,7 +699,7 @@ export function AdminView({
             ) : (
               <Unlock className="w-3.5 h-3.5" />
             )}
-            <span>Step 2 & 3: Decrypt Tally & Declare Winner</span>
+            <span>Step 2 & 3: Decrypt Tally & Reveal Winner</span>
           </button>
         </div>
 
@@ -686,25 +715,30 @@ export function AdminView({
             {decryptedSum !== null && (
               <div className="pt-2 border-t border-surface-border flex items-center justify-between text-xs">
                 <span className="text-ink-muted">Decrypted Plaintext Sum (M_total):</span>
-                <span className="text-jade font-bold text-sm">{decryptedSum.toString()}</span>
+                <span className="text-emerald font-bold text-sm">{decryptedSum.toString()}</span>
               </div>
             )}
           </div>
         )}
 
-        {/* Election Results & Winner Presentation */}
+        {/* Election Results & Winner Presentation (Coral & Emerald & Sage Identity) */}
         {tallyResults && tallyResults.length > 0 && (
           <div className="space-y-5 pt-3 border-t border-surface-border">
-            {/* Editorial Winner Card */}
-            <div className="rounded-xl bg-surface-subtle p-6 border-2 border-saffron-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            {/* Editorial Winner Card (Soft Coral & Warm Sand Identity) */}
+            <div className="rounded-xl bg-sand-subtle p-6 border-2 border-coral-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 rounded-xl bg-saffron-light border border-saffron-border flex items-center justify-center text-2xl">
+                <div className="w-12 h-12 rounded-xl bg-coral-light border border-coral-border flex items-center justify-center text-2xl">
                   👑
                 </div>
                 <div>
-                  <span className="text-[11px] uppercase font-bold tracking-wider text-saffron-dark block">
-                    Winner Declared
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-[11px] uppercase font-bold tracking-wider text-coral-dark block">
+                      Winner Declared
+                    </span>
+                    <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-rose-light text-rose-dark border border-rose-border">
+                      Verified
+                    </span>
+                  </div>
                   <h4 className="text-xl font-bold text-ink">
                     {tallyResults[0].name}
                   </h4>
@@ -713,14 +747,14 @@ export function AdminView({
               </div>
 
               <div className="text-right sm:border-l sm:border-surface-border sm:pl-6">
-                <div className="text-3xl font-extrabold text-jade font-mono">
+                <div className="text-3xl font-extrabold text-emerald font-mono">
                   {tallyResults[0].votes}
                 </div>
                 <div className="text-[10px] text-ink-muted uppercase font-semibold">Total Verified Votes</div>
               </div>
             </div>
 
-            {/* Candidate Breakdown Grid */}
+            {/* Candidate Breakdown Grid (Multi-color bars: Amber, Indigo, Sage) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {tallyResults.map((candidate, idx) => {
                 const totalBallots = encryptedVotesList.length || 1;
@@ -744,12 +778,10 @@ export function AdminView({
                       </span>
                     </div>
 
-                    {/* Progress Bar */}
+                    {/* Progress Bar with Candidate's Distinct Color */}
                     <div className="w-full bg-surface-inset rounded-full h-1.5 overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          idx === 0 ? 'bg-jade' : 'bg-indigo'
-                        }`}
+                        className={`h-full rounded-full transition-all duration-500 ${candidate.barColor || (idx === 0 ? 'bg-emerald' : 'bg-indigo')}`}
                         style={{ width: `${percentage}%` }}
                       />
                     </div>

@@ -231,7 +231,7 @@ export function App() {
   const isCorrectNetwork = !chainId || chainId === HARDHAT_CHAIN_ID;
 
   return (
-    <div className="min-h-screen flex flex-col bg-porcelain text-ink selection:bg-jade-light selection:text-jade-dark">
+    <div className="min-h-screen flex flex-col bg-porcelain text-ink selection:bg-emerald-light selection:text-emerald-dark">
       {/* Navbar */}
       <Navbar
         account={account}
@@ -252,14 +252,14 @@ export function App() {
           <div
             className={`flex items-center space-x-2.5 px-4 py-3 rounded-xl shadow-popover text-xs font-semibold border ${
               notification.type === 'success'
-                ? 'bg-surface-card text-jade-dark border-jade-border'
+                ? 'bg-surface-card text-emerald-dark border-emerald-border'
                 : notification.type === 'error'
                 ? 'bg-surface-card text-crimson border-crimson-border'
                 : 'bg-surface-card text-indigo border-indigo-border'
             }`}
           >
             {notification.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-jade flex-shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-emerald flex-shrink-0" />
             ) : (
               <AlertCircle className="w-4 h-4 text-crimson flex-shrink-0" />
             )}

@@ -20,7 +20,7 @@ export function CandidateCard({
         disabled
           ? 'opacity-60 cursor-not-allowed bg-surface-subtle border border-surface-border'
           : isSelected
-          ? 'cursor-pointer bg-surface-card border-2 border-jade shadow-card ring-2 ring-jade/10'
+          ? `cursor-pointer bg-surface-card border-2 ${candidate.selectedBorder} shadow-card ring-2 ring-emerald/10`
           : 'cursor-pointer bg-surface-card border border-surface-border panel-card-hover'
       }`}
     >
@@ -29,7 +29,7 @@ export function CandidateCard({
         <div
           className={`w-5 h-5 rounded-md flex items-center justify-center transition-all ${
             isSelected
-              ? 'bg-jade text-white shadow-subtle'
+              ? `${candidate.barColor} text-white shadow-subtle`
               : 'border border-surface-border bg-surface-subtle text-transparent'
           }`}
         >
@@ -37,9 +37,9 @@ export function CandidateCard({
         </div>
       </div>
 
-      {/* Candidate Identifier & Role Badge */}
+      {/* Candidate Identifier & Distinct Color Accent */}
       <div className="flex items-center space-x-3 mb-4">
-        <div className="w-10 h-10 rounded-lg bg-surface-inset border border-surface-border flex items-center justify-center text-lg">
+        <div className={`w-10 h-10 rounded-lg ${candidate.badgeBackground} border border-surface-border flex items-center justify-center text-lg`}>
           {candidate.avatar}
         </div>
         <div>
@@ -58,10 +58,10 @@ export function CandidateCard({
       {/* Mathematical Encoding Preview */}
       <div className="pt-3 border-t border-surface-border/80 flex items-center justify-between text-xs">
         <span className="flex items-center space-x-1.5 text-ink-muted">
-          <Lock className="w-3.5 h-3.5 text-jade" />
+          <Lock className="w-3.5 h-3.5 text-violet" />
           <span className="font-medium">Plaintext Integer (m):</span>
         </span>
-        <span className="font-mono text-xs font-semibold text-ink bg-surface-subtle px-2 py-0.5 rounded border border-surface-border">
+        <span className={`font-mono text-xs font-semibold ${candidate.accentColor} bg-surface-subtle px-2 py-0.5 rounded border border-surface-border`}>
           {encodedValue.toString()}
         </span>
       </div>
