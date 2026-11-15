@@ -1,0 +1,19 @@
+{
+  "name": "decentralized-evoting-backend",
+  "version": "1.0.0",
+  "description": "Hardhat Solidity backend for Decentralized E-Voting with Paillier Cryptosystem",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "node": "hardhat node",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.2"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "paillier-bigint": "^3.4.2"
+  }
+}

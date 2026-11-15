@@ -1,0 +1,33 @@
+{
+  "name": "decentralized-evoting-monorepo",
+  "version": "1.0.0",
+  "description": "Production-grade Decentralized E-Voting System powered by Hardhat, Solidity, Vite, React, Ethers.js v6, and Paillier Homomorphic Encryption.",
+  "scripts": {
+    "install:all": "npm --prefix backend install && npm --prefix frontend install",
+    "compile": "npm --prefix backend run compile",
+    "test": "npm --prefix backend test",
+    "node": "npm --prefix backend run node",
+    "deploy": "npm --prefix backend run deploy:local",
+    "dev": "npm --prefix frontend run dev",
+    "start:all": "concurrently --kill-others --names \"NODE,APP\" --prefix-colors \"yellow,cyan\" \"npm run node\" \"wait-on tcp:127.0.0.1:8545 && npm run deploy && npm run dev\",
+    "build:frontend": "npm --prefix frontend run build"
+  },
+  "keywords": [
+    "solidity",
+    "ethereum",
+    "hardhat",
+    "vite",
+    "react",
+    "paillier",
+    "homomorphic-encryption",
+    "e-voting",
+    "zero-knowledge",
+    "cryptography"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^10.0.7",
+    "wait-on": "^9.5.1"
+  }
+}
