@@ -6,11 +6,10 @@ import {
   Lock, 
   Send, 
   Key, 
-  Sparkles, 
   Copy, 
-  ExternalLink,
   RefreshCw,
-  Info
+  Info,
+  Check
 } from 'lucide-react';
 import { CandidateCard } from './CandidateCard';
 import { CANDIDATES } from '../utils/constants';
@@ -94,7 +93,6 @@ export function VoterView({
       setIsSubmitting(true);
       setErrorMsg('');
 
-      // Invoke castVote on the smart contract
       const tx = await contract.castVote(generatedCiphertext);
       setTxHash(tx.hash);
 
@@ -108,7 +106,6 @@ export function VoterView({
       }
     } catch (err) {
       console.error("Error casting vote:", err);
-      // Clean up common ethers revert reasons
       const reason = err?.reason || err?.message || "Failed to cast vote transaction.";
       setErrorMsg(reason);
     } finally {
@@ -126,82 +123,91 @@ export function VoterView({
   const canVote = isWhitelisted && !hasVoted && isElectionOpen && Boolean(publicKey);
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto py-4">
-      {/* Voter Eligibility & System Status Banner */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="space-y-8 max-w-6xl mx-auto py-2">
+      {/* Voter Eligibility & System Status Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Whitelist Status */}
-        <div className="glass-panel rounded-2xl p-4 flex items-center space-x-3">
-          <div className={`p-2.5 rounded-xl ${isWhitelisted ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
-            {isWhitelisted ? <ShieldCheck className="w-5 h-5" /> : <ShieldAlert className="w-5 h-5" />}
+        <div className="panel-card p-4 flex items-center space-x-3.5">
+          <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+            isWhitelisted ? 'bg-jade-light text-jade' : 'bg-crimson-light text-crimson'
+          }`}>
+            {isWhitelisted ? <ShieldCheck className="w-5 h-5 stroke-[2.2]" /> : <ShieldAlert className="w-5 h-5 stroke-[2.2]" />}
           </div>
           <div>
-            <div className="text-xs text-slate-400 font-medium">Whitelist Status</div>
-            <div className={`text-sm font-bold ${isWhitelisted ? 'text-emerald-400' : 'text-rose-400'}`}>
+            <div className="text-[11px] uppercase font-semibold text-ink-muted tracking-wider">Voter Status</div>
+            <div className={`text-sm font-semibold ${isWhitelisted ? 'text-jade-dark' : 'text-crimson'}`}>
               {isWhitelisted ? 'Whitelisted Voter' : 'Not Whitelisted'}
             </div>
           </div>
         </div>
 
-        {/* Voting Status */}
-        <div className="glass-panel rounded-2xl p-4 flex items-center space-x-3">
-          <div className={`p-2.5 rounded-xl ${hasVoted ? 'bg-indigo-500/10 text-indigo-400' : 'bg-amber-500/10 text-amber-400'}`}>
-            {hasVoted ? <CheckCircle className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
+        {/* Ballot Status */}
+        <div className="panel-card p-4 flex items-center space-x-3.5">
+          <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+            hasVoted ? 'bg-indigo-light text-indigo' : 'bg-saffron-light text-saffron-dark'
+          }`}>
+            {hasVoted ? <CheckCircle className="w-5 h-5 stroke-[2.2]" /> : <Lock className="w-5 h-5 stroke-[2.2]" />}
           </div>
           <div>
-            <div className="text-xs text-slate-400 font-medium">Ballot Status</div>
-            <div className={`text-sm font-bold ${hasVoted ? 'text-indigo-400' : 'text-amber-400'}`}>
-              {hasVoted ? 'Ballot Cast' : 'Ready to Vote'}
+            <div className="text-[11px] uppercase font-semibold text-ink-muted tracking-wider">Ballot Status</div>
+            <div className={`text-sm font-semibold ${hasVoted ? 'text-indigo' : 'text-saffron-dark'}`}>
+              {hasVoted ? 'Ballot Recorded' : 'Eligible to Vote'}
             </div>
           </div>
         </div>
 
         {/* Election State */}
-        <div className="glass-panel rounded-2xl p-4 flex items-center space-x-3">
-          <div className={`p-2.5 rounded-xl ${isElectionOpen ? 'bg-emerald-500/10 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
-            <RefreshCw className={`w-5 h-5 ${isElectionOpen ? 'animate-spin' : ''}`} style={{ animationDuration: '6s' }} />
+        <div className="panel-card p-4 flex items-center space-x-3.5">
+          <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+            isElectionOpen ? 'bg-jade-light text-jade' : 'bg-surface-inset text-ink-muted'
+          }`}>
+            <RefreshCw className={`w-5 h-5 stroke-[2.2] ${isElectionOpen ? 'animate-spin' : ''}`} style={{ animationDuration: '8s' }} />
           </div>
           <div>
-            <div className="text-xs text-slate-400 font-medium">Election Lifecycle</div>
-            <div className={`text-sm font-bold ${isElectionOpen ? 'text-emerald-400' : 'text-slate-400'}`}>
+            <div className="text-[11px] uppercase font-semibold text-ink-muted tracking-wider">Election Phase</div>
+            <div className={`text-sm font-semibold ${isElectionOpen ? 'text-jade-dark' : 'text-ink-secondary'}`}>
               {isElectionOpen ? 'Active (Open)' : 'Inactive (Closed)'}
             </div>
           </div>
         </div>
 
         {/* Paillier Public Key */}
-        <div className="glass-panel rounded-2xl p-4 flex items-center space-x-3">
-          <div className={`p-2.5 rounded-xl ${publicKey ? 'bg-indigo-500/10 text-indigo-400' : 'bg-rose-500/10 text-rose-400'}`}>
-            <Key className="w-5 h-5" />
+        <div className="panel-card p-4 flex items-center space-x-3.5">
+          <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+            publicKey ? 'bg-jade-light text-jade' : 'bg-crimson-light text-crimson'
+          }`}>
+            <Key className="w-5 h-5 stroke-[2.2]" />
           </div>
           <div>
-            <div className="text-xs text-slate-400 font-medium">Paillier Public Key</div>
-            <div className={`text-sm font-bold ${publicKey ? 'text-indigo-400' : 'text-rose-400'}`}>
+            <div className="text-[11px] uppercase font-semibold text-ink-muted tracking-wider">Public Key</div>
+            <div className={`text-sm font-semibold ${publicKey ? 'text-jade-dark' : 'text-crimson'}`}>
               {publicKey ? 'Synced On-Chain' : 'Not Published'}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Warning/Guidance Alert if not ready to vote */}
+      {/* Information Banner for non-whitelisted address */}
       {!isWhitelisted && account && (
-        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm flex items-start space-x-3">
-          <Info className="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-400" />
+        <div className="p-4 rounded-xl bg-saffron-light border border-saffron-border text-ink text-sm flex items-start space-x-3">
+          <Info className="w-4 h-4 flex-shrink-0 mt-0.5 text-saffron-dark" />
           <div>
-            <span className="font-semibold">Your address ({truncateAddress(account)}) is not currently whitelisted.</span>
-            <p className="text-xs text-amber-200/80 mt-1">
-              In a decentralized election, only authorized voter addresses can cast ballots. Switch to the Admin Dashboard (or ask the election administrator) to add your address to the whitelist.
+            <span className="font-semibold text-saffron-dark">Address ({truncateAddress(account)}) is not currently whitelisted.</span>
+            <p className="text-xs text-ink-secondary mt-0.5">
+              To participate in this election, your address must be registered by the election administrator. Switch to the Admin Dashboard (if you are the administrator) or provide your address to the election authority.
             </p>
           </div>
         </div>
       )}
 
+      {/* Confirmation Banner if already voted */}
       {hasVoted && (
-        <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-200 text-sm flex items-start space-x-3">
-          <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-indigo-400" />
+        <div className="p-4 rounded-xl bg-jade-light border border-jade-border text-ink text-sm flex items-start space-x-3">
+          <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-jade" />
           <div>
-            <span className="font-semibold">Your encrypted ballot has been permanently confirmed on Ethereum!</span>
-            <p className="text-xs text-indigo-300/80 mt-1">
-              Your ballot is sealed in the smart contract's encrypted votes array. Double voting is cryptographically prevented. When the election closes, the administrator can perform homomorphic summation without ever revealing your individual vote.
+            <span className="font-semibold text-jade-dark">Your encrypted ballot has been recorded on Ethereum.</span>
+            <p className="text-xs text-ink-secondary mt-0.5">
+              The ciphertext is sealed in the smart contract's immutable ballot storage. Double voting is cryptographically prevented. When the election closes, the administrator will compute the homomorphic tally.
             </p>
           </div>
         </div>
@@ -211,34 +217,33 @@ export function VoterView({
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-2xl font-extrabold text-white tracking-tight flex items-center space-x-2">
-              <span>Select Your Candidate</span>
-              <Sparkles className="w-5 h-5 text-indigo-400" />
+            <h2 className="text-xl font-bold text-ink tracking-tight">
+              Select Candidate
             </h2>
-            <p className="text-sm text-slate-400">
-              Choose a candidate. Your selection will be converted into a mathematical integer and encrypted with the election's Paillier public key.
+            <p className="text-xs text-ink-secondary mt-0.5">
+              Your ballot choice is mapped to a mathematical integer and encrypted with the election's Paillier public key.
             </p>
           </div>
 
-          {/* Scheme selector */}
-          <div className="flex items-center space-x-2 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
-            <span className="text-slate-400 pl-2 font-medium">Scheme:</span>
+          {/* Scheme Selector */}
+          <div className="flex items-center space-x-1 bg-surface-inset p-1 rounded-lg border border-surface-border text-xs">
+            <span className="text-ink-muted pl-2 font-medium">Scheme:</span>
             <button
               onClick={() => setEncodingMode('radix')}
-              className={`px-3 py-1 rounded-lg font-medium transition-all ${
+              className={`px-3 py-1 rounded-md font-medium transition-all ${
                 encodingMode === 'radix'
-                  ? 'bg-indigo-600 text-white shadow'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-surface-card text-ink shadow-subtle font-semibold border border-surface-border'
+                  : 'text-ink-secondary hover:text-ink'
               }`}
             >
               Radix Base-10000 (Multi)
             </button>
             <button
               onClick={() => setEncodingMode('simple')}
-              className={`px-3 py-1 rounded-lg font-medium transition-all ${
+              className={`px-3 py-1 rounded-md font-medium transition-all ${
                 encodingMode === 'simple'
-                  ? 'bg-indigo-600 text-white shadow'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-surface-card text-ink shadow-subtle font-semibold border border-surface-border'
+                  : 'text-ink-secondary hover:text-ink'
               }`}
             >
               Linear (A=1, B=2)
@@ -246,7 +251,7 @@ export function VoterView({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {CANDIDATES.map((candidate) => (
             <CandidateCard
               key={candidate.id}
@@ -260,154 +265,154 @@ export function VoterView({
         </div>
       </section>
 
-      {/* Cryptography Preview & Ballot Submission */}
-      <section className="glass-panel rounded-2xl p-6 sm:p-8 space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+      {/* Cryptography Preview & Ballot Submission Panel */}
+      <section className="panel-card p-6 sm:p-7 space-y-6">
+        <div className="flex items-center justify-between border-b border-surface-border pb-4">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-indigo-500/10 rounded-xl text-indigo-400">
-              <Lock className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-lg bg-jade-light text-jade flex items-center justify-center">
+              <Lock className="w-4 h-4 stroke-[2.2]" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">Ballot Encryption Preview</h3>
-              <p className="text-xs text-slate-400 font-mono">
-                Homomorphic Formula: c = g^m · r^n mod n²
+              <h3 className="text-base font-bold text-ink">Ballot Cryptographic Inspection</h3>
+              <p className="text-xs text-ink-muted font-mono">
+                Formula: c = g^m · r^n mod n²
               </p>
             </div>
           </div>
           {isEncrypting && (
-            <span className="text-xs text-indigo-400 flex items-center space-x-1 animate-pulse">
-              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            <span className="text-xs text-jade flex items-center space-x-1.5 font-medium">
+              <RefreshCw className="w-3 h-3 animate-spin" />
               <span>Computing Ciphertext...</span>
             </span>
           )}
         </div>
 
-        {/* Math & Ciphertext breakdown */}
+        {/* Integer & Modulus Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-2">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+          <div className="bg-surface-subtle p-4 rounded-lg border border-surface-border space-y-1.5">
+            <span className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider block">
               1. Plaintext Message (m)
             </span>
             <div className="flex items-baseline space-x-2">
-              <span className="text-2xl font-bold font-mono text-indigo-400">
+              <span className="text-xl font-bold font-mono text-jade">
                 {selectedCandidate
                   ? (encodingMode === 'radix'
                       ? encodeCandidateVoteRadix(selectedCandidate.id).toString()
                       : encodeCandidateVoteSimple(selectedCandidate.id).toString())
                   : '0'}
               </span>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-ink-secondary">
                 ({selectedCandidate?.role}: {selectedCandidate?.name})
               </span>
             </div>
-            <p className="text-[11px] text-slate-500">
+            <p className="text-[11px] text-ink-muted">
               {encodingMode === 'radix'
-                ? `Encoded as 10000^${selectedCandidate?.id} to allow multi-candidate homomorphic summation without overflow.`
-                : `Encoded as linear integer ${selectedCandidate?.id + 1} for two-candidate simultaneous equations.`}
+                ? `Encoded as 10000^${selectedCandidate?.id} for radix accumulation.`
+                : `Encoded as linear integer ${selectedCandidate?.id + 1} for two-candidate simultaneous linear resolution.`}
             </p>
           </div>
 
-          <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-2">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+          <div className="bg-surface-subtle p-4 rounded-lg border border-surface-border space-y-1.5">
+            <span className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider block">
               2. Paillier Public Modulus (n)
             </span>
-            <div className="font-mono text-xs text-slate-300 break-all bg-slate-950 p-2 rounded border border-slate-800/80">
-              {publicKey ? truncateCiphertext(publicKey.n.toString(), 24) : 'Waiting for Admin Key...'}
+            <div className="font-mono text-xs text-ink break-all bg-surface-card p-2 rounded border border-surface-border">
+              {publicKey ? truncateCiphertext(publicKey.n.toString(), 22) : 'Waiting for Admin Public Key...'}
             </div>
-            <p className="text-[11px] text-slate-500">
-              Publicly verifiable key generated by election admin and synchronized from smart contract.
+            <p className="text-[11px] text-ink-muted">
+              Published on Ethereum smart contract by election administrator.
             </p>
           </div>
         </div>
 
-        {/* Real-time Generated Ciphertext */}
+        {/* Generated Ciphertext Box */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-slate-300 flex items-center space-x-1.5">
+            <span className="font-semibold text-ink flex items-center space-x-2">
               <span>Encrypted Ballot Ciphertext (c)</span>
-              <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded font-mono">
+              <span className="text-[10px] bg-surface-inset text-ink-secondary px-1.5 py-0.5 rounded font-mono border border-surface-border">
                 {generatedCiphertext ? `${generatedCiphertext.length * 8} bits` : '0 bits'}
               </span>
             </span>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <button
                 onClick={() => setShowFullCiphertext(!showFullCiphertext)}
-                className="text-xs text-indigo-400 hover:text-indigo-300 underline"
+                className="text-xs text-jade hover:text-jade-hover underline font-medium"
               >
                 {showFullCiphertext ? 'Collapse' : 'View Full Ciphertext'}
               </button>
               <button
                 onClick={handleCopyCiphertext}
                 disabled={!generatedCiphertext}
-                className="flex items-center space-x-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                className="flex items-center space-x-1 px-2.5 py-1 rounded bg-surface-subtle hover:bg-surface-inset text-ink-secondary border border-surface-border transition-colors font-medium text-xs"
               >
-                <Copy className="w-3 h-3" />
-                <span>{copied ? 'Copied!' : 'Copy'}</span>
+                {copied ? <Check className="w-3 h-3 text-jade" /> : <Copy className="w-3 h-3" />}
+                <span>{copied ? 'Copied' : 'Copy'}</span>
               </button>
             </div>
           </div>
 
-          <div className="font-mono text-xs bg-slate-950 text-indigo-200/90 p-4 rounded-xl border border-slate-800 break-all select-all max-h-48 overflow-y-auto">
+          <div className="font-mono text-xs bg-surface-subtle text-ink p-3.5 rounded-lg border border-surface-border break-all select-all max-h-36 overflow-y-auto">
             {generatedCiphertext ? (
               showFullCiphertext ? (
                 generatedCiphertext
               ) : (
-                truncateCiphertext(generatedCiphertext, 48)
+                truncateCiphertext(generatedCiphertext, 44)
               )
             ) : (
-              <span className="text-slate-500 italic">Connect wallet and ensure public key is published to preview ciphertext...</span>
+              <span className="text-ink-muted italic">Connect wallet and ensure Paillier public key is synced to view ciphertext...</span>
             )}
           </div>
         </div>
 
-        {/* Error message display */}
+        {/* Error Message Alert */}
         {errorMsg && (
-          <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center space-x-2">
-            <ShieldAlert className="w-4 h-4 flex-shrink-0 text-rose-400" />
+          <div className="p-3.5 rounded-lg bg-crimson-light border border-crimson-border text-crimson text-xs flex items-center space-x-2">
+            <ShieldAlert className="w-4 h-4 flex-shrink-0" />
             <span>{errorMsg}</span>
           </div>
         )}
 
-        {/* Transaction Success Confirmation */}
+        {/* Transaction Confirmation Card */}
         {txHash && (
-          <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs space-y-1">
-            <div className="flex items-center space-x-2 font-bold text-sm">
-              <CheckCircle className="w-4 h-4 text-emerald-400" />
-              <span>Ballot Cast Successfully!</span>
+          <div className="p-4 rounded-lg bg-jade-light border border-jade-border text-jade-dark text-xs space-y-1">
+            <div className="flex items-center space-x-2 font-semibold text-sm">
+              <CheckCircle className="w-4 h-4 text-jade" />
+              <span>Ballot Cast Successfully</span>
             </div>
-            <div className="font-mono text-[11px] text-emerald-200/80 break-all">
-              Tx Hash: {txHash}
+            <div className="font-mono text-[11px] text-ink-secondary break-all">
+              Transaction Hash: {txHash}
             </div>
           </div>
         )}
 
         {/* Cast Vote Action Button */}
-        <div className="pt-2">
+        <div>
           <button
             onClick={handleCastVote}
             disabled={!canVote || isSubmitting || !generatedCiphertext}
-            className={`w-full py-4 px-6 rounded-2xl font-bold text-base flex items-center justify-center space-x-3 transition-all ${
+            className={`w-full py-3.5 px-6 rounded-lg font-semibold text-sm flex items-center justify-center space-x-2 transition-all ${
               canVote && !isSubmitting && generatedCiphertext
-                ? 'bg-gradient-to-r from-indigo-600 via-indigo-500 to-emerald-500 hover:from-indigo-500 hover:to-emerald-400 text-white shadow-xl shadow-indigo-600/30 hover:scale-[1.005]'
-                : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700/50'
+                ? 'bg-jade hover:bg-jade-hover text-white shadow-subtle hover:shadow-card'
+                : 'bg-surface-inset text-ink-muted cursor-not-allowed border border-surface-border'
             }`}
           >
             {isSubmitting ? (
               <>
-                <RefreshCw className="w-5 h-5 animate-spin text-white" />
+                <RefreshCw className="w-4 h-4 animate-spin text-white" />
                 <span>Broadcasting Encrypted Ballot to Ethereum...</span>
               </>
             ) : (
               <>
-                <Send className="w-5 h-5" />
+                <Send className="w-4 h-4" />
                 <span>
                   {hasVoted
-                    ? 'Ballot Already Cast (Double-Voting Prevented)'
+                    ? 'Ballot Already Recorded'
                     : !isWhitelisted
                     ? 'Address Not Whitelisted (Action Required)'
                     : !isElectionOpen
                     ? 'Election Currently Closed'
-                    : `Cast Encrypted Vote for ${selectedCandidate?.name}`}
+                    : `Cast Encrypted Ballot for ${selectedCandidate?.name}`}
                 </span>
               </>
             )}

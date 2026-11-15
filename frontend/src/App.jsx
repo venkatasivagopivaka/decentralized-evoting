@@ -40,7 +40,7 @@ export function App() {
     setNotification({ message, type });
     setTimeout(() => {
       setNotification(null);
-    }, 5000);
+    }, 4500);
   };
 
   // Fetch contract data for the current account
@@ -57,7 +57,6 @@ export function App() {
 
       setContract(activeContract);
 
-      // Fetch general contract state
       const [admin, openState, [pubN, pubG]] = await Promise.all([
         activeContract.admin().catch(() => contractDeployment.admin || ''),
         activeContract.isElectionOpen().catch(() => false),
@@ -67,7 +66,6 @@ export function App() {
       setAdminAddress(admin);
       setIsElectionOpen(openState);
 
-      // Reconstruct public key if published
       if (pubN && pubG && pubN.length > 0 && pubG.length > 0) {
         const pub = deserializePublicKey(pubN, pubG);
         setPaillierPublicKey(pub);
@@ -75,7 +73,6 @@ export function App() {
         setPaillierPublicKey(null);
       }
 
-      // Fetch voter-specific status if an account is connected
       if (account) {
         const [whitelisted, voted] = await activeContract.getVoterStatus(account).catch(() => [false, false]);
         setIsWhitelisted(whitelisted);
@@ -85,7 +82,7 @@ export function App() {
         setHasVoted(false);
       }
     } catch (err) {
-      console.warn("Could not query contract status (is Hardhat node running?):", err.message);
+      console.warn("Could not query contract status:", err.message);
     }
   }, [account, provider, signer]);
 
@@ -111,7 +108,7 @@ export function App() {
   const handleSwitchNetwork = async () => {
     try {
       await switchNetwork();
-      showToast("Network switched to Hardhat Localhost (31337)", 'success');
+      showToast("Switched to Hardhat Localhost (31337)", 'success');
     } catch (err) {
       console.error("Switch network error:", err);
       showToast("Failed to switch network: " + err.message, 'error');
@@ -141,13 +138,23 @@ export function App() {
 
     checkExistingConnection();
 
-    // MetaMask Event Listeners
-    const handleAccountsChanged = (accs) => {
+    // MetaMask Event Listeners with dynamic Signer refresh
+    const handleAccountsChanged = async (accs) => {
       if (accs.length === 0) {
         setAccount('');
         setSigner(null);
       } else {
         setAccount(accs[0]);
+        if (window.ethereum) {
+          try {
+            const browserProvider = new ethers.BrowserProvider(window.ethereum);
+            const signerObj = await browserProvider.getSigner();
+            setProvider(browserProvider);
+            setSigner(signerObj);
+          } catch (err) {
+            console.warn("Signer update on account change:", err);
+          }
+        }
       }
     };
 
@@ -177,30 +184,30 @@ export function App() {
       const onVoterAdded = (voter) => {
         if (account && voter.toLowerCase() === account.toLowerCase()) {
           setIsWhitelisted(true);
-          showToast("Congratulations! Your address was whitelisted by the Admin.", 'success');
+          showToast("Your address has been whitelisted by the Admin.", 'success');
         }
       };
 
       const onVoteCast = (voter) => {
         if (account && voter.toLowerCase() === account.toLowerCase()) {
           setHasVoted(true);
-          showToast("Ballot successfully recorded on Ethereum!", 'success');
+          showToast("Ballot successfully recorded on Ethereum.", 'success');
         }
         refreshContractData();
       };
 
       const onElectionStarted = () => {
         setIsElectionOpen(true);
-        showToast("Election has officially STARTED!", 'info');
+        showToast("Election is now officially OPEN.", 'info');
       };
 
       const onElectionEnded = () => {
         setIsElectionOpen(false);
-        showToast("Election has officially ENDED. Tallying enabled.", 'info');
+        showToast("Election is now CLOSED. Tallying enabled.", 'info');
       };
 
       const onKeyPublished = () => {
-        showToast("New Paillier Public Key published to smart contract.", 'info');
+        showToast("Paillier Public Key updated on smart contract.", 'info');
         refreshContractData();
       };
 
@@ -224,7 +231,7 @@ export function App() {
   const isCorrectNetwork = !chainId || chainId === HARDHAT_CHAIN_ID;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+    <div className="min-h-screen flex flex-col bg-porcelain text-ink selection:bg-jade-light selection:text-jade-dark">
       {/* Navbar */}
       <Navbar
         account={account}
@@ -239,30 +246,30 @@ export function App() {
         hasContract={Boolean(contract)}
       />
 
-      {/* Global Toast Notification */}
+      {/* Toast Notification */}
       {notification && (
-        <div className="fixed bottom-6 right-6 z-50 animate-bounce">
+        <div className="fixed bottom-6 right-6 z-50">
           <div
-            className={`flex items-center space-x-2 px-4 py-3 rounded-xl shadow-2xl text-xs font-semibold border ${
+            className={`flex items-center space-x-2.5 px-4 py-3 rounded-xl shadow-popover text-xs font-semibold border ${
               notification.type === 'success'
-                ? 'bg-emerald-950/90 text-emerald-300 border-emerald-500/40'
+                ? 'bg-surface-card text-jade-dark border-jade-border'
                 : notification.type === 'error'
-                ? 'bg-rose-950/90 text-rose-300 border-rose-500/40'
-                : 'bg-indigo-950/90 text-indigo-300 border-indigo-500/40'
+                ? 'bg-surface-card text-crimson border-crimson-border'
+                : 'bg-surface-card text-indigo border-indigo-border'
             }`}
           >
             {notification.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <CheckCircle2 className="w-4 h-4 text-jade flex-shrink-0" />
             ) : (
-              <AlertCircle className="w-4 h-4 text-rose-400" />
+              <AlertCircle className="w-4 h-4 text-crimson flex-shrink-0" />
             )}
             <span>{notification.message}</span>
           </div>
         </div>
       )}
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Main Container */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-7">
         {activeTab === 'voter' && (
           <VoterView
             account={account}
@@ -295,12 +302,14 @@ export function App() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800/80 py-6 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p>© 2026 Decentralized E-Voting System · Powered by Solidity, Hardhat, Ethers.js v6 & Paillier Cryptosystem</p>
-          <div className="flex items-center space-x-4">
-            <span className="font-mono text-[11px] text-slate-400">
+      {/* Editorial Footer */}
+      <footer className="border-t border-surface-border bg-surface-card/60 py-6 text-xs text-ink-muted">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="font-medium text-ink-secondary">
+            Decentralized E-Voting Protocol · Ethereum Smart Contracts & Paillier Homomorphic Cryptosystem
+          </p>
+          <div className="flex items-center space-x-3">
+            <span className="font-mono text-[11px] text-ink-muted bg-surface-subtle px-2 py-0.5 rounded border border-surface-border">
               Contract: {contractDeployment.address ? `${contractDeployment.address.slice(0, 10)}...` : 'Not Deployed'}
             </span>
           </div>

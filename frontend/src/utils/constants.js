@@ -5,8 +5,8 @@ export const CANDIDATES = [
     role: "Candidate A",
     platform: "Decentralized Infrastructure & Protocol Sovereignty",
     avatar: "⚡",
-    color: "from-amber-500 to-orange-600",
-    badgeColor: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+    tagColor: "bg-saffron-light text-saffron-dark border-saffron-border",
+    accentColor: "border-saffron",
   },
   {
     id: 1,
@@ -14,17 +14,17 @@ export const CANDIDATES = [
     role: "Candidate B",
     platform: "Programmable Smart Contracts & Quadratic Funding",
     avatar: "🔷",
-    color: "from-indigo-500 to-purple-600",
-    badgeColor: "bg-indigo-500/10 text-indigo-400 border-indigo-500/30",
+    tagColor: "bg-indigo-light text-indigo border-indigo-border",
+    accentColor: "border-indigo",
   },
   {
     id: 2,
     name: "Ada Lovelace",
     role: "Candidate C",
     platform: "Mathematical Verifiability & Cryptographic Rigor",
-    avatar: "🌸",
-    color: "from-emerald-500 to-teal-600",
-    badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+    avatar: "✦",
+    tagColor: "bg-jade-light text-jade-dark border-jade-border",
+    accentColor: "border-jade",
   },
 ];
 
