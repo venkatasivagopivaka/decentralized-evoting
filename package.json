@@ -9,7 +9,7 @@
     "node": "npm --prefix backend run node",
     "deploy": "npm --prefix backend run deploy:local",
     "dev": "npm --prefix frontend run dev",
-    "start:all": "concurrently --kill-others --names \"NODE,APP\" --prefix-colors \"yellow,cyan\" \"npm run node\" \"wait-on tcp:127.0.0.1:8545 && npm run deploy && npm run dev\",
+    "start:all": "concurrently -k --names \"NODE,APP\" --prefix-colors \"yellow,cyan\" \"npm run node\" \"wait-on tcp:127.0.0.1:8545 && npm run deploy && npm run dev\"",
     "build:frontend": "npm --prefix frontend run build"
   },
   "keywords": [
