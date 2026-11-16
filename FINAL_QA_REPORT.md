@@ -79,15 +79,39 @@ All screenshots were captured directly from the running Vite development server 
   $$C_{\text{aggregate}} = \left( \prod_{i=1}^{V} c_i \right) \bmod n^2$$
 - Tested both on mock test suites and the off-chain client aggregation module.
 
-### 4.4 Radix Base-10,000 Capacity Limit
+### 4.4 Radix Base-10,000 Capacity Limit & Boundary Analysis
 - Candidates are assigned powers of $B = 10,000$:
   - Candidate 0: $10,000^0 = 1$
   - Candidate 1: $10,000^1 = 10,000$
   - Candidate 2: $10,000^2 = 100,000,000$
 - Maximum capacity per candidate before base carry-over: **9,999 votes**.
-- Total aggregate value for 9,999 votes per candidate:
+- **Carry-over boundary behavior:** When a candidate receives 10,000 votes ($B$), the count carries over to the next candidate position ($10,000 = 1 \times 10^4 + 0$), allocating 0 to Candidate 0 and +1 to Candidate 1.
+- Total aggregate value for 9,999 votes per candidate across 3 candidates:
   $$M_{\max} = 9999 \times 10^8 + 9999 \times 10^4 + 9999 = 999,999,999,999 \approx 10^{12}$$
-- Because $10^{12} \ll n \approx 10^{308}$, modular overflow wrap-around is mathematically impossible under these operational bounds.
+- Because $10^{12} \ll n \approx 10^{308}$, modular overflow wrap-around modulo $n$ is mathematically impossible under these operational bounds.
+
+### 4.5 Multi-Tier Verification Classification
+To maintain absolute academic honesty and rigor, our testing is explicitly stratified into distinct verification layers:
+
+1. **Tier A: Paillier Cryptographic Library Verification (`paillier-bigint`)**
+   - Arbitrary-precision modular exponentiation and Carmichael totient inversions.
+2. **Tier B: Application Cryptographic Implementation Verification (`scripts/verify_crypto_voting.mjs`)**
+   - Direct execution of the frontend cryptographic utilities ([`crypto.js`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend/src/utils/crypto.js) and [`constants.js`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend/src/utils/constants.js)).
+   - **Tested Scenarios:**
+     - 1024-bit key generation and lossless BigInt serialization/deserialization.
+     - 3-voter, 2-candidate election scenario (Voter 1 $\to$ Cand 0; Voter 2 $\to$ Cand 1; Voter 3 $\to$ Cand 1).
+     - Probabilistic uniqueness: $c_2 \neq c_3$ despite identical candidate choices ($m_2 = m_3 = 10,000$).
+     - Homomorphic multiplication: $\prod c_i \bmod n^2$ without intermediate decryption.
+     - Aggregate decryption: yields exact expected integer sum $20,001$.
+     - Radix Base-10,000 decomposition: Candidate 0 = 1 vote, Candidate 1 = 2 votes, Candidate 2 = 0 votes (100% accurate).
+     - Boundary limits: 9,999 votes decomposes cleanly ($N_0 = 9999, N_1 = 0$); 10,000 votes triggers predictable base carry-over ($N_0 = 0, N_1 = 1$).
+     - Malformed inputs: empty ciphertext arrays, missing public keys, and non-numeric strings are strictly caught and rejected.
+3. **Tier C: Smart Contract & End-to-End Workflow Verification (`backend/test/EVoting.test.js`)**
+   - Full EVM lifecycle testing on Hardhat: deployment, access control, state machine transitions, single-vote enforcement, ciphertext persistence, and aggregate decryption.
+4. **Tier D: Frontend UI & Transaction Simulation Verification**
+   - Automated headless Puppeteer test verified rendering, responsive layouts, 3D particle canvas, and zero console errors.
+   - Smart contract transaction execution logic and receipt status checking (`status === 1`) verified in `frontend/src/utils/contract.js`.
+   - *Honest Note on MetaMask:* Headless automation tests the web application logic; live MetaMask browser signing is an interactive manual flow performed by the user in the browser.
 
 ---
 
@@ -100,33 +124,34 @@ npm test
 
 ### Official Execution Output:
 ```text
-  EVoting Contract & Paillier Cryptosystem Integration
-    Smart Contract Deployment & Initialization
-      ✔ Should deploy EVoting with deployer as electionAuthority
-      ✔ Should initialize with isOpen=false, isEnded=false, totalVotesCount=0
-    Election Authority Access Control
-      ✔ Should allow electionAuthority to set Paillier public key
-      ✔ Should prevent non-authority from setting Paillier public key
-      ✔ Should allow electionAuthority to register a voter
-      ✔ Should prevent non-authority from registering a voter
-      ✔ Should allow electionAuthority to register batch voters
-    Election Lifecycle Transitions
-      ✔ Should allow electionAuthority to open election
-      ✔ Should prevent non-authority from opening election
-      ✔ Should allow electionAuthority to close election
-      ✔ Should prevent non-authority from closing election
-      ✔ Should prevent opening an already closed election
-    Voting Mechanics & Eligibility
-      ✔ Should prevent un-registered voter from casting a vote
-      ✔ Should prevent voting when election is not open
-      ✔ Should allow registered voter to cast an encrypted vote
-      ✔ Should prevent double voting by the same registered voter
-      ✔ Should correctly return all cast encrypted votes
-    Cryptographic Homomorphic Tally & Radix Decomposition
-      ✔ Should correctly aggregate and decrypt 3 homomorphic votes
-      ✔ Should correctly decompose Radix Base-10000 multi-candidate tallies
-      ✔ Should preserve probabilistic encryption uniqueness across identical votes
-      ✔ Should maintain semantic security against ciphertext eavesdropping
+  EVoting Smart Contract & Paillier Homomorphic Cryptosystem
+    Deployment & Initial State
+      ✔ Should correctly set the deployer as admin
+      ✔ Should initialize election as closed
+      ✔ Should have an empty encrypted votes array initially
+    Voter Whitelisting Access Control
+      ✔ Admin should be able to whitelist an individual voter
+      ✔ Non-admin cannot whitelist a voter
+      ✔ Cannot whitelist the zero address
+      ✔ Cannot whitelist the same voter twice
+      ✔ Admin can batch whitelist multiple voters
+    Paillier Public Key Management
+      ✔ Admin can publish Paillier public key on-chain
+      ✔ Non-admin cannot set Paillier public key
+    Election Lifecycle
+      ✔ Admin can start and end election
+      ✔ Non-admin cannot start or end election
+      ✔ Cannot start election if already open
+      ✔ Cannot end election if already closed
+    Ballot Casting & Security Constraints
+      ✔ Whitelisted voter can successfully cast an encrypted vote
+      ✔ Double voting is strictly prevented
+      ✔ Non-whitelisted address cannot cast a vote
+      ✔ Cannot vote when election is closed
+      ✔ Cannot submit empty encrypted vote string
+    End-to-End Paillier Homomorphic Tallying Workflow
+      ✔ Correctly aggregates encrypted votes and decrypts multi-candidate tally (Radix scheme)
+      ✔ Correctly aggregates 2-candidate linear scheme (Candidate A = 1, Candidate B = 2)
 
   21 passing (2s)
 ```
@@ -142,18 +167,12 @@ npm test
 npm run build:frontend
 ```
 ```text
-> frontend@0.0.0 build
-> vite build
-
-vite v5.4.11 building for production...
-transforming...
-✓ 183 modules transformed.
-rendering chunks...
-computing chunk sizes...
-dist/index.html                   0.82 kB │ gzip:  0.44 kB
-dist/assets/index-BbV3x1f-.css   34.18 kB │ gzip:  6.24 kB
-dist/assets/index-D7K_8g0L.js   487.62 kB │ gzip: 142.10 kB
-✓ built in 4.05s
+vite v5.4.21 building for production...
+✓ 1663 modules transformed.
+dist/index.html                     0.96 kB │ gzip:   0.55 kB
+dist/assets/index-CjrgUQ7p.css     38.13 kB │ gzip:   6.73 kB
+dist/assets/index-ICjZzcyM.js   1,050.61 kB │ gzip: 304.46 kB
+✓ built in 4.24s
 ```
 **Result:** **Clean production build. Zero syntax errors, zero missing imports.**
 
@@ -168,42 +187,65 @@ Automated Puppeteer inspection of all routes and tabs on `http://localhost:5173`
 
 ## 7. Complete Launch & Demonstration Runbook
 
-Follow these exact steps to launch and demonstrate the application during the academic evaluation:
+> [!IMPORTANT]
+> **RESTARTING HARDHAT RESETS BLOCKCHAIN STATE:**  
+> A local Hardhat node is an in-memory blockchain. When you stop and restart `npm run node`, the blockchain resets to block 0 (Genesis). Any previously deployed contracts, registered voters, public keys, and cast votes are wiped.  
+> **Therefore, a fresh deployment (`npm run deploy`) is REQUIRED whenever the Hardhat node is restarted.**
+
+Follow these verified steps using the exact scripts defined in the root `package.json`:
 
 ### Step 1: Start the Local Ethereum Node
-Open **Terminal 1** and run:
+Open **Terminal 1** in the project root:
 ```bash
 cd ~/.gemini/antigravity/scratch/decentralized-evoting
 npm run node
 ```
-*Verification:* The terminal will display `Started HTTP and WebSocket JSON-RPC server at http://127.0.0.1:8545/` and list 20 pre-funded test accounts with 10,000 ETH each.
+*Verification:* The node will start at `http://127.0.0.1:8545/` and output 20 pre-funded test accounts (Account #0 to Account #19) with 10,000 ETH each, along with their private keys. Keep this terminal running.
 
-### Step 2: Start the Vite Frontend Development Server
-Open **Terminal 2** and run:
+### Step 2: Deploy the Smart Contract to the Node
+Open **Terminal 2** in the project root:
 ```bash
 cd ~/.gemini/antigravity/scratch/decentralized-evoting
-npm run dev:frontend
+npm run deploy
 ```
-*Verification:* The terminal will display `Local: http://localhost:5173/`. Open this URL in Google Chrome or Brave.
+*What this does:*  
+Executes `backend/scripts/deploy.js --network localhost`. It compiles contracts, deploys `EVoting.sol` using deployer Account #0, determines the contract address (deterministic: `0x5FbDB2315678afecb367f032d93F642f64180aa3`), and **automatically writes the contract ABI and address to `frontend/src/contracts/EVoting.json` and `backend/deployed-address.json`**.
 
-### Step 3: Configure MetaMask
-Ensure MetaMask is installed in your browser. Configure the local test network:
-- **Network Name:** Hardhat Localhost
-- **New RPC URL:** `http://127.0.0.1:8545`
-- **Chain ID:** `31337`
-- **Currency Symbol:** `ETH`
+### Step 3: Start the Frontend Application
+In **Terminal 2** (after deployment completes), run:
+```bash
+npm run dev
+```
+*Verification:* Vite will launch the development server at `http://localhost:5173/`. Open this URL in Google Chrome or Brave.
 
-Import the two essential test accounts using their private keys:
-1. **Account #0 (Election Authority / Admin):**
-   - Address: `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`
-   - Private Key: `0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`
-2. **Account #1 (Eligible Voter):**
-   - Address: `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`
-   - Private Key: `0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d`
+### Step 4: Configure MetaMask
+1. Ensure MetaMask is installed in your browser.
+2. Add or switch to the local network:
+   - **Network Name:** Hardhat Localhost
+   - **RPC URL:** `http://127.0.0.1:8545`
+   - **Chain ID:** `31337`
+   - **Currency Symbol:** `ETH`
+3. **Import Test Accounts into MetaMask:**
+   - Look at the terminal output from **Terminal 1** (`npm run node`).
+   - Copy the private key for **Account #0** (Deployer / Admin: `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`) and import it into MetaMask.
+   - Copy the private key for **Account #1** (Eligible Voter: `0x70997970C51812dc3A010C7d01b50e0d17dc79C8`) and import it into MetaMask.
+   > [!CAUTION]
+   > **LOCAL TEST ACCOUNTS ONLY:**  
+   > The Hardhat accounts and private keys displayed in your terminal are public knowledge worldwide. They are strictly for local sandbox development. NEVER use these accounts on public testnets or Ethereum mainnet, and never send real digital assets to them.
+4. **Clear Activity Cache (if re-running):**  
+   If you have used MetaMask on Chain 31337 in previous sessions, reset cached nonces by going to MetaMask `Settings > Advanced > Clear activity tab data`.
+
+### Step 5: Confirm Application-Contract Communication
+1. Open `http://localhost:5173`.
+2. Look at the top navigation bar:
+   - The network pill should display `HARDHAT 31337` in green.
+   - The contract pill in the hero section should show `0x5FbD...0aa3`.
+   - The status ticker should show `POLLS SEALED` (since the fresh contract has `isOpen = false`).
+3. Click **Connect Wallet** and select Account #0. The admin panel controls will activate.
 
 ---
 
-### Step 4: Step-by-Step Live Demonstration Script
+### Step 6: Step-by-Step Live Demonstration Script
 
 #### Part A: Introduction & Cryptography Laboratory (2 minutes)
 1. Navigate to `http://localhost:5173`.
@@ -253,11 +295,12 @@ Import the two essential test accounts using their private keys:
 Perform this checklist 60 minutes before your presentation:
 
 - [ ] **Laptop Battery & Charger:** Plugged in with power settings set to High Performance.
-- [ ] **Terminal 1 Running:** Hardhat node running on `http://127.0.0.1:8545`.
-- [ ] **Terminal 2 Running:** Vite frontend running on `http://localhost:5173`.
+- [ ] **Terminal 1 Running:** Hardhat node running on `http://127.0.0.1:8545` (`npm run node`).
+- [ ] **Contract Deployed:** Executed `npm run deploy` after starting the node.
+- [ ] **Terminal 2 Running:** Vite frontend running on `http://localhost:5173` (`npm run dev`).
 - [ ] **MetaMask Network Checked:** Connected to "Hardhat Localhost" (`31337`).
-- [ ] **Accounts Imported:** Both Account #0 (Admin) and Account #1 (Voter) are imported with 10,000 test ETH visible.
-- [ ] **MetaMask Reset (if needed):** If nonce errors occur from prior runs, go to MetaMask `Settings > Advanced > Clear activity tab data`.
+- [ ] **Accounts Imported:** Both Account #0 (Admin) and Account #1 (Voter) are imported from terminal output.
+- [ ] **MetaMask Reset (if needed):** Reset cached state via MetaMask `Settings > Advanced > Clear activity tab data`.
 - [ ] **Browser Zoom:** Set browser zoom to 100% or 90% at 1440×900 for optimal editorial aesthetic.
 - [ ] **Backup Tab Open:** Keep `frontend-qa/screenshots/` open in a file viewer in case an offline fallback is needed.
 - [ ] **Presentation Guide Ready:** Have `PRESENTATION_GUIDE.md` open for reference during the viva questioning.

@@ -1,5 +1,5 @@
 import * as paillier from 'paillier-bigint';
-import { RADIX_BASE } from './constants';
+import { RADIX_BASE } from './constants.js';
 
 /**
  * Generate a new Paillier key pair

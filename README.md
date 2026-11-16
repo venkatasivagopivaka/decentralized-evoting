@@ -143,13 +143,12 @@ npm run dev
    - **New RPC URL**: `http://127.0.0.1:8545`
    - **Chain ID**: `31337`
    - **Currency Symbol**: `ETH`
-3. Import the Hardhat Test Accounts into MetaMask:
-   - **Deployer / Admin (Account #0)**:
-     `0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`
-   - **Voter 1 (Account #1)**:
-     `0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d`
-   - **Voter 2 (Account #2)**:
-     `0x5de4111afa1a4b93908f291564f10756611c78c922e4006275d8254240455c53`
+3. Import Hardhat Test Accounts into MetaMask:
+   - When you start the node (`npm run node`), Hardhat outputs 20 accounts and their private keys in your terminal.
+   - **Deployer / Admin (Account #0)**: Address `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266` (copy private key from terminal output).
+   - **Voter 1 (Account #1)**: Address `0x70997970C51812dc3A010C7d01b50e0d17dc79C8` (copy private key from terminal output).
+   - **Voter 2 (Account #2)**: Address `0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC` (copy private key from terminal output).
+   - *Security Note:* These default Hardhat test accounts and keys are public and strictly for isolated local development. Never use them on public testnets or mainnet.
 
 ---
 
