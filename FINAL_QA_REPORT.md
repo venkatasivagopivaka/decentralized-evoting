@@ -4,7 +4,7 @@
 > **Project Name:** Decentralized E-Voting System  
 > **Target Date:** Final Project Defense & Evaluation  
 > **Audit Version:** 2.0.0-FINAL-RELEASE  
-> **Repository Commit:** `e951228` (Branch: `main`)  
+> **Repository Commit:** `b628d91` (Branch: `main`)  
 > **Smart Contract:** `EVoting.sol` (Solidity 0.8.20 at `0x5FbDB2315678afecb367f032d93F642f64180aa3`)  
 > **Design Theme:** Neo-Lime Editorial (Soft Ivory `#F3F0E6`, Midnight Black `#08090B`, Neon Lime `#C6FF00`)
 
