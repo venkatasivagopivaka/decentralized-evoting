@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Lock, Sparkles } from 'lucide-react';
+import { Check, Lock } from 'lucide-react';
 import { encodeCandidateVoteRadix, encodeCandidateVoteSimple } from '../utils/crypto';
 
 export function CandidateCard({
@@ -13,82 +13,67 @@ export function CandidateCard({
     ? encodeCandidateVoteRadix(candidate.id)
     : encodeCandidateVoteSimple(candidate.id);
 
-  const tags = candidate.id === 0
-    ? ['Cryptoeconomics', 'Decentralization', 'PoW']
-    : candidate.id === 1
-    ? ['Smart Contracts', 'Scaling', 'Quadratic Funding']
-    : ['Homomorphic Encryption', 'Formal Proofs', 'Math'];
-
   return (
     <div
       onClick={() => !disabled && onSelect(candidate)}
-      className={`relative rounded-2xl p-6 transition-all duration-200 flex flex-col justify-between ${
+      className={`relative rounded-lg p-6 transition-all duration-150 flex flex-col justify-between ${
         disabled
-          ? 'opacity-60 cursor-not-allowed bg-white border border-[#E8E8E2]'
+          ? 'opacity-40 cursor-not-allowed bg-[#181818] border border-[#353535]'
           : isSelected
-          ? `cursor-pointer bg-white border-2 ${candidate.selectedBorder} shadow-cardHover ring-4 ${candidate.selectedRing || 'ring-emerald/10'} scale-[1.01]`
-          : 'cursor-pointer bg-white border border-[#E8E8E2] hover:border-[#D0D0C8] hover:shadow-cardHover'
+          ? 'cursor-pointer bg-[#272727] border-2 border-[#D9225C]'
+          : 'cursor-pointer bg-[#202020] border border-[#353535] hover:border-[#555555] hover:bg-[#232323]'
       }`}
     >
       <div>
-        {/* Top Status Bar & Selection Indicator */}
+        {/* Top Header: Candidate Number & Radio Indicator */}
         <div className="flex items-center justify-between mb-4">
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider border ${candidate.tagColor}`}>
-            {candidate.role}
+          <span className={`font-mono text-xs font-bold tracking-widest ${
+            isSelected ? 'text-[#D9225C]' : 'text-[#777477]'
+          }`}>
+            {candidate.number || `0${candidate.id + 1}`}
           </span>
 
-          <div className="flex items-center space-x-1.5">
-            {isSelected ? (
-              <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${candidate.barColor} text-white shadow-subtle`}>
-                <Check className="w-3 h-3 stroke-[3]" />
-                <span>Selected</span>
-              </span>
-            ) : (
-              <span className="text-[10px] font-medium text-ink-muted group-hover:text-ink-secondary">
-                Tap to Select
+          <div className="flex items-center space-x-2">
+            {isSelected && (
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#D9225C] font-semibold">
+                Selected
               </span>
             )}
+            <div
+              className={`w-4 h-4 rounded-full flex items-center justify-center transition-colors ${
+                isSelected
+                  ? 'bg-[#D9225C] text-white'
+                  : 'border border-[#555555] bg-transparent'
+              }`}
+            >
+              {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+            </div>
           </div>
         </div>
 
-        {/* Candidate Identifier */}
-        <div className="flex items-center space-x-3.5 mb-3">
-          <div className={`w-12 h-12 rounded-xl ${candidate.badgeBackground} border border-black/5 flex items-center justify-center text-2xl shadow-subtle`}>
-            {candidate.avatar}
-          </div>
-          <div>
-            <h3 className="text-base font-bold text-ink tracking-tight font-sans">
-              {candidate.name}
-            </h3>
-            <p className="text-xs text-ink-muted">Official Ballot Option #{candidate.id + 1}</p>
-          </div>
+        {/* Candidate Name & Role */}
+        <div className="mb-3">
+          <h3 className="text-lg font-bold text-[#F5F5F5] tracking-tight">
+            {candidate.name}
+          </h3>
+          <p className="text-[11px] font-mono text-[#777477] uppercase tracking-wider mt-0.5">
+            {candidate.role}
+          </p>
         </div>
 
-        {/* Platform Description */}
-        <p className="text-xs text-ink-secondary leading-relaxed mb-4 min-h-[38px]">
+        {/* Platform Statement */}
+        <p className="text-xs text-[#A6A3A5] leading-relaxed mb-6">
           {candidate.platform}
         </p>
-
-        {/* Topic Tags */}
-        <div className="flex flex-wrap gap-1.5 mb-5">
-          {tags.map((tag, i) => (
-            <span
-              key={i}
-              className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-[#F7F6F1] text-ink-secondary border border-[#E8E8E2]"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
       </div>
 
-      {/* Mathematical Encoding Preview */}
-      <div className="pt-3 border-t border-[#E8E8E2] flex items-center justify-between text-xs">
-        <span className="flex items-center space-x-1.5 text-ink-muted text-[11px]">
-          <Lock className="w-3.5 h-3.5 text-violet" />
-          <span className="font-medium">Plaintext Integer (m):</span>
+      {/* Integer Encoding Footer */}
+      <div className="pt-3 border-t border-[#353535] flex items-center justify-between text-xs">
+        <span className="flex items-center space-x-1.5 text-[#777477] text-[11px] font-mono">
+          <Lock className="w-3 h-3" />
+          <span>m =</span>
         </span>
-        <span className={`font-mono text-xs font-bold ${candidate.accentColor} bg-[#F7F6F1] px-2.5 py-1 rounded-md border border-[#E8E8E2]`}>
+        <span className="font-mono text-xs font-semibold text-[#F5F5F5]">
           {encodedValue.toString()}
         </span>
       </div>

@@ -4,56 +4,54 @@
 
 @layer base {
   :root {
-    color-scheme: light;
+    color-scheme: dark;
   }
 
   body {
-    background-color: #F7F6F1;
-    color: #202B2A;
+    background-color: #111111;
+    color: #F5F5F5;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   ::selection {
-    background-color: #E6F3ED;
-    color: #087F6A;
+    background-color: #D9225C;
+    color: #FFFFFF;
   }
 }
 
-/* Premium Card & Panel System */
+/* Minimalist Dark Panel System */
 .panel-card {
-  background-color: #FFFFFF;
-  border: 1px solid #E8E8E2;
-  border-radius: 1rem;
-  box-shadow: 0 1px 3px 0 rgba(32, 43, 42, 0.03), 0 1px 2px -1px rgba(32, 43, 42, 0.02);
+  background-color: #202020;
+  border: 1px solid #353535;
+  border-radius: 0.5rem;
 }
 
 .panel-card-hover {
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.15s ease-in-out;
 }
 
 .panel-card-hover:hover {
-  border-color: #D0D0C8;
-  box-shadow: 0 8px 24px -4px rgba(32, 43, 42, 0.06), 0 2px 6px -1px rgba(32, 43, 42, 0.03);
-  transform: translateY(-1px);
+  border-color: #555555;
+  background-color: #242424;
 }
 
-/* Restrained, Minimalist Scrollbars */
+/* Minimalist Dark Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F7F6F1;
+  background: #111111;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D5D2C8;
+  background: #353535;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #B4B0A4;
+  background: #505050;
 }
