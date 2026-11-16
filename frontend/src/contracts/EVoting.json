@@ -3,7 +3,7 @@
   "network": "localhost",
   "chainId": "31337",
   "admin": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-  "deployedAt": "2026-11-16T06:02:10.338Z",
+  "deployedAt": "2026-11-16T08:57:49.812Z",
   "abi": [
     {
       "inputs": [],

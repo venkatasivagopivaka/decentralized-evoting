@@ -14,7 +14,7 @@ import {
 import { deserializePublicKey } from './utils/crypto';
 import { HARDHAT_CHAIN_ID } from './utils/constants';
 import contractDeployment from './contracts/EVoting.json';
-import { AlertCircle, CheckCircle2, ShieldCheck, Vote } from 'lucide-react';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export function App() {
   // Wallet & Network State
@@ -294,20 +294,15 @@ export function App() {
         )}
       </main>
 
-      {/* Quiet Authority Institutional Single-Line Footer */}
-      <footer className="border-t border-[#D2D2C9] bg-[#F4F3EE] py-6 text-xs text-[#6F746B]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center space-x-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#536A55]"></span>
-            <p className="font-mono text-[#6F746B] text-[11px]">
-              VERIFIO // E-VOTING PROTOCOL · ETHEREUM & PAILLIER HOMOMORPHIC CRYPTOSYSTEM
-            </p>
-          </div>
-          <div className="flex items-center space-x-3">
-            <span className="font-mono text-[11px] text-[#30362F] bg-[#F8F7F2] px-2.5 py-1 rounded-md border border-[#D2D2C9]">
-              CONTRACT: {contractDeployment.address ? `${contractDeployment.address.slice(0, 10)}...${contractDeployment.address.slice(-6)}` : 'NOT DEPLOYED'}
-            </span>
-          </div>
+      {/* Minimal footer */}
+      <footer className="border-t border-[#D2D2C9] bg-[#F4F3EE] py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          <span className="font-mono text-[11px] text-[#93958C]">VERIFIO · Ethereum E-Voting</span>
+          <span className="font-mono text-[11px] text-[#6F746B] bg-[#E9E8E2] px-2.5 py-1 rounded border border-[#D2D2C9]">
+            {contractDeployment.address
+              ? `${contractDeployment.address.slice(0, 10)}…${contractDeployment.address.slice(-6)}`
+              : 'Contract not deployed'}
+          </span>
         </div>
       </footer>
     </div>
