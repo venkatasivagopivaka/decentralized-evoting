@@ -43,7 +43,7 @@ export function App() {
     }, 4500);
   };
 
-  // Fetch contract data for the current account
+  // Fetch contract data directly from the active smart contract
   const refreshContractData = useCallback(async () => {
     try {
       const activeProvider = provider || getProvider();
@@ -57,10 +57,11 @@ export function App() {
 
       setContract(activeContract);
 
+      // Query core election parameters from smart contract
       const [admin, openState, [pubN, pubG]] = await Promise.all([
         activeContract.admin().catch(() => contractDeployment.admin || ''),
-        activeContract.isElectionOpen().catch(() => false),
-        activeContract.getPaillierPublicKey().catch(() => ['', '']),
+        activeContract.isElectionOpen(),
+        activeContract.getPaillierPublicKey(),
       ]);
 
       setAdminAddress(admin);
@@ -73,16 +74,17 @@ export function App() {
         setPaillierPublicKey(null);
       }
 
+      // Query voter status directly from smart contract for connected account
       if (account) {
-        const [whitelisted, voted] = await activeContract.getVoterStatus(account).catch(() => [false, false]);
-        setIsWhitelisted(whitelisted);
-        setHasVoted(voted);
+        const [whitelisted, voted] = await activeContract.getVoterStatus(account);
+        setIsWhitelisted(Boolean(whitelisted));
+        setHasVoted(Boolean(voted));
       } else {
         setIsWhitelisted(false);
         setHasVoted(false);
       }
     } catch (err) {
-      console.warn("Could not query contract status:", err.message);
+      console.warn("Could not query contract status from blockchain:", err.message);
     }
   }, [account, provider, signer]);
 
@@ -183,31 +185,30 @@ export function App() {
     try {
       const onVoterAdded = (voter) => {
         if (account && voter.toLowerCase() === account.toLowerCase()) {
-          setIsWhitelisted(true);
-          showToast("Your address has been whitelisted by the Admin.", 'success');
+          showToast("Your address has been whitelisted on Ethereum.", 'success');
         }
+        refreshContractData();
       };
 
       const onVoteCast = (voter) => {
         if (account && voter.toLowerCase() === account.toLowerCase()) {
-          setHasVoted(true);
-          showToast("Ballot successfully recorded on Ethereum.", 'success');
+          showToast("Ballot confirmed on Ethereum blockchain.", 'success');
         }
         refreshContractData();
       };
 
       const onElectionStarted = () => {
-        setIsElectionOpen(true);
-        showToast("Election is now officially OPEN.", 'info');
+        showToast("Election is now officially OPEN on Ethereum.", 'info');
+        refreshContractData();
       };
 
       const onElectionEnded = () => {
-        setIsElectionOpen(false);
-        showToast("Election is now CLOSED. Tallying enabled.", 'info');
+        showToast("Election is now CLOSED on Ethereum.", 'info');
+        refreshContractData();
       };
 
       const onKeyPublished = () => {
-        showToast("Paillier Public Key updated on smart contract.", 'info');
+        showToast("Paillier Public Key confirmed on smart contract.", 'info');
         refreshContractData();
       };
 
@@ -270,10 +271,7 @@ export function App() {
             hasVoted={hasVoted}
             isElectionOpen={isElectionOpen}
             publicKey={paillierPublicKey}
-            onVoteCastSuccess={() => {
-              setHasVoted(true);
-              refreshContractData();
-            }}
+            onVoteCastSuccess={refreshContractData}
           />
         )}
 
