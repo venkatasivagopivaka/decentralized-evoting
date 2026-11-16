@@ -25,6 +25,7 @@ export function VoterView({
   const [generatedCiphertext, setGeneratedCiphertext] = useState('');
   const [isEncrypting, setIsEncrypting] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showFullCiphertext, setShowFullCiphertext] = useState(false);
 
   // Structured transaction lifecycle state
   const [txStatus, setTxStatus] = useState({
@@ -289,27 +290,43 @@ export function VoterView({
                       Paillier Ciphertext
                     </span>
                   </div>
-                  <button
-                    onClick={handleCopyCiphertext}
-                    disabled={!generatedCiphertext}
-                    className="text-[11px] font-mono text-[#8B909D] hover:text-[#C6FF00] flex items-center space-x-1 transition-colors"
-                  >
-                    <Copy className="w-3 h-3" />
-                    <span>{copied ? 'Copied' : 'Copy'}</span>
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => setShowFullCiphertext(!showFullCiphertext)}
+                      disabled={!generatedCiphertext}
+                      className="text-[10px] font-mono text-[#8B909D] hover:text-white transition-colors bg-[#08090B] px-2 py-0.5 rounded border border-[#232730]"
+                    >
+                      {showFullCiphertext ? 'Truncate' : 'Expand'}
+                    </button>
+                    <button
+                      onClick={handleCopyCiphertext}
+                      disabled={!generatedCiphertext}
+                      className="text-[11px] font-mono text-[#8B909D] hover:text-[#C6FF00] flex items-center space-x-1 transition-colors"
+                    >
+                      <Copy className="w-3 h-3" />
+                      <span>{copied ? 'Copied' : 'Copy'}</span>
+                    </button>
+                  </div>
                 </div>
 
-                <div className="bg-[#08090B] rounded-xl border border-[#232730] p-3 font-mono text-xs text-[#C6FF00] break-all leading-relaxed max-h-28 overflow-y-auto">
+                <div className="bg-[#08090B] rounded-xl border border-[#232730] p-3 font-mono text-xs text-[#C6FF00] break-all leading-relaxed max-h-36 overflow-y-auto">
                   {isEncrypting
-                    ? 'Encrypting ballot locally…'
+                    ? 'Encrypting ballot locally with Paillier modulus…'
                     : generatedCiphertext
-                    ? truncateCiphertext(generatedCiphertext, 44)
+                    ? showFullCiphertext
+                      ? generatedCiphertext
+                      : truncateCiphertext(generatedCiphertext, 44)
                     : 'Awaiting encryption key…'}
                 </div>
 
-                <p className="text-[10px] text-[#8B909D] leading-relaxed">
-                  Blinded with salt <code className="font-mono text-[#C6FF00]">r ∈ ℤ*ₙ</code>. Ciphertext is tallied homomorphically on-chain.
-                </p>
+                <div className="flex items-center justify-between text-[10px] text-[#8B909D]">
+                  <span>Blinded: <code className="font-mono text-[#C6FF00]">r ∈ ℤ*ₙ</code></span>
+                  {generatedCiphertext && (
+                    <span className="font-mono text-[9px] text-[#8B909D]">
+                      {generatedCiphertext.length} chars · ~2048-bit n²
+                    </span>
+                  )}
+                </div>
               </div>
             )}
 

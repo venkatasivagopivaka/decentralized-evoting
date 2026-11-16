@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { RefreshCw, Play, Shield, Lock, Cpu, ArrowRight } from 'lucide-react';
+import { RefreshCw, Play, Shield, Lock, Cpu, ArrowRight, Sparkles, CheckCircle } from 'lucide-react';
 import {
   generatePaillierKeys,
   encryptVote,
   homomorphicAddition,
   decryptTally,
+  decodeRadixTally,
 } from '../utils/crypto';
+import { CANDIDATES, RADIX_BASE } from '../utils/constants';
 import { truncateCiphertext } from '../utils/contract';
 
 export function CryptoInspector({ publicKey }) {
@@ -17,12 +19,36 @@ export function CryptoInspector({ publicKey }) {
   const [sandboxDecrypted, setSandboxDecrypted] = useState('');
   const [isSimulating, setIsSimulating] = useState(false);
 
-  const runLiveSimulation = async () => {
+  const presets = [
+    {
+      name: 'Satoshi Plurality',
+      desc: 'm₁ = 1 (Satoshi), m₂ = 1 (Satoshi)',
+      m1: '1',
+      m2: '1',
+    },
+    {
+      name: 'Split Election',
+      desc: 'm₁ = 1 (Satoshi), m₂ = 10,000 (Vitalik)',
+      m1: '1',
+      m2: '10000',
+    },
+    {
+      name: 'Multi-Candidate Radix',
+      desc: 'm₁ = 10,001 (Satoshi + Vitalik), m₂ = 100,000,000 (Ada Lovelace)',
+      m1: '10001',
+      m2: '100000000',
+    },
+  ];
+
+  const runLiveSimulation = async (overrideM1, overrideM2) => {
     try {
       setIsSimulating(true);
+      const val1 = overrideM1 !== undefined ? overrideM1 : sandboxM1;
+      const val2 = overrideM2 !== undefined ? overrideM2 : sandboxM2;
+
       const { publicKey: simPub, privateKey: simPriv } = await generatePaillierKeys(512);
-      const c1 = encryptVote(simPub, BigInt(sandboxM1));
-      const c2 = encryptVote(simPub, BigInt(sandboxM2));
+      const c1 = encryptVote(simPub, BigInt(val1));
+      const c2 = encryptVote(simPub, BigInt(val2));
       const cSum = homomorphicAddition(simPub, [c1, c2]);
       const decrypted = decryptTally(simPriv, cSum);
       setSandboxC1(c1.toString());
@@ -179,7 +205,7 @@ export function CryptoInspector({ publicKey }) {
           </div>
           <button
             type="button"
-            onClick={runLiveSimulation}
+            onClick={() => runLiveSimulation()}
             disabled={isSimulating}
             className="btn-pill-lime !min-h-[48px] self-start sm:self-auto"
           >
@@ -191,6 +217,28 @@ export function CryptoInspector({ publicKey }) {
             <span>{isSimulating ? 'Computing…' : 'Execute Simulation'}</span>
             <ArrowRight className="w-4 h-4 ml-1" />
           </button>
+        </div>
+
+        {/* Interactive Demo Presets */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-[11px] font-mono text-[#8B909D] uppercase tracking-wider mr-1">
+            Demo Presets:
+          </span>
+          {presets.map((p) => (
+            <button
+              key={p.name}
+              type="button"
+              onClick={() => {
+                setSandboxM1(p.m1);
+                setSandboxM2(p.m2);
+                runLiveSimulation(p.m1, p.m2);
+              }}
+              disabled={isSimulating}
+              className="px-3 py-1.5 rounded-full bg-[#0F1115] hover:bg-[#16191F] border border-[#232730] hover:border-[#C6FF00] text-xs font-mono text-[#8B909D] hover:text-[#C6FF00] transition-colors"
+            >
+              {p.name}
+            </button>
+          ))}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -227,6 +275,47 @@ export function CryptoInspector({ publicKey }) {
                 {sandboxDecrypted}
               </span>
             </div>
+
+            {/* Radix Base-10,000 Decomposition Showcase */}
+            {sandboxDecrypted && (() => {
+              let radixDecomposition = [];
+              try {
+                const sumBig = BigInt(sandboxDecrypted);
+                const decoded = decodeRadixTally(sumBig, CANDIDATES.length, RADIX_BASE);
+                radixDecomposition = CANDIDATES.map((cand) => {
+                  const match = decoded.find((d) => d.candidateId === cand.id);
+                  return { ...cand, count: match ? match.count : 0 };
+                });
+              } catch (err) {
+                radixDecomposition = [];
+              }
+
+              return (
+                <div className="pt-4 border-t border-[#232730] space-y-3 font-sans">
+                  <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-[#C6FF00]">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Radix Base-10,000 Decomposition Output</span>
+                  </div>
+                  <p className="text-xs text-[#8B909D]">
+                    Individual candidate tallies recovered simultaneously from the aggregate plaintext sum without ballot decryption:
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                    {radixDecomposition.map((c, i) => (
+                      <div key={c.id} className="bg-[#08090B] border border-[#232730] rounded-xl p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-mono text-[#8B909D]">10,000^{i}</span>
+                          <span className="text-sm font-bold text-white">{c.name.split(' ')[0]}</span>
+                        </div>
+                        <div className="flex items-baseline justify-between pt-1 border-t border-[#232730]/60">
+                          <span className="text-[10px] text-[#8B909D] font-mono uppercase">Calculated Votes:</span>
+                          <span className="text-xl font-mono font-black text-[#C6FF00]">{c.count}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
       </section>

@@ -57,13 +57,23 @@ export function CandidateCard({
           </div>
         </div>
 
-        {/* Centerpiece: Monumental Candidate Name (Visual Focus) */}
-        <div className="space-y-2 pt-2">
+        {/* Centerpiece: Monumental Candidate Name with Avatar & Radix Mathematical Tag */}
+        <div className="space-y-3 pt-2">
+          <div className="flex items-center space-x-3">
+            <span className="text-2xl select-none" role="img" aria-label={candidate.name}>
+              {candidate.avatar || '✦'}
+            </span>
+            <span className="inline-flex items-center space-x-1.5 font-mono text-[11px] text-[#C6FF00] bg-[#0F1115] border border-[#232730] px-3 py-1 rounded-full">
+              <span className="text-[#8B909D]">RADIX VALUE:</span>
+              <span className="font-bold">10,000^{candidate.id} = {candidate.id === 0 ? '1' : candidate.id === 1 ? '10,000' : '100,000,000'}</span>
+            </span>
+          </div>
+
           <h3 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white tracking-tighter uppercase leading-[0.92] transition-colors duration-200 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-[#C6FF00]">
             {candidate.name}
           </h3>
-          <p className="text-xs sm:text-sm font-mono text-[#C6FF00] tracking-widest uppercase pt-1">
-            {candidate.role}
+          <p className="text-xs sm:text-sm font-mono text-[#C6FF00] tracking-widest uppercase">
+            {candidate.role} · {candidate.id === 0 ? 'Protocol Architecture' : candidate.id === 1 ? 'State Machine Engineering' : 'Algorithmic Rigor'}
           </p>
         </div>
 
@@ -79,7 +89,7 @@ export function CandidateCard({
           </p>
 
           <div className="flex items-center space-x-2 font-mono text-xs text-[#8B909D] group-hover:text-[#C6FF00] transition-colors flex-shrink-0">
-            <span>{isSelected ? 'Ready to cast' : 'Click to select'}</span>
+            <span>{isSelected ? 'Selected ballot nominee' : 'Click to select'}</span>
             <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
           </div>
         </div>

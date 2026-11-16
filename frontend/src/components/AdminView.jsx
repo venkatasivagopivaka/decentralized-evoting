@@ -14,6 +14,9 @@ import {
   Key,
   Crown,
   ArrowRight,
+  Search,
+  Check,
+  XCircle,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { CANDIDATES, RADIX_BASE } from '../utils/constants';
@@ -56,6 +59,12 @@ export function AdminView({
   // Whitelist inputs
   const [singleVoterAddress, setSingleVoterAddress] = useState('');
   const [batchVoterAddresses, setBatchVoterAddresses] = useState('');
+
+  // Live On-Chain Voter Lookup Tool State
+  const [lookupAddress, setLookupAddress] = useState('');
+  const [lookupResult, setLookupResult] = useState(null);
+  const [isLookingUp, setIsLookingUp] = useState(false);
+  const [lookupError, setLookupError] = useState('');
 
   // Tally & Decryption
   const [encryptedVotesList, setEncryptedVotesList] = useState([]);
@@ -293,6 +302,35 @@ export function AdminView({
       if (onRefreshContractData) onRefreshContractData();
     } catch (err) {
       console.error('Batch add voters error:', err);
+    }
+  };
+
+  // Live on-chain voter status verification (read-only call)
+  const handleLookupVoter = async (addrToLookup) => {
+    const target = (addrToLookup || lookupAddress).trim();
+    if (!target) return;
+    if (!ethers.isAddress(target)) {
+      setLookupError(`"${target}" is not a valid Ethereum address.`);
+      setLookupResult(null);
+      return;
+    }
+
+    try {
+      setIsLookingUp(true);
+      setLookupError('');
+      if (!contract) throw new Error('Smart contract connection not available.');
+      const [isWhitelisted, hasVoted] = await contract.getVoterStatus(target);
+      setLookupResult({
+        address: target,
+        isWhitelisted: Boolean(isWhitelisted),
+        hasVoted: Boolean(hasVoted),
+      });
+    } catch (err) {
+      console.error('Lookup voter error:', err);
+      setLookupError('On-chain query failed: ' + (err.message || 'Unknown error'));
+      setLookupResult(null);
+    } finally {
+      setIsLookingUp(false);
     }
   };
 
@@ -785,6 +823,111 @@ export function AdminView({
             </button>
           </form>
         </div>
+
+        {/* Live On-Chain Voter Status Inspection Tool */}
+        <div className="bg-[#0F1115] p-6 sm:p-7 rounded-2xl border border-[#232730] space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div className="flex items-center space-x-2">
+                <Search className="w-4 h-4 text-[#C6FF00]" />
+                <h4 className="text-sm font-black text-white uppercase tracking-wider">
+                  Live On-Chain Voter Status Verification
+                </h4>
+              </div>
+              <p className="text-xs text-[#8B909D] mt-0.5">
+                Query the deployed smart contract to inspect whitelisting and ballot submission status for any Ethereum address.
+              </p>
+            </div>
+            
+            {/* Quick Presets */}
+            <div className="flex items-center space-x-2 text-[11px] font-mono text-[#8B909D]">
+              <span className="text-[#525765]">Test Presets:</span>
+              {[
+                { label: 'Acct #1', addr: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' },
+                { label: 'Acct #2', addr: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC' },
+                { label: 'Acct #3', addr: '0x90F79bf6EB2c4f870365E785982E1f101E93b906' },
+              ].map(({ label, addr }) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => {
+                    setLookupAddress(addr);
+                    handleLookupVoter(addr);
+                  }}
+                  className="px-2.5 py-1 rounded bg-[#08090B] border border-[#232730] hover:border-[#C6FF00] hover:text-[#C6FF00] transition-colors"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleLookupVoter();
+            }}
+            className="flex flex-col sm:flex-row gap-3"
+          >
+            <input
+              type="text"
+              placeholder="Enter 0x address to verify on-chain status…"
+              value={lookupAddress}
+              onChange={(e) => setLookupAddress(e.target.value)}
+              className="flex-1 px-5 py-3 rounded-full bg-[#08090B] border border-[#232730] text-white placeholder-[#525765] font-mono text-xs focus:outline-none focus:border-[#C6FF00]"
+            />
+            <button
+              type="submit"
+              disabled={isLookingUp || !lookupAddress}
+              className="btn-pill-lime !min-h-[42px] !py-2 !px-6 !text-xs self-start sm:self-auto"
+            >
+              {isLookingUp ? <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#08090B]" /> : <Search className="w-3.5 h-3.5" />}
+              <span>Verify On-Chain</span>
+            </button>
+          </form>
+
+          {lookupError && (
+            <div className="p-3.5 rounded-xl bg-[#FF5C5C]/10 border border-[#FF5C5C]/30 text-xs text-[#FF5C5C] font-mono">
+              {lookupError}
+            </div>
+          )}
+
+          {lookupResult && (
+            <div className="bg-[#08090B] border border-[#232730] rounded-xl p-4 font-mono text-xs space-y-2.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-[#232730]">
+                <span className="text-[#8B909D]">Queried Address:</span>
+                <span className="text-white font-bold break-all">{lookupResult.address}</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div className="flex items-center space-x-2">
+                  <span className="text-[#8B909D]">Whitelist Status:</span>
+                  {lookupResult.isWhitelisted ? (
+                    <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-[#C6FF00]/15 text-[#C6FF00] font-bold text-[11px] border border-[#C6FF00]/30">
+                      <Check className="w-3 h-3" />
+                      <span>Whitelisted & Eligible</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-[#FF5C5C]/15 text-[#FF5C5C] font-bold text-[11px] border border-[#FF5C5C]/30">
+                      <XCircle className="w-3 h-3" />
+                      <span>Not Registered</span>
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-[#8B909D]">Ballot Status:</span>
+                  {lookupResult.hasVoted ? (
+                    <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-[#C6FF00]/15 text-[#C6FF00] font-bold text-[11px] border border-[#C6FF00]/30">
+                      <Check className="w-3 h-3" />
+                      <span>Ballot Recorded On-Chain</span>
+                    </span>
+                  ) : (
+                    <span className="text-[#8B909D] text-[11px]">No ballot cast yet</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* ── Section 4: Homomorphic Tally & Results ─────────────────────── */}
@@ -844,6 +987,20 @@ export function AdminView({
           )}
         </div>
 
+        {encryptedVotesList.length === 0 && (
+          <div className="bg-[#0F1115] border border-[#232730] rounded-2xl p-8 text-center space-y-3">
+            <div className="w-12 h-12 rounded-full bg-[#08090B] border border-[#232730] flex items-center justify-center mx-auto text-[#8B909D]">
+              <Users className="w-5 h-5 text-[#8B909D]" />
+            </div>
+            <div className="text-sm font-bold text-white uppercase tracking-wider">
+              No Encrypted Ballots Recorded On-Chain
+            </div>
+            <p className="text-xs text-[#8B909D] max-w-md mx-auto leading-relaxed">
+              The smart contract ballot box is currently empty. Open the election in Section 01 and submit ballots from whitelisted voter accounts to enable homomorphic tallying.
+            </p>
+          </div>
+        )}
+
         {/* 2-Step Homomorphic Workflow */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <button
@@ -894,27 +1051,60 @@ export function AdminView({
         )}
 
         {/* Certified Winner Showcase */}
-        {tallyResults && tallyResults.length > 0 && (
-          <div className="space-y-6 pt-4 border-t border-[#232730]">
-            {/* Monumental Winner Card with Neon Lime Ambient Glow */}
-            <div className="rounded-3xl bg-[#0F1115] border-2 border-[#C6FF00] p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-[0_0_40px_rgba(198,255,0,0.25)]">
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2 text-[#C6FF00]">
-                  <Crown className="w-5 h-5 fill-current" />
-                  <span className="text-xs font-mono uppercase tracking-widest font-black">
-                    Certified Winner
-                  </span>
+        {tallyResults && tallyResults.length > 0 && (() => {
+          const isTie = tallyResults.length > 1 && tallyResults[0].votes === tallyResults[1].votes && tallyResults[0].votes > 0;
+          const isAllZero = tallyResults[0].votes === 0;
+
+          return (
+            <div className="space-y-6 pt-4 border-t border-[#232730]">
+              {isAllZero ? (
+                <div className="rounded-3xl bg-[#0F1115] border border-[#232730] p-8 text-center space-y-2">
+                  <div className="text-xs font-mono uppercase tracking-widest text-[#8B909D]">Tally Result</div>
+                  <h4 className="text-2xl font-black text-white uppercase tracking-tight">Zero Ballots Recorded</h4>
+                  <p className="text-xs text-[#8B909D]">All candidates received 0 votes in this election cycle.</p>
                 </div>
-                <h4 className="text-3xl sm:text-4xl font-black text-white tracking-tight uppercase">
-                  {tallyResults[0].name}
-                </h4>
-                <p className="text-sm text-[#8B909D]">{tallyResults[0].role} · {tallyResults[0].platform}</p>
-              </div>
-              <div className="sm:text-right flex-shrink-0">
-                <div className="text-5xl sm:text-6xl font-mono font-black text-[#C6FF00]">{tallyResults[0].votes}</div>
-                <div className="text-xs text-[#8B909D] font-mono uppercase tracking-wider">Votes Certified</div>
-              </div>
-            </div>
+              ) : isTie ? (
+                <div className="rounded-3xl bg-[#0F1115] border-2 border-[#C6FF00]/60 p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-[0_0_30px_rgba(198,255,0,0.15)]">
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2 text-[#C6FF00]">
+                      <AlertTriangle className="w-5 h-5" />
+                      <span className="text-xs font-mono uppercase tracking-widest font-black">
+                        Statistical Tie // Runoff Required
+                      </span>
+                    </div>
+                    <h4 className="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase">
+                      {tallyResults.filter((c) => c.votes === tallyResults[0].votes).map((c) => c.name).join(' & ')}
+                    </h4>
+                    <p className="text-sm text-[#8B909D]">
+                      Equal votes recorded for top nominees. A runoff or protocol tiebreaker is recommended.
+                    </p>
+                  </div>
+                  <div className="sm:text-right flex-shrink-0">
+                    <div className="text-5xl sm:text-6xl font-mono font-black text-[#C6FF00]">{tallyResults[0].votes}</div>
+                    <div className="text-xs text-[#8B909D] font-mono uppercase tracking-wider">Tied Votes Each</div>
+                  </div>
+                </div>
+              ) : (
+                /* Monumental Winner Card with Neon Lime Ambient Glow */
+                <div className="rounded-3xl bg-[#0F1115] border-2 border-[#C6FF00] p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-[0_0_40px_rgba(198,255,0,0.25)]">
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2 text-[#C6FF00]">
+                      <Crown className="w-5 h-5 fill-current" />
+                      <span className="text-xs font-mono uppercase tracking-widest font-black">
+                        Certified Winner
+                      </span>
+                    </div>
+                    <h4 className="text-3xl sm:text-4xl font-black text-white tracking-tight uppercase">
+                      {tallyResults[0].name}
+                    </h4>
+                    <p className="text-sm text-[#8B909D]">{tallyResults[0].role} · {tallyResults[0].platform}</p>
+                  </div>
+                  <div className="sm:text-right flex-shrink-0">
+                    <div className="text-5xl sm:text-6xl font-mono font-black text-[#C6FF00]">{tallyResults[0].votes}</div>
+                    <div className="text-xs text-[#8B909D] font-mono uppercase tracking-wider">Votes Certified</div>
+                  </div>
+                </div>
+              )}
 
             {/* Candidate Breakdown */}
             <div className="space-y-4 bg-[#0F1115] border border-[#232730] rounded-2xl p-6 sm:p-8">
@@ -944,7 +1134,8 @@ export function AdminView({
               })}
             </div>
           </div>
-        )}
+        );
+      })()}
       </section>
 
     </div>
