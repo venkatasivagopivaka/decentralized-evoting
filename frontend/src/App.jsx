@@ -268,7 +268,7 @@ export function App() {
   const isCorrectNetwork = !chainId || chainId === HARDHAT_CHAIN_ID;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#08090B] text-white font-sans selection:bg-[#FFD426] selection:text-[#08090B] pt-24 md:pt-20">
+    <div className="min-h-screen flex flex-col bg-[#08090B] text-white font-sans selection:bg-[#C6FF00] selection:text-[#08090B] pt-24 md:pt-20">
       
       {/* Persistently Sticky / Fixed Luxury Header */}
       <Navbar
@@ -289,7 +289,7 @@ export function App() {
         <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-200">
           <div className="flex items-center space-x-3 px-5 py-3.5 rounded-full bg-[#14171E] text-white border border-[#232730] text-xs font-mono font-medium shadow-[0_10px_30px_rgba(0,0,0,0.7)]">
             {notification.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-[#FFD426] flex-shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-[#C6FF00] flex-shrink-0" />
             ) : (
               <AlertCircle className="w-4 h-4 text-[#FF5C5C] flex-shrink-0" />
             )}
@@ -307,8 +307,8 @@ export function App() {
         isAdmin={isAdmin}
       />
 
-      {/* Main Expansive Content Area */}
-      <main ref={actionSectionRef} className="flex-1 w-full scroll-mt-28">
+      {/* Main Expansive Content Area in Soft Ivory */}
+      <main ref={actionSectionRef} className="flex-1 w-full bg-[#F3F0E6] text-[#08090B] scroll-mt-28 transition-colors duration-300">
         {activeTab === 'voter' && (
           <VoterView
             account={account}
@@ -339,10 +339,10 @@ export function App() {
       </main>
 
       {/* Luxury Architectural Footer */}
-      <footer className="border-t border-[#232730] bg-[#0A0C0F] py-8">
+      <footer className="border-t border-[#232730] bg-[#08090B] py-8">
         <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center space-x-3">
-            <span className="w-2 h-2 rounded-[2px] bg-[#FFD426]" />
+            <span className="w-2 h-2 rounded-[2px] bg-[#C6FF00]" />
             <span className="font-mono text-xs tracking-wider text-white font-bold uppercase">
               VERIFIO
             </span>
@@ -352,7 +352,7 @@ export function App() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <span className="font-mono text-[11px] text-[#FFD426] bg-[#0F1115] px-4 py-1.5 rounded-full border border-[#232730]">
+            <span className="font-mono text-[11px] text-[#C6FF00] bg-[#0F1115] px-4 py-1.5 rounded-full border border-[#232730]">
               CONTRACT: {contractDeployment.address
                 ? `${contractDeployment.address.slice(0, 10)}…${contractDeployment.address.slice(-8)}`
                 : 'Not Deployed'}

@@ -37,34 +37,34 @@ export function Hero3D() {
     const monolith = new THREE.Mesh(monolithGeo, monolithMat);
     mainGroup.add(monolith);
 
-    // Beveled Edge Accent for Monolith
+    // Beveled Edge Accent for Monolith in Neon Lime
     const edgesGeo = new THREE.EdgesGeometry(monolithGeo);
-    const edgesMat = new THREE.LineBasicMaterial({ color: 0xFFD426, transparent: true, opacity: 0.35 });
+    const edgesMat = new THREE.LineBasicMaterial({ color: 0xC6FF00, transparent: true, opacity: 0.4 });
     const wireframe = new THREE.LineSegments(edgesGeo, edgesMat);
     monolith.add(wireframe);
 
-    // 2. Sculptural Electric Gold Orbiting Ribbon Knot (homage to Reference Image 1 & 2)
+    // 2. Sculptural Neon Lime Orbiting Ribbon Knot (homage to Reference Image 1)
     const ribbonGeo = new THREE.TorusKnotGeometry(2.0, 0.08, 160, 32, 2, 3);
     const ribbonMat = new THREE.MeshStandardMaterial({
-      color: 0xFFD426,
+      color: 0xC6FF00,
       roughness: 0.18,
       metalness: 0.95,
-      emissive: 0x3d3000,
+      emissive: 0x2b3d00,
     });
     const ribbon = new THREE.Mesh(ribbonGeo, ribbonMat);
     mainGroup.add(ribbon);
 
-    // 3. Floating Golden Orbital Spheres
+    // 3. Floating Neon Lime Orbital Spheres
     const sphereGeo = new THREE.SphereGeometry(0.18, 32, 32);
-    const goldSphereMat = new THREE.MeshStandardMaterial({
-      color: 0xFFD426,
+    const limeSphereMat = new THREE.MeshStandardMaterial({
+      color: 0xC6FF00,
       roughness: 0.1,
       metalness: 0.98,
-      emissive: 0x4a3b00,
+      emissive: 0x334d00,
     });
 
-    const sphere1 = new THREE.Mesh(sphereGeo, goldSphereMat);
-    const sphere2 = new THREE.Mesh(sphereGeo, goldSphereMat);
+    const sphere1 = new THREE.Mesh(sphereGeo, limeSphereMat);
+    const sphere2 = new THREE.Mesh(sphereGeo, limeSphereMat);
     sphere2.scale.set(0.65, 0.65, 0.65);
     mainGroup.add(sphere1);
     mainGroup.add(sphere2);
@@ -80,10 +80,10 @@ export function Hero3D() {
     const particleGeo = new THREE.BufferGeometry();
     particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
     const particleMat = new THREE.PointsMaterial({
-      color: 0xFFD426,
+      color: 0xC6FF00,
       size: 0.045,
       transparent: true,
-      opacity: 0.6,
+      opacity: 0.65,
       blending: THREE.AdditiveBlending,
     });
     const particles = new THREE.Points(particleGeo, particleMat);
@@ -93,15 +93,15 @@ export function Hero3D() {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
 
-    const goldKeyLight = new THREE.DirectionalLight(0xFFD426, 3.2);
-    goldKeyLight.position.set(4, 5, 4);
-    scene.add(goldKeyLight);
+    const limeKeyLight = new THREE.DirectionalLight(0xC6FF00, 3.2);
+    limeKeyLight.position.set(4, 5, 4);
+    scene.add(limeKeyLight);
 
     const rimLight = new THREE.DirectionalLight(0xffffff, 1.8);
     rimLight.position.set(-4, -3, -3);
     scene.add(rimLight);
 
-    const centerPointLight = new THREE.PointLight(0xFFD426, 2.5, 8);
+    const centerPointLight = new THREE.PointLight(0xC6FF00, 2.5, 8);
     centerPointLight.position.set(0, 0, 2);
     scene.add(centerPointLight);
 
@@ -185,7 +185,7 @@ export function Hero3D() {
       ribbonGeo.dispose();
       ribbonMat.dispose();
       sphereGeo.dispose();
-      goldSphereMat.dispose();
+      limeSphereMat.dispose();
       particleGeo.dispose();
       particleMat.dispose();
     };
@@ -193,16 +193,16 @@ export function Hero3D() {
 
   return (
     <div className="relative w-full h-[460px] sm:h-[520px] lg:h-[600px] flex items-center justify-center">
-      {/* Background Golden Halo / Sun (Inspiration Image 2) */}
-      <div className="absolute w-[300px] sm:w-[400px] lg:w-[460px] h-[300px] sm:h-[400px] lg:h-[460px] rounded-full bg-[#FFD426]/12 blur-3xl pointer-events-none" />
-      <div className="absolute w-[180px] sm:w-[260px] h-[180px] sm:h-[260px] rounded-full bg-[#FFD426]/20 blur-xl pointer-events-none" />
+      {/* Background Neon Lime Halo (Inspiration Image 1 & 2) */}
+      <div className="absolute w-[300px] sm:w-[400px] lg:w-[460px] h-[300px] sm:h-[400px] lg:h-[460px] rounded-full bg-[#C6FF00]/12 blur-3xl pointer-events-none" />
+      <div className="absolute w-[180px] sm:w-[260px] h-[180px] sm:h-[260px] rounded-full bg-[#C6FF00]/20 blur-xl pointer-events-none" />
 
       {/* 3D WebGL Canvas Container */}
       <div ref={mountRef} className="w-full h-full relative z-10 cursor-grab active:cursor-grabbing" />
 
       {/* Floating Micro-Badge on 3D Canvas */}
       <div className="absolute bottom-4 right-4 z-20 hidden sm:flex items-center space-x-2 bg-[#0F1115]/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-[#232730] text-[10px] font-mono text-[#8B909D]">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#FFD426] animate-pulse" />
+        <span className="w-1.5 h-1.5 rounded-full bg-[#C6FF00] animate-pulse" />
         <span>INTERACTIVE CRYPTOGRAPHIC MONOLITH</span>
       </div>
     </div>

@@ -169,18 +169,18 @@ export function VoterView({
   return (
     <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-16 py-10 sm:py-16">
       
-      {/* Section Header: Bold Editorial Typography */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between pb-8 border-b border-[#232730] gap-6">
+      {/* Section Header: Bold Editorial Typography on Soft Ivory */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between pb-8 border-b border-[#08090B]/15 gap-6">
         <div>
-          <div className="flex items-center space-x-2.5 text-[11px] font-mono tracking-widest text-[#FFD426] uppercase mb-2">
-            <span className="w-2 h-2 rounded-[2px] bg-[#FFD426]" />
+          <div className="flex items-center space-x-2.5 text-[11px] font-mono tracking-widest text-[#08090B]/70 uppercase mb-2">
+            <span className="w-2 h-2 rounded-[2px] bg-[#C6FF00]" />
             <span>OFFICIAL BALLOT // 2026 GENERAL ELECTION</span>
           </div>
-          <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tighter uppercase leading-none">
-            Elect Your Representative<span className="text-[#FFD426]">.</span>
+          <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#08090B] tracking-tighter uppercase leading-none">
+            Elect Your Representative<span className="text-[#C6FF00]">.</span>
           </h2>
         </div>
-        <p className="text-sm sm:text-base text-[#8B909D] max-w-md leading-relaxed">
+        <p className="text-sm sm:text-base text-[#525765] max-w-md leading-relaxed">
           Select a candidate below. Your vote is sealed locally with Paillier homomorphic encryption before submission to Ethereum, ensuring mathematical secrecy.
         </p>
       </div>
@@ -191,10 +191,10 @@ export function VoterView({
         {/* Left Column: Monumental Candidate Gallery (8 cols) */}
         <div className="lg:col-span-8 space-y-6">
           <div className="flex items-center justify-between pb-2">
-            <span className="text-xs font-mono uppercase tracking-widest text-[#8B909D]">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#525765]">
               CERTIFIED CANDIDATES // {CANDIDATES.length} CHOICES AVAILABLE
             </span>
-            <span className="text-xs font-mono text-[#FFD426] font-bold">
+            <span className="text-xs font-mono text-[#08090B] font-bold">
               CLICK TO CHOOSE
             </span>
           </div>
@@ -216,9 +216,9 @@ export function VoterView({
         <div className="lg:col-span-4 lg:sticky lg:top-28 space-y-6">
           
           {/* Selected Candidate Summary Card */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-[#0F1115] border border-[#232730] space-y-4">
+          <div className="p-6 sm:p-8 rounded-3xl bg-[#08090B] border border-[#1F232B] text-white shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#FFD426] font-bold">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#C6FF00] font-bold">
                 ACTIVE SELECTION
               </span>
               <span className="text-xs font-mono text-[#8B909D]">
@@ -230,7 +230,7 @@ export function VoterView({
               <h4 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
                 {selectedCandidate?.name}
               </h4>
-              <p className="text-xs font-mono text-[#FFD426] uppercase">
+              <p className="text-xs font-mono text-[#C6FF00] uppercase">
                 {selectedCandidate?.role}
               </p>
             </div>
@@ -253,11 +253,11 @@ export function VoterView({
                     <span>Not Whitelisted</span>
                   </div>
                   <p className="text-xs text-white/90">
-                    <strong className="font-mono text-[#FFD426]">{truncateAddress(account)}</strong> is not authorized to vote.
+                    <strong className="font-mono text-[#C6FF00]">{truncateAddress(account)}</strong> is not authorized to vote.
                   </p>
                 </div>
               ) : hasVoted ? (
-                <div className="p-4 rounded-2xl bg-[#FFD426]/10 border border-[#FFD426]/30 space-y-1 text-[#FFD426]">
+                <div className="p-4 rounded-2xl bg-[#C6FF00]/10 border border-[#C6FF00]/30 space-y-1 text-[#C6FF00]">
                   <div className="flex items-center space-x-1.5 font-mono text-xs font-bold uppercase">
                     <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>Ballot Sealed</span>
@@ -268,8 +268,8 @@ export function VoterView({
                 </div>
               ) : (
                 <div className="p-4 rounded-2xl bg-[#08090B] border border-[#232730] space-y-1">
-                  <div className="flex items-center space-x-1.5 text-[10px] font-mono text-[#FFD426] uppercase font-bold">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#FFD426]" />
+                  <div className="flex items-center space-x-1.5 text-[10px] font-mono text-[#C6FF00] uppercase font-bold">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#C6FF00]" />
                     <span>ELIGIBILITY VERIFIED</span>
                   </div>
                   <p className="text-xs text-[#8B909D]">
@@ -284,7 +284,7 @@ export function VoterView({
               <div className="pt-2 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-1.5">
-                    <Lock className="w-3.5 h-3.5 text-[#FFD426]" />
+                    <Lock className="w-3.5 h-3.5 text-[#C6FF00]" />
                     <span className="text-xs font-mono uppercase tracking-wider text-white font-bold">
                       Paillier Ciphertext
                     </span>
@@ -292,14 +292,14 @@ export function VoterView({
                   <button
                     onClick={handleCopyCiphertext}
                     disabled={!generatedCiphertext}
-                    className="text-[11px] font-mono text-[#8B909D] hover:text-[#FFD426] flex items-center space-x-1 transition-colors"
+                    className="text-[11px] font-mono text-[#8B909D] hover:text-[#C6FF00] flex items-center space-x-1 transition-colors"
                   >
                     <Copy className="w-3 h-3" />
                     <span>{copied ? 'Copied' : 'Copy'}</span>
                   </button>
                 </div>
 
-                <div className="bg-[#08090B] rounded-xl border border-[#232730] p-3 font-mono text-xs text-[#FFD426] break-all leading-relaxed max-h-28 overflow-y-auto">
+                <div className="bg-[#08090B] rounded-xl border border-[#232730] p-3 font-mono text-xs text-[#C6FF00] break-all leading-relaxed max-h-28 overflow-y-auto">
                   {isEncrypting
                     ? 'Encrypting ballot locally…'
                     : generatedCiphertext
@@ -308,7 +308,7 @@ export function VoterView({
                 </div>
 
                 <p className="text-[10px] text-[#8B909D] leading-relaxed">
-                  Blinded with salt <code className="font-mono text-[#FFD426]">r ∈ ℤ*ₙ</code>. Ciphertext is tallied homomorphically on-chain.
+                  Blinded with salt <code className="font-mono text-[#C6FF00]">r ∈ ℤ*ₙ</code>. Ciphertext is tallied homomorphically on-chain.
                 </p>
               </div>
             )}
@@ -316,7 +316,7 @@ export function VoterView({
             {/* 4-Stage Transaction Feedback */}
             {txStatus.stage === 'submitting' && (
               <div className="p-4 rounded-2xl bg-[#08090B] border border-[#232730] text-xs font-mono space-y-1 text-white">
-                <div className="flex items-center space-x-2 text-[#FFD426] font-bold">
+                <div className="flex items-center space-x-2 text-[#C6FF00] font-bold">
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                   <span>Awaiting Wallet Signature…</span>
                 </div>
@@ -325,21 +325,21 @@ export function VoterView({
             )}
 
             {txStatus.stage === 'waiting' && (
-              <div className="p-4 rounded-2xl bg-[#08090B] border border-[#FFD426]/40 text-xs font-mono space-y-1 text-white">
-                <div className="flex items-center space-x-2 text-[#FFD426] font-bold">
+              <div className="p-4 rounded-2xl bg-[#08090B] border border-[#C6FF00]/40 text-xs font-mono space-y-1 text-white">
+                <div className="flex items-center space-x-2 text-[#C6FF00] font-bold">
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                   <span>Mining On-Chain Block…</span>
                 </div>
                 <div className="text-[#8B909D] break-all text-[10px]">
-                  Tx: <code className="text-[#FFD426]">{txStatus.txHash}</code>
+                  Tx: <code className="text-[#C6FF00]">{txStatus.txHash}</code>
                 </div>
               </div>
             )}
 
             {txStatus.stage === 'confirmed' && (
-              <div className="p-4 rounded-2xl bg-[#FFD426]/10 border border-[#FFD426]/40 text-xs font-mono space-y-1 text-[#FFD426]">
+              <div className="p-4 rounded-2xl bg-[#C6FF00]/10 border border-[#C6FF00]/40 text-xs font-mono space-y-1 text-[#C6FF00]">
                 <div className="font-bold flex items-center space-x-1.5">
-                  <CheckCircle className="w-4 h-4 text-[#FFD426]" />
+                  <CheckCircle className="w-4 h-4 text-[#C6FF00]" />
                   <span>Ballot Confirmed On Ethereum</span>
                 </div>
                 <span className="text-[#8B909D] break-all block text-[10px]">Tx: {txStatus.txHash}</span>
@@ -356,11 +356,11 @@ export function VoterView({
               </div>
             )}
 
-            {/* Primary Action Button */}
+            {/* Primary Action Button (Neon Lime paired with Midnight Black text) */}
             <button
               onClick={handleCastVote}
               disabled={!canVote}
-              className={`w-full btn-pill-gold group !min-h-[54px] !text-xs sm:!text-sm ${
+              className={`w-full btn-pill-lime group !min-h-[54px] !text-xs sm:!text-sm ${
                 !canVote ? '!opacity-35 !cursor-not-allowed !shadow-none' : ''
               }`}
             >

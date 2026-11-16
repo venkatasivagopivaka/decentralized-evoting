@@ -7,24 +7,30 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Midnight / White / Electric Gold Palette
+        // Neo-Lime Editorial Palette
+        ivory: {
+          DEFAULT: '#F3F0E6',
+          surface: '#EAE6DA',
+          border: '#D8D3C4',
+          muted: '#6B7066',
+        },
         midnight: {
           DEFAULT: '#08090B',
           surface: '#0F1115',
           elevated: '#16191F',
           hover: '#1D212A',
         },
-        gold: {
-          DEFAULT: '#FFD426',
-          hover: '#FFE066',
-          active: '#E6BC15',
-          dim: 'rgba(255, 212, 38, 0.12)',
-          border: 'rgba(255, 212, 38, 0.35)',
+        lime: {
+          DEFAULT: '#C6FF00',
+          hover: '#D4FF33',
+          active: '#B0E600',
+          dim: 'rgba(198, 255, 0, 0.12)',
+          border: 'rgba(198, 255, 0, 0.35)',
         },
         border: {
           subtle: '#232730',
           hover: '#353B49',
-          focus: '#FFD426',
+          focus: '#C6FF00',
         },
         ink: {
           primary: '#FFFFFF',
@@ -32,8 +38,8 @@ export default {
           muted: '#525765',
         },
         status: {
-          success: '#FFD426',
-          successBg: 'rgba(255, 212, 38, 0.1)',
+          success: '#C6FF00',
+          successBg: 'rgba(198, 255, 0, 0.1)',
           error: '#FF5C5C',
           errorBg: 'rgba(255, 92, 92, 0.1)',
         },
@@ -57,8 +63,8 @@ export default {
       },
       boxShadow: {
         subtle: '0 1px 2px 0 rgba(0, 0, 0, 0.5)',
-        goldGlow: '0 0 25px rgba(255, 212, 38, 0.18)',
-        goldGlowLg: '0 0 45px rgba(255, 212, 38, 0.25)',
+        limeGlow: '0 0 25px rgba(198, 255, 0, 0.25)',
+        limeGlowLg: '0 0 45px rgba(198, 255, 0, 0.35)',
         card: '0 2px 8px rgba(0, 0, 0, 0.6)',
         popover: '0 16px 36px rgba(0, 0, 0, 0.75)',
       },
