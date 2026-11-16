@@ -28,8 +28,8 @@ export function Navbar({
           >
             <span className="w-2.5 h-2.5 rounded-[2px] bg-[#C6FF00] shadow-[0_0_12px_#C6FF00] transition-transform duration-200 group-hover:scale-125" />
             <div className="flex flex-col">
-              <span className="font-mono text-base md:text-lg font-black tracking-widest text-white uppercase leading-none">
-                VERIFIO
+              <span className="font-mono text-sm md:text-base font-black tracking-wider text-white uppercase leading-none">
+                Decentralized E-Voting System
               </span>
               <span className="text-[9px] font-mono tracking-widest text-[#8B909D] uppercase mt-1">
                 DEMOCRATIC PROTOCOL

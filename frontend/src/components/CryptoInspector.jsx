@@ -120,6 +120,9 @@ export function CryptoInspector({ publicKey }) {
                 Candidate <code className="font-mono text-[#C6FF00] bg-[#08090B] px-1.5 py-0.5 rounded border border-[#232730]">i</code>{' '}
                 is encoded as{' '}
                 <code className="font-mono text-[#C6FF00]">10,000ⁱ</code>. Decrypting the aggregate sum yields the exact vote counts for all candidates without collision.
+                <span className="block mt-2 text-[11px] text-[#8B909D] font-mono border-t border-[#232730] pt-2">
+                  <strong className="text-white">Boundary Limit:</strong> Max 9,999 votes per candidate before base overflow (requires <code className="text-[#C6FF00]">n &gt; 10,000ᴷ</code>).
+                </span>
               </>
             ),
           },
@@ -193,14 +196,19 @@ export function CryptoInspector({ publicKey }) {
       <section className="p-8 sm:p-10 rounded-3xl bg-[#08090B] border border-[#1F232B] text-white shadow-2xl space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#232730]">
           <div>
-            <span className="text-[10px] font-mono text-[#8B909D] uppercase tracking-widest block mb-1">
-              LIVE LABORATORY
-            </span>
+            <div className="flex items-center space-x-2 mb-1">
+              <span className="text-[10px] font-mono text-[#8B909D] uppercase tracking-widest block">
+                LIVE LABORATORY
+              </span>
+              <span className="text-[9px] font-mono uppercase bg-[#14171E] text-[#C6FF00] px-2 py-0.5 rounded border border-[#232730]">
+                Off-Chain Demonstration Sandbox
+              </span>
+            </div>
             <h3 className="text-2xl font-black text-white tracking-tight uppercase">
               Interactive Homomorphic Sandbox
             </h3>
             <p className="text-xs sm:text-sm text-[#8B909D] mt-1">
-              Simulate Paillier key generation, ballot encryption, homomorphic product, and aggregate decryption in real time.
+              Simulate Paillier key generation, ballot encryption, homomorphic product, and aggregate decryption in real time. (Does not modify or interact with on-chain smart contract ballots).
             </p>
           </div>
           <button

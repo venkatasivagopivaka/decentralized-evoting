@@ -344,7 +344,7 @@ export function App() {
           <div className="flex items-center space-x-3">
             <span className="w-2 h-2 rounded-[2px] bg-[#C6FF00]" />
             <span className="font-mono text-xs tracking-wider text-white font-bold uppercase">
-              VERIFIO
+              Decentralized E-Voting System
             </span>
             <span className="text-[#8B909D] font-mono text-xs">
               // ETHEREUM DEMOCRATIC PROTOCOL · PAILLIER CRYPTOSYSTEM
