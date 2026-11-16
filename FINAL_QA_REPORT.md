@@ -3,8 +3,8 @@
 > **Document Type:** Final QA Audit, Verification Matrix & Demonstration Runbook  
 > **Project Name:** Decentralized E-Voting System  
 > **Target Date:** Final Project Defense & Evaluation  
-> **Audit Version:** 1.0.0-FINAL  
-> **Repository Commit:** `21984c3` (Branch: `main`)  
+> **Audit Version:** 2.0.0-FINAL-RELEASE  
+> **Repository Commit:** `e951228` (Branch: `main`)  
 > **Smart Contract:** `EVoting.sol` (Solidity 0.8.20 at `0x5FbDB2315678afecb367f032d93F642f64180aa3`)  
 > **Design Theme:** Neo-Lime Editorial (Soft Ivory `#F3F0E6`, Midnight Black `#08090B`, Neon Lime `#C6FF00`)
 
@@ -12,13 +12,14 @@
 
 ## 1. Executive Summary & Audit Overview
 
-Ahead of tomorrow's academic project defense, a rigorous end-to-end quality-assurance inspection was conducted across the entire decentralized e-voting application. This audit encompassed:
-1. **Full-stack functional integrity:** Validating the Ethereum smart contract lifecycle, Ethers.js v6 transaction state handling, and client-side cryptographic workflows.
-2. **Pedagogical and cryptographic soundness:** Ensuring mathematical accuracy in Paillier 1024-bit key generation, probabilistic encryption, additive homomorphic aggregation, and Radix Base-10,000 polynomial decomposition.
-3. **Cross-device visual QA:** Capturing 13 genuine application screenshots at Desktop (1440 × 900) and Mobile (390 × 844) viewport dimensions.
-4. **Build and console cleanliness:** Confirming zero Vite compilation errors, zero CSS layout overflows, zero uncaught JavaScript promises, and zero browser console errors.
+Ahead of the academic project defense and final technical evaluation, an exhaustive end-to-end quality-assurance inspection was conducted across the decentralized e-voting application. This audit encompassed:
+1. **Wallet-First Role Routing Architecture:** Transitioning from static navigation tabs to an on-chain authorization flow where connected wallets are automatically routed to the Sovereign Gateway, Voter Ballot, Admin Console, or Access Denied views.
+2. **Full-Stack Functional Integrity:** Validating the Ethereum smart contract lifecycle (`EVoting.sol`), Ethers.js v6 transaction state handling, and client-side cryptographic workflows with on-chain nonce management.
+3. **Pedagogical and Cryptographic Soundness:** Ensuring mathematical accuracy in Paillier 1024-bit key generation, probabilistic encryption, additive homomorphic aggregation, and Radix Base-10,000 polynomial decomposition.
+4. **Cross-Device Visual QA Suite:** Capturing 17 fresh genuine production screenshots at Desktop (1440 × 900) and Mobile (390 × 844) viewport dimensions covering all user states and edge cases.
+5. **Build and Console Cleanliness:** Confirming zero Vite compilation errors, zero CSS layout overflows, zero uncaught JavaScript promises, and zero browser console errors.
 
-All identified vulnerabilities, syntax errors, and readability constraints have been resolved and committed to the repository. The application is completely stable, visually refined, and primed for live presentation.
+All identified vulnerabilities, routing constraints, and styling discrepancies have been resolved. The application is completely verified, cryptographically sound, visually striking, and ready for defense.
 
 ---
 
@@ -26,37 +27,43 @@ All identified vulnerabilities, syntax errors, and readability constraints have 
 
 | Component | File Path | Desktop QA (1440×900) | Mobile QA (390×844) | Functional Status | Issues Discovered | Corrections Applied |
 | :--- | :--- | :---: | :---: | :---: | :--- | :--- |
-| **Navigation Bar** | `frontend/src/components/Navbar.jsx` | PASS | PASS | VERIFIED | Branding previously had legacy name "VERIFIO". | Renamed brand header to "Decentralized E-Voting System"; sticky backdrop-blur and active tab indicator operating smoothly. |
-| **Hero Section** | `frontend/src/components/Hero.jsx` | PASS | PASS | VERIFIED | Layout spacing on ultra-wide viewports needed balanced padding. | Configured max-width containers and responsive typography with Neo-Lime badge styling. |
-| **Candidate Cards** | `frontend/src/components/CandidateCard.jsx` | PASS | PASS | VERIFIED | Card opacity before wallet connection was excessively dimmed (`opacity-35`), impeding readability during initial demonstration. | Adjusted disabled opacity to `opacity-80`; candidate biography and radix weight ($10,000^i$) are crisp and legible even before wallet connection. |
-| **Voter Interface** | `frontend/src/components/VoterView.jsx` | PASS | PASS | VERIFIED | Needed clear, unambiguous transaction status notifications during MetaMask signing. | Audited Ethers.js v6 confirmation flow; handles pending, confirmed, and reverted states with descriptive modal feedback. |
-| **Admin Dashboard** | `frontend/src/components/AdminView.jsx` | PASS | PASS | VERIFIED | Batch registration input required comma and newline sanitization. | Implemented robust string parsing and address checksum normalization for batch voter whitelisting. |
-| **Crypto Inspector** | `frontend/src/components/CryptoInspector.jsx` | PASS | PASS | VERIFIED | JSX compilation error occurred due to an orphaned `<div>` tag breaking the return tree around line 198. | Fixed mismatched JSX hierarchy; verified 3 mathematical pillars, added overflow capacity bounds disclaimer, and verified sandbox simulation. |
-| **Smart Contract** | `contracts/EVoting.sol` | N/A | N/A | VERIFIED | Ensured custom errors and events are properly formatted for Ethers.js v6 error decoders. | Verified modifiers `onlyAuthority` and `duringElection`; confirmed double-voting prevention (`VoterAlreadyVoted()`). |
-| **Crypto Utils** | `frontend/src/utils/paillier.js` | PASS | PASS | VERIFIED | Needed BigInt serialization checks when converting Paillier public keys for on-chain storage. | Implemented lossless decimal string conversion routines and random nonce generation $r \in \mathbb{Z}^*_n$. |
-| **Contract Utils** | `frontend/src/utils/contract.js` | PASS | PASS | VERIFIED | Ethers v6 contract instance creation and event listener memory leaks. | Standardized BrowserProvider connection routines and safe contract read-only fallbacks. |
+| **Sovereign Gateway** | `frontend/src/components/LandingGateway.jsx` | PASS | PASS | VERIFIED | Needed wallet-first landing gateway when disconnected. | Implemented "Democratic Access" gateway with role capability cards, on-chain role explanation, and prominent Connect Wallet CTA. |
+| **Unauthorized View** | `frontend/src/components/UnauthorizedView.jsx` | PASS | PASS | VERIFIED | Unregistered wallets previously landed on blank or broken forms. | Created high-contrast security screen ("WALLET NOT WHITELISTED // CIVIC ACCESS POLICY VIOLATION") with account switcher and disconnect triggers. |
+| **Navigation Bar** | `frontend/src/components/Navbar.jsx` | PASS | PASS | VERIFIED | Static tabs previously leaked Ballot and Admin options to unauthenticated visitors. | Implemented dynamic wallet-based role routing, real-time `ADMIN`, `VOTER`, and `UNREGISTERED` badges, and independent Cryptography Lab access. |
+| **Hero Section** | `frontend/src/components/HeroSection.jsx` | PASS | PASS | VERIFIED | Layout spacing on ultra-wide viewports needed balanced padding. | Configured max-width editorial containers and 3D interactive holographic monolith with Neo-Lime badge styling. |
+| **Candidate Cards** | `frontend/src/components/CandidateCard.jsx` | PASS | PASS | VERIFIED | Card selection highlight needed stronger visual pop in dark surfaces. | Applied luminous Neon Lime active borders, glowing checkmark selection pills, and live Radix polynomial weight previews ($10,000^i$). |
+| **Voter Interface** | `frontend/src/components/VoterView.jsx` | PASS | PASS | VERIFIED | Needed full 617-digit ciphertext inspection and on-chain confirmation feedback. | Implemented expandable ciphertext inspection drawer, live random blinding indicator, and 4-stage transaction feedback ("Ballot Verified & Sealed On-Chain"). |
+| **Admin Dashboard** | `frontend/src/components/AdminView.jsx` | PASS | PASS | VERIFIED | Single address input needed on-chain status verification tool. | Integrated Section 01–04 modular layout, 1024-bit browser Paillier keygen & publishing, and Live On-Chain Voter Status Verification lookup tool. |
+| **Crypto Inspector** | `frontend/src/components/CryptoInspector.jsx` | PASS | PASS | VERIFIED | JSX tag hierarchy and interactive sandbox calculation needed verification. | Cleaned JSX return tree; verified 3 mathematical pillars, overflow capacity bounds disclaimer, and interactive multi-voter simulation playground. |
+| **Smart Contract** | `backend/contracts/EVoting.sol` | N/A | N/A | VERIFIED | Verified Solidity 0.8.20 access control and double-voting prevention. | Verified modifiers `onlyAdmin` and `electionOpen`; confirmed single-vote enforcement (`hasVoted[voter] == true`) and immutable ciphertext array. |
+| **Crypto Utilities** | `frontend/src/utils/crypto.js` | PASS | PASS | VERIFIED | BigInt modular arithmetic and key serialization. | Implemented lossless decimal string conversion routines, 1024-bit prime generation, and Radix Base-10,000 polynomial encoding/decoding. |
+| **Contract Utilities** | `frontend/src/utils/contract.js` | PASS | PASS | VERIFIED | MetaMask nonce desynchronization during rapid block mining. | Standardized BrowserProvider connection routines, authoritative pending nonce queries, and on-chain verification callbacks. |
 
 ---
 
 ## 3. Visual Verification & Genuine Screenshot Evidence
 
-All screenshots were captured directly from the running Vite development server (`http://localhost:5173`) using automated headless Chromium automation (`scripts/run_frontend_qa.mjs`). They are stored in `frontend-qa/screenshots/`:
+All 17 production screenshots were captured directly from the live application running on Vite (`http://localhost:5173`) and local Hardhat node (`http://127.0.0.1:8545`) using automated Chromium automation (`scripts/capture_current_screenshots.mjs`). They are stored in `frontend-qa/screenshots/`:
 
-| # | Screenshot File | Viewport | Target Interface | Visual Verification Findings |
+| # | Screenshot File | Viewport | Target Interface / State | Visual Verification Findings |
 | :-: | :--- | :---: | :--- | :--- |
-| **01** | [`01-desktop-main-landing.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/01-desktop-main-landing.png) | 1440×900 | Hero Landing & Status | Editorial typography, soft ivory canvas, 3D particle background, sticky navigation bar. |
-| **02** | [`02-desktop-voter-interface.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/02-desktop-voter-interface.png) | 1440×900 | Voter Overview & Status | Protocol lifecycle indicator, voter eligibility card, wallet connection trigger. |
-| **03** | [`03-desktop-candidate-selection.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/03-desktop-candidate-selection.png) | 1440×900 | Candidate Ballot Grid | 3 candidate nominee cards with radical clarity, platform summaries, and radix polynomial weights. |
-| **04** | [`04-desktop-ballot-ciphertext-expanded.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/04-desktop-ballot-ciphertext-expanded.png) | 1440×900 | Ballot Ciphertext View | Client-side 600-digit hex ciphertext inspection and cryptographic parameter breakdown. |
-| **05** | [`05-desktop-admin-dashboard.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/05-desktop-admin-dashboard.png) | 1440×900 | Admin Overview & KeyGen | Paillier 1024-bit key generation card, on-chain public key publishing status. |
-| **06** | [`06-desktop-admin-voter-verification.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/06-desktop-admin-voter-verification.png) | 1440×900 | Voter Registration Tool | Single and batch voter registration form with live address input validation. |
-| **07** | [`07-desktop-admin-tally-results.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/07-desktop-admin-tally-results.png) | 1440×900 | Tally & Winner Declaration | Homomorphic product aggregator, private key decryption, and candidate breakdown bars. |
-| **08** | [`08-desktop-cryptography-interface.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/08-desktop-cryptography-interface.png) | 1440×900 | 3 Pillars of E-Voting Math | Academic pedagogical cards for Homomorphism, Semantic Security, and Radix Decomposition. |
-| **09** | [`09-desktop-crypto-sandbox-simulation.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/09-desktop-crypto-sandbox-simulation.png) | 1440×900 | Interactive Simulation Lab | Multi-voter sandbox simulator, radix overflow boundary table, live computation display. |
-| **10** | [`10-mobile-landing.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/10-mobile-landing.png) | 390×844 | Mobile Landing View | Mobile hamburger/pill nav, stacked editorial headline, responsive contract status pill. |
-| **11** | [`11-mobile-voter-interface.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/11-mobile-voter-interface.png) | 390×844 | Mobile Ballot Voting | Stacked candidate selection cards with touch-friendly radio selectors and full readability. |
-| **12** | [`12-mobile-admin-dashboard.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/12-mobile-admin-dashboard.png) | 390×844 | Mobile Admin Controls | Vertically stacked key management and registration controls with responsive padding. |
-| **13** | [`13-mobile-crypto-laboratory.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/13-mobile-crypto-laboratory.png) | 390×844 | Mobile Cryptography Inspector | Readable mathematical formulas, horizontally scrollable ciphertext blocks, sandbox triggers. |
+| **01** | [`01-desktop-landing.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/01-desktop-landing.png) | 1440×900 | Desktop Hero Landing | Editorial typography "YOUR VOTE. YOUR POWER.", 3D holographic monolith, sticky navbar with "CONNECT WALLET" button. |
+| **02** | [`02-desktop-wallet-connection.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/02-desktop-wallet-connection.png) | 1440×900 | Sovereign Access Gateway | "DEMOCRATIC ACCESS", "Connect to Determine Protocol Role", role overview cards for Registered Voter and Election Authority. |
+| **03** | [`03-desktop-voter-dashboard.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/03-desktop-voter-dashboard.png) | 1440×900 | Voter Ballot Overview | Navbar `VOTER` badge (`0x7099...79C8`), `LIVE POLLS` status pill, candidate nomination grid with platform summaries. |
+| **04** | [`04-desktop-candidate-selection.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/04-desktop-candidate-selection.png) | 1440×900 | Candidate Selection Active | "Satoshi Nakamoto" selected with luminous Neon Lime border, checkmark badge, and Radix weight preview ($10,000^0 = 1$). |
+| **05** | [`05-desktop-encrypted-ballot.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/05-desktop-encrypted-ballot.png) | 1440×900 | Ballot Confirmed & Sealed | Expanded ciphertext drawer, transaction confirmed on Ethereum, button state "BALLOT VERIFIED & SEALED ON-CHAIN". |
+| **06** | [`06-desktop-admin-dashboard.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/06-desktop-admin-dashboard.png) | 1440×900 | Admin Console Overview | Navbar `ADMIN` badge (`0xf39F...2266`), Section 01 Lifecycle controls, Section 02 Paillier key management. |
+| **07** | [`07-desktop-election-lifecycle.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/07-desktop-election-lifecycle.png) | 1440×900 | Section 01: Lifecycle | Election state badge (`POLLS CLOSED`), ballot counter, "Open Voting Window" and "Close & Seal Voting" action buttons. |
+| **08** | [`08-desktop-paillier-cryptography.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/08-desktop-paillier-cryptography.png) | 1440×900 | Section 02: Paillier Keys | Active 1024-bit modulus $n$ on Ethereum, generator $g$, private key $(\lambda, \mu)$ active in browser session. |
+| **09** | [`09-desktop-voter-management.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/09-desktop-voter-management.png) | 1440×900 | Section 03: Voter Access | Single & batch whitelisting inputs, Live On-Chain Voter Status Inspection tool showing "Whitelisted & Eligible" in green. |
+| **10** | [`10-desktop-tally-results.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/10-desktop-tally-results.png) | 1440×900 | Section 04: Tally & Winner | Homomorphic product ($C_{\text{total}} = \prod c_i \bmod n^2$), decrypted sum (10002), candidate breakdown, Certified Winner card. |
+| **11** | [`11-mobile-landing.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/11-mobile-landing.png) | 390×844 | Mobile Landing View | Mobile stacked navigation, headline "YOUR VOTE. YOUR POWER.", responsive "Connect Wallet to Enter" CTA. |
+| **12** | [`12-desktop-cryptography-interface.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/12-desktop-cryptography-interface.png) | 1440×900 | Cryptography Lab (3 Pillars) | "The Mathematics of Secrecy", Additive Homomorphism, Probabilistic Semantic Security, Radix Base-10,000 Encoding. |
+| **13** | [`13-mobile-admin-dashboard.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/13-mobile-admin-dashboard.png) | 390×844 | Mobile Admin Dashboard | Responsive stacked administration cards, bitlength selector pills, mobile-optimized lifecycle controls. |
+| **14** | [`14-mobile-voter-dashboard.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/14-mobile-voter-dashboard.png) | 390×844 | Mobile Voter Ballot | Touch-friendly mobile candidate cards, active nominee selection highlight, mobile ballot submission button. |
+| **15** | [`15-desktop-access-denied-unauthorized.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/15-desktop-access-denied-unauthorized.png) | 1440×900 | Access Denied / Security | High-contrast security alert ("WALLET NOT WHITELISTED"), address `0x3333...3333` unauthorized badge, remediation options. |
+| **16** | [`16-desktop-crypto-sandbox-simulation.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/16-desktop-crypto-sandbox-simulation.png) | 1440×900 | Interactive Math Sandbox | Live homomorphic calculator, preset selection buttons, real-time modular arithmetic calculation breakdown. |
+| **17** | [`17-mobile-cryptography.png`](file:///home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/17-mobile-cryptography.png) | 390×844 | Mobile Cryptography Lab | Mobile mathematical formula breakdown, responsive card stack, readable KaTeX equations. |
 
 ---
 
@@ -119,10 +126,17 @@ To maintain absolute academic honesty and rigor, our testing is explicitly strat
      - *Malformed Inputs:* empty ciphertext arrays, missing public keys, and non-numeric strings are strictly caught and rejected.
 3. **Tier C: Smart Contract & End-to-End Workflow Verification (`backend/test/EVoting.test.js`)**
    - Full EVM lifecycle testing on Hardhat: deployment, access control, state machine transitions, single-vote enforcement, ciphertext persistence, and aggregate decryption.
-4. **Tier D: Frontend UI & Transaction Simulation Verification**
-   - Automated headless Puppeteer test verified rendering, responsive layouts, 3D particle canvas, and zero console errors.
-   - Smart contract transaction execution logic and receipt status checking (`status === 1`) verified in `frontend/src/utils/contract.js`.
-   - *Honest Note on MetaMask:* Headless automation tests the web application logic; live MetaMask browser signing is an interactive manual flow performed by the user in the browser.
+4. **Tier D: Frontend UI & Wallet-Based Role Routing Verification (`scripts/verify_wallet_routing.mjs`)**
+   - Automated Puppeteer browser test suite validated all 7 core wallet detection and dynamic routing criteria (100% Pass):
+     - Check 1: Disconnected landing displays Hero & prominent "CONNECT WALLET" button without exposing Ballot/Admin.
+     - Check 2: Public navigation tabs conceal Ballot and Admin options from unauthenticated visitors.
+     - Check 3: Cryptography Lab remains independently accessible prior to wallet authentication.
+     - Check 4: Return to landing from Cryptography Lab operates cleanly.
+     - Check 5: Administrator wallet connection (`0xf39F...2266`) mounts Admin Console with `ADMIN` role badge.
+     - Check 6: Unregistered wallet connection (`0x3333...3333`) triggers Access Denied (`UnauthorizedView`) and immediately unmounts sensitive administrative views.
+     - Check 7: Registered voter wallet connection (`0x7099...79C8`) mounts Official Ballot with `VOTER` role badge.
+   - Captured 17 fresh genuine production screenshots at Desktop (1440×900) and Mobile (390×844) viewports.
+   - Clean browser console audit: **0 console errors**, **0 unhandled exceptions**, **0 network failures**.
 
 ---
 

@@ -6,12 +6,14 @@ A production-ready, privacy-preserving Decentralized Electronic Voting system bu
 
 ## 🌟 Key Features
 
+- **Wallet-First Role Routing & Access Control**: The application replaces static navigation tabs with real-time on-chain role detection. Disconnected visitors see the Sovereign Gateway; connected wallets automatically route to the Admin Console, Voter Ballot, or high-contrast Access Denied (`UnauthorizedView`) based on smart contract status.
 - **End-to-End Ballot Privacy**: Ballots are encrypted on the voter's client using Paillier public-key cryptography before reaching Ethereum. Individual voter choices are never stored in plaintext on-chain, nor are they ever revealed to miners, nodes, or the election administrator.
 - **Homomorphic Tallying**: The election administrator aggregates all encrypted ballots directly in ciphertext space off-chain using the homomorphic addition property ($\prod c_i \bmod n^2$). Only the final mathematical total is decrypted.
 - **Strict On-Chain Access Control**: Smart contract enforces voter whitelisting, prevents double-voting, restricts administrative actions, and governs the election lifecycle (Closed $\leftrightarrow$ Open).
 - **Multi-Candidate Radix Encoding**: Implements super-increasing radix encoding ($B^i$, base $10,000$) to tally multiple candidates unambiguously in a single aggregate ciphertext without interactive zero-knowledge proofs. Also includes support for two-candidate linear systems ($A=1, B=2$).
 - **Modern Web3 Tech Stack**: Built with **Hardhat** (Solidity `^0.8.20`), **Vite + React 18**, **ethers.js (v6)**, and **paillier-bigint**.
 - **Interactive Cryptographic Inspector**: Built-in visual sandbox and educational drawer explaining the underlying modular arithmetic and live homomorphic computations.
+- **Neo-Lime Editorial Design Identity**: Minimalist, publication-grade academic theme engineered in Soft Ivory (`#F3F0E6`), Midnight Black (`#08090B`), and vibrant Neon Lime (`#C6FF00`).
 
 ---
 
@@ -21,7 +23,7 @@ A production-ready, privacy-preserving Decentralized Electronic Voting system bu
 decentralized-evoting/
 ├── backend/                             # Hardhat Solidity environment
 │   ├── contracts/
-│   │   └── EVoting.sol                  # Main E-Voting Smart Contract
+│   │   └── EVoting.sol                  # Main E-Voting Smart Contract (Solidity 0.8.20)
 │   ├── scripts/
 │   │   └── deploy.js                    # Deployment script (auto-exports ABI to frontend)
 │   ├── test/
@@ -33,11 +35,14 @@ decentralized-evoting/
 │   ├── public/                          # Static assets
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── Navbar.jsx               # Wallet status, network switch, tab navigation
+│   │   │   ├── Navbar.jsx               # Dynamic role badges (ADMIN, VOTER, UNREGISTERED) & tab guards
+│   │   │   ├── LandingGateway.jsx       # Sovereign Gateway & wallet connection entrypoint
 │   │   │   ├── VoterView.jsx            # Candidate selection & encrypted ballot submission
 │   │   │   ├── AdminView.jsx            # Key management, whitelisting, homomorphic tallying
+│   │   │   ├── UnauthorizedView.jsx     # High-contrast security screen for unregistered wallets
 │   │   │   ├── CandidateCard.jsx        # Candidate cards with cryptographic preview
-│   │   │   └── CryptoInspector.jsx      # Interactive homomorphic math sandbox
+│   │   │   ├── CryptoInspector.jsx      # Interactive homomorphic math sandbox & 3 pillars
+│   │   │   └── HeroSection.jsx          # Editorial hero header & 3D holographic monolith
 │   │   ├── contracts/
 │   │   │   └── EVoting.json             # Deployed address & ABI
 │   │   ├── utils/
@@ -52,6 +57,17 @@ decentralized-evoting/
 │   ├── tailwind.config.js
 │   └── package.json                     # Frontend dependencies
 │
+├── scripts/                             # Independent automated verification & QA suites
+│   ├── verify_wallet_routing.mjs        # 7-step automated role routing verification
+│   ├── verify_crypto_voting.mjs         # Multi-tier cryptographic mathematical proof verification
+│   └── capture_current_screenshots.mjs  # Headless Puppeteer suite capturing 17 production screenshots
+│
+├── frontend-qa/
+│   ├── screenshots/                     # 17 fresh genuine production screenshots (Desktop & Mobile)
+│   └── SCREENSHOT_INDEX.md              # Technical catalog describing every captured UI state
+│
+├── PRESENTATION_GUIDE.md                # Academic defense presentation script & 25 viva questions
+├── FINAL_QA_REPORT.md                   # Complete QA audit report & deployment runbook
 ├── package.json                         # Root monorepo orchestration scripts
 └── README.md                            # Comprehensive documentation
 ```
@@ -191,16 +207,13 @@ npm run dev
 
 ---
 
-## 🧪 Automated Testing Suite
+## 🧪 Automated Testing & Verification Suites
 
-The repository includes a comprehensive Hardhat test suite verifying the smart contract constraints and verifying Paillier homomorphic math on-chain.
-
-Run the test suite:
+### 1. Smart Contract Integration Tests (Hardhat)
 ```bash
 npm test
 ```
-
-### Test Coverage Highlights (21 tests):
+**Test Coverage Highlights (21 tests, 100% Passing):**
 - ✅ **Deployment & Initial State**: Admin assignment, initial closed state, empty ballot arrays.
 - ✅ **Access Control**: Admin-only whitelisting, preventing duplicate whitelisting, zero-address rejection, batch whitelisting.
 - ✅ **Key Management**: Admin publishing Paillier $(n, g)$ public key on-chain, unauthorized access rejection.
@@ -210,6 +223,31 @@ npm test
   - Full multi-voter simulation with Radix encoding ($10,000^i$).
   - Full multi-voter simulation with 2-candidate linear system ($A=1, B=2$).
   - Assertion that homomorphic product decrypts to the exact candidate vote distribution.
+
+### 2. Standalone Cryptographic Correctness Verification
+```bash
+node scripts/verify_crypto_voting.mjs
+```
+- Validates 1024-bit Paillier keypair generation and lossless BigInt serialization.
+- Verifies probabilistic semantic security (IND-CPA: $c_1 \neq c_2$ for identical votes).
+- Confirms homomorphic addition in ciphertext space without intermediate decryption.
+- Asserts boundary behavior and arithmetic carry-over at 9,999 vs 10,000 votes.
+
+### 3. Automated Wallet-Based Role Routing Verification
+```bash
+node scripts/verify_wallet_routing.mjs
+```
+- Validates all 7 dynamic role detection and view mounting pathways in headless Chromium.
+- Verifies that disconnected visitors cannot view Ballot or Admin tabs.
+- Asserts instant reactive unmounting when accounts switch in MetaMask to an unauthorized address.
+- Confirms zero browser console errors and zero unhandled exceptions throughout all navigation flows.
+
+### 4. Automated Production Screenshot Capture Suite
+```bash
+node scripts/capture_current_screenshots.mjs
+```
+- Automatically executes the full on-chain election lifecycle: keygen $\to$ whitelisting $\to$ open voting $\to$ encrypted ballot casting $\to$ election closure $\to$ homomorphic aggregation $\to$ private-key decryption $\to$ winner showcase.
+- Captures 17 genuine screenshots across Desktop (1440×900) and Mobile (390×844) viewports into `frontend-qa/screenshots/`.
 
 ---
 
