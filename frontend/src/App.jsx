@@ -231,7 +231,7 @@ export function App() {
   const isCorrectNetwork = !chainId || chainId === HARDHAT_CHAIN_ID;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#E9E8E2] text-[#30362F] font-sans selection:bg-[#E4EAE1] selection:text-[#30362F]">
+    <div className="min-h-screen flex flex-col bg-[#F1EFE8] text-[#292E2A] font-sans selection:bg-[#E0E8DF] selection:text-[#292E2A]">
       {/* Navbar */}
       <Navbar
         account={account}
@@ -249,11 +249,11 @@ export function App() {
       {/* Toast Notification */}
       {notification && (
         <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-3 duration-200">
-          <div className="flex items-center space-x-3 px-4 py-3 rounded-xl bg-[#F8F7F2] text-[#30362F] border border-[#D2D2C9] text-xs font-mono font-medium shadow-lg">
+          <div className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-[#F8F7F3] text-[#292E2A] border border-[#CCCBC1] text-xs font-mono font-medium shadow-popover">
             {notification.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-[#536A55] flex-shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-[#425B49] flex-shrink-0" />
             ) : (
-              <AlertCircle className="w-4 h-4 text-[#A87565] flex-shrink-0" />
+              <AlertCircle className="w-4 h-4 text-[#A77D60] flex-shrink-0" />
             )}
             <span>{notification.message}</span>
           </div>
@@ -294,12 +294,12 @@ export function App() {
         )}
       </main>
 
-      {/* Minimal footer */}
-      <footer className="border-t border-[#D2D2C9] bg-[#F4F3EE] py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <span className="font-mono text-[11px] text-[#93958C]">VERIFIO · Ethereum E-Voting</span>
-          <span className="font-mono text-[11px] text-[#6F746B] bg-[#E9E8E2] px-2.5 py-1 rounded border border-[#D2D2C9]">
-            {contractDeployment.address
+      {/* Editorial Minimalist Footer */}
+      <footer className="border-t border-[#CCCBC1] bg-[#E8E6DE] py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <span className="font-mono text-[11px] text-[#70736C]">VERIFIO · Contemporary Decentralized E-Voting Protocol</span>
+          <span className="font-mono text-[11px] text-[#292E2A] bg-[#F8F7F3] px-2.5 py-1 rounded border border-[#CCCBC1]">
+            CONTRACT: {contractDeployment.address
               ? `${contractDeployment.address.slice(0, 10)}…${contractDeployment.address.slice(-6)}`
               : 'Contract not deployed'}
           </span>

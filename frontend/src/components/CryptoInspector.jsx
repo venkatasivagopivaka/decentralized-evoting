@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RefreshCw, Play } from 'lucide-react';
+import { RefreshCw, Play, Sparkles } from 'lucide-react';
 import {
   generatePaillierKeys,
   encryptVote,
@@ -37,90 +37,95 @@ export function CryptoInspector({ publicKey }) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4 space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-[#30362F] tracking-tight">Paillier Cryptosystem</h1>
-        <p className="text-sm text-[#6F746B] mt-1">
-          How additively homomorphic encryption lets ballots be tallied without decrypting individual votes.
+    <div className="max-w-4xl mx-auto py-8 px-4 space-y-7">
+      {/* Editorial Header */}
+      <div className="border-b border-[#CCCBC1] pb-5">
+        <span className="text-[11px] font-mono uppercase tracking-widest text-[#A77D60]">
+          Cryptographic Foundations
+        </span>
+        <h1 className="text-2xl sm:text-3xl font-semibold text-[#292E2A] tracking-tight mt-1">
+          Paillier Homomorphic Cryptosystem
+        </h1>
+        <p className="text-xs text-[#70736C] mt-1 max-w-2xl leading-relaxed">
+          How additively homomorphic encryption allows the election authority to calculate exact aggregate vote counts in ciphertext space without exposing or decrypting any individual ballot.
         </p>
       </div>
 
-      {/* Three concepts */}
+      {/* 3 Core Principles */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
           {
-            tag: 'Confidentiality',
-            title: 'Probabilistic Secrecy',
+            tag: '01 / Confidentiality',
+            title: 'Probabilistic Semantic Secrecy',
             body: (
               <>
-                Each ballot picks a fresh random salt{' '}
-                <code className="font-mono bg-[#E9E8E2] px-1.5 py-0.5 rounded border border-[#D2D2C9] text-[#30362F]">r ∈ ℤ*ₙ</code>.
-                {' '}Two voters choosing the same candidate produce completely different, indistinguishable ciphertexts.
+                Every ballot picks a fresh random salt{' '}
+                <code className="font-mono bg-[#E8E6DE] px-1.5 py-0.5 rounded border border-[#CCCBC1] text-[#292E2A]">r ∈ ℤ*ₙ</code>.
+                {' '}Two voters choosing the same candidate generate completely distinct, mathematically indistinguishable ciphertexts.
               </>
             ),
           },
           {
-            tag: 'Homomorphism',
-            title: 'Additive Property',
+            tag: '02 / Homomorphism',
+            title: 'Additive Ciphertext Homomorphism',
             body: (
               <>
-                Multiplying ciphertexts mod <code className="font-mono text-[#30362F]">n²</code> adds the plaintexts:{' '}
-                <span className="block font-mono bg-[#F8F7F2] border border-[#D2D2C9] rounded px-2.5 py-1.5 mt-2 text-[11px] text-[#30362F]">
+                Multiplying ciphertexts mod <code className="font-mono text-[#292E2A]">n²</code> corresponds to adding plaintexts:
+                <span className="block font-mono bg-[#F8F7F3] border border-[#CCCBC1] rounded px-2.5 py-1.5 mt-2 text-[11px] text-[#292E2A]">
                   D(c₁ · c₂ mod n²) = m₁ + m₂ mod n
                 </span>
               </>
             ),
           },
           {
-            tag: 'Multi-candidate',
-            title: 'Radix Base Encoding',
+            tag: '03 / Multi-Candidate',
+            title: 'Radix Base-10,000 Encoding',
             body: (
               <>
-                Candidate <code className="font-mono text-[#30362F] bg-[#E9E8E2] px-1.5 py-0.5 rounded border border-[#D2D2C9]">i</code>{' '}
+                Candidate <code className="font-mono text-[#292E2A] bg-[#E8E6DE] px-1.5 py-0.5 rounded border border-[#CCCBC1]">i</code>{' '}
                 is encoded as{' '}
-                <code className="font-mono text-[#30362F]">10,000ⁱ</code>. Decrypting the aggregate sum extracts exact vote counts for all candidates simultaneously.
+                <code className="font-mono text-[#292E2A]">10,000ⁱ</code>. Decrypting the aggregate sum yields the exact vote counts for all candidates without collision.
               </>
             ),
           },
         ].map(({ tag, title, body }) => (
-          <div key={tag} className="bg-[#F4F3EE] border border-[#D2D2C9] rounded-xl p-5 space-y-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#536A55]">{tag}</span>
-            <h3 className="text-sm font-semibold text-[#30362F]">{title}</h3>
-            <p className="text-xs text-[#6F746B] leading-relaxed">{body}</p>
+          <div key={tag} className="bg-[#E8E6DE] border border-[#CCCBC1] rounded-lg p-5 space-y-2">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#A77D60]">{tag}</span>
+            <h3 className="text-sm font-semibold text-[#292E2A]">{title}</h3>
+            <p className="text-xs text-[#70736C] leading-relaxed">{body}</p>
           </div>
         ))}
       </div>
 
-      {/* Mathematical operations */}
-      <div className="bg-[#F4F3EE] border border-[#D2D2C9] rounded-xl p-6 space-y-5">
-        <h2 className="text-xs font-mono uppercase tracking-widest text-[#6F746B] border-b border-[#D2D2C9] pb-3">
-          Formal Operations
+      {/* Formal Operations Breakdown */}
+      <div className="bg-[#E8E6DE] border border-[#CCCBC1] rounded-xl p-5 sm:p-6 space-y-4">
+        <h2 className="text-xs font-mono uppercase tracking-widest text-[#70736C] border-b border-[#CCCBC1] pb-3">
+          Formal Operations & Proofs
         </h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {/* Key gen & encryption */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-medium text-[#30362F]">Key Generation & Encryption</h4>
-            <div className="bg-[#F8F7F2] border border-[#D2D2C9] rounded-lg p-4 font-mono text-xs text-[#6F746B] space-y-1.5">
-              <div><span className="text-[#30362F] font-semibold">1. Primes:</span> p, q randomly generated</div>
-              <div><span className="text-[#30362F] font-semibold">2. Modulus:</span> n = p · q, λ = lcm(p−1, q−1)</div>
-              <div><span className="text-[#30362F] font-semibold">3. Generator:</span> g = n + 1</div>
-              <div><span className="text-[#30362F] font-semibold">4. Public key:</span> (n, g) published on-chain</div>
-              <div><span className="text-[#30362F] font-semibold">5. Private key:</span> (λ, μ) held in session</div>
-              <div className="pt-2 mt-1 border-t border-[#D2D2C9] text-[#536A55] font-semibold bg-[#E4EAE1] px-2.5 py-1.5 rounded border border-[#C3D1C0]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Key Generation & Encryption */}
+          <div className="bg-[#F8F7F3] border border-[#CCCBC1] rounded-lg p-4 space-y-2">
+            <h4 className="text-xs font-semibold text-[#292E2A]">Key Generation & Ballot Encryption</h4>
+            <div className="font-mono text-xs text-[#70736C] space-y-1.5">
+              <div><span className="text-[#292E2A] font-semibold">1. Primes:</span> p, q randomly generated</div>
+              <div><span className="text-[#292E2A] font-semibold">2. Modulus:</span> n = p · q, λ = lcm(p−1, q−1)</div>
+              <div><span className="text-[#292E2A] font-semibold">3. Generator:</span> g = n + 1</div>
+              <div><span className="text-[#292E2A] font-semibold">4. Public Key:</span> (n, g) published on-chain</div>
+              <div><span className="text-[#292E2A] font-semibold">5. Private Key:</span> (λ, μ) kept in session</div>
+              <div className="pt-2 mt-1 border-t border-[#CCCBC1] text-[#425B49] font-semibold bg-[#E0E8DF] px-2.5 py-1.5 rounded border border-[#BDCEBC]">
                 c = gᵐ · rⁿ mod n²
               </div>
             </div>
           </div>
 
-          {/* Aggregation & decryption */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-medium text-[#30362F]">Aggregation & Decryption</h4>
-            <div className="bg-[#F8F7F2] border border-[#D2D2C9] rounded-lg p-4 font-mono text-xs text-[#6F746B] space-y-1.5">
-              <div><span className="text-[#30362F] font-semibold">1. Ballots:</span> [c₁, c₂, …, cₖ] from contract</div>
-              <div><span className="text-[#30362F] font-semibold">2. Product:</span> C = ∏ cᵢ mod n²</div>
-              <div><span className="text-[#30362F] font-semibold">3. Decrypt:</span> M = L(C^λ mod n²) · μ mod n</div>
-              <div className="pt-2 mt-1 border-t border-[#D2D2C9] text-[#536A55] font-semibold bg-[#E4EAE1] px-2.5 py-1.5 rounded border border-[#C3D1C0]">
+          {/* Aggregation & Decryption */}
+          <div className="bg-[#F8F7F3] border border-[#CCCBC1] rounded-lg p-4 space-y-2">
+            <h4 className="text-xs font-semibold text-[#292E2A]">Aggregation & Decryption</h4>
+            <div className="font-mono text-xs text-[#70736C] space-y-1.5">
+              <div><span className="text-[#292E2A] font-semibold">1. Ballots:</span> [c₁, c₂, …, cₖ] from contract</div>
+              <div><span className="text-[#292E2A] font-semibold">2. Product:</span> C = ∏ cᵢ mod n²</div>
+              <div><span className="text-[#292E2A] font-semibold">3. Decrypt:</span> M = L(C^λ mod n²) · μ mod n</div>
+              <div className="pt-2 mt-1 border-t border-[#CCCBC1] text-[#425B49] font-semibold bg-[#E0E8DF] px-2.5 py-1.5 rounded border border-[#BDCEBC]">
                 M = ∑ mᵢ mod n
               </div>
             </div>
@@ -128,54 +133,55 @@ export function CryptoInspector({ publicKey }) {
         </div>
       </div>
 
-      {/* Live sandbox */}
-      <div className="bg-[#F4F3EE] border border-[#D2D2C9] rounded-xl p-6 space-y-5">
-        <div className="flex items-center justify-between border-b border-[#D2D2C9] pb-3">
+      {/* Live Interactive Playground */}
+      <div className="bg-[#E8E6DE] border border-[#CCCBC1] rounded-xl p-5 sm:p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#CCCBC1] pb-3">
           <div>
-            <h2 className="text-xs font-mono uppercase tracking-widest text-[#6F746B]">Live Playground</h2>
-            <p className="text-xs text-[#6F746B] mt-0.5">Simulate encryption, homomorphic addition, and decryption in real time.</p>
+            <h2 className="text-xs font-mono uppercase tracking-widest text-[#70736C]">Interactive Homomorphic Playground</h2>
+            <p className="text-xs text-[#70736C] mt-0.5">Simulate Paillier encryption, homomorphic product, and decryption in real time.</p>
           </div>
           <button
+            type="button"
             onClick={runLiveSimulation}
             disabled={isSimulating}
-            className="min-h-[40px] px-4 rounded-lg text-xs font-medium bg-[#536A55] hover:bg-[#465B48] active:scale-[0.99] text-[#F8F7F2] flex items-center space-x-2 transition-all shadow-sm disabled:opacity-50"
+            className="btn-primary"
           >
             {isSimulating ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5 fill-current" />}
-            <span>Run Simulation</span>
+            <span>Execute Simulation</span>
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
-            { label: 'Voter 1 plaintext (m₁)', value: sandboxM1, onChange: setSandboxM1 },
-            { label: 'Voter 2 plaintext (m₂)', value: sandboxM2, onChange: setSandboxM2 },
+            { label: 'Voter 1 Plaintext (m₁)', value: sandboxM1, onChange: setSandboxM1 },
+            { label: 'Voter 2 Plaintext (m₂)', value: sandboxM2, onChange: setSandboxM2 },
           ].map(({ label, value, onChange }) => (
-            <div key={label} className="space-y-1.5">
-              <label className="text-[11px] text-[#6F746B]">{label}</label>
+            <div key={label} className="bg-[#F8F7F3] p-3.5 rounded-lg border border-[#CCCBC1] space-y-1">
+              <label className="text-[11px] text-[#70736C] block font-medium">{label}</label>
               <input
                 type="number"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-lg bg-[#F8F7F2] border border-[#D2D2C9] text-[#30362F] font-mono text-xs focus:outline-none focus:border-[#536A55] focus:ring-1 focus:ring-[#536A55]"
+                className="w-full px-3 py-2 rounded-md bg-[#F1EFE8] border border-[#CCCBC1] text-[#292E2A] font-mono text-xs focus:outline-none focus:border-[#425B49]"
               />
             </div>
           ))}
         </div>
 
         {sandboxCSum && (
-          <div className="bg-[#F8F7F2] border border-[#D2D2C9] rounded-lg p-4 font-mono text-xs space-y-2">
-            <div className="text-[#6F746B]">
-              c₁: <span className="text-[#30362F] font-medium">{truncateCiphertext(sandboxC1, 22)}</span>
+          <div className="bg-[#F8F7F3] border border-[#CCCBC1] rounded-lg p-4 font-mono text-xs space-y-2">
+            <div className="text-[#70736C]">
+              c₁: <span className="text-[#292E2A] font-medium">{truncateCiphertext(sandboxC1, 24)}</span>
             </div>
-            <div className="text-[#6F746B]">
-              c₂: <span className="text-[#30362F] font-medium">{truncateCiphertext(sandboxC2, 22)}</span>
+            <div className="text-[#70736C]">
+              c₂: <span className="text-[#292E2A] font-medium">{truncateCiphertext(sandboxC2, 24)}</span>
             </div>
-            <div className="pt-2 border-t border-[#D2D2C9] text-[#6F746B]">
-              c₁ · c₂ mod n²: <span className="text-[#536A55] font-semibold">{truncateCiphertext(sandboxCSum, 22)}</span>
+            <div className="pt-2 border-t border-[#CCCBC1] text-[#70736C]">
+              c₁ · c₂ mod n²: <span className="text-[#425B49] font-semibold">{truncateCiphertext(sandboxCSum, 24)}</span>
             </div>
-            <div className="pt-2 border-t border-[#D2D2C9] flex items-center justify-between font-sans text-xs">
-              <span className="text-[#6F746B]">Decrypted sum (m₁ + m₂):</span>
-              <span className="font-mono font-bold text-[#536A55] bg-[#E4EAE1] px-3 py-1 rounded border border-[#C3D1C0]">
+            <div className="pt-2 border-t border-[#CCCBC1] flex items-center justify-between font-sans text-xs">
+              <span className="text-[#70736C]">Decrypted Plaintext Sum (m₁ + m₂):</span>
+              <span className="font-mono font-bold text-sm text-[#425B49] bg-[#E0E8DF] px-3 py-1 rounded border border-[#BDCEBC]">
                 {sandboxDecrypted}
               </span>
             </div>

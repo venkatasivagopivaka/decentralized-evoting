@@ -7,46 +7,49 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Quiet Authority Color System
-        mineral: '#E9E8E2',
-        surface: {
-          primary: '#F4F3EE',
-          elevated: '#F8F7F2',
-          recessed: '#DEDED5',
+        // Contemporary Editorial Minimalism — Earth & Ink Palette
+        ivory: {
+          DEFAULT: '#F1EFE8',
+          secondary: '#E8E6DE',
+          light: '#F8F7F3',
+        },
+        stone: {
+          DEFAULT: '#DCDAD1',
+          light: '#E4E2D9',
+          deep: '#CCCBC1',
         },
         border: {
-          subtle: '#D2D2C9',
-          focus: '#536A55',
+          subtle: '#CCCBC1',
+          focus: '#425B49',
         },
         ink: {
-          primary: '#30362F',
-          secondary: '#6F746B',
-          muted: '#93958C',
+          primary: '#292E2A',
+          secondary: '#70736C',
+          muted: '#9A9C96',
         },
-        olive: {
-          DEFAULT: '#536A55',
-          hover: '#465B48',
-          active: '#3A4D3C',
-          light: '#E4EAE1',
-          border: '#C3D1C0',
-        },
-        bronze: {
-          DEFAULT: '#A48B70',
-          hover: '#8E775F',
-          light: '#F2EDE7',
-          border: '#D8CABE',
+        forest: {
+          DEFAULT: '#425B49',
+          hover: '#354B3C',
+          active: '#2A3C30',
+          light: '#E0E8DF',
+          border: '#BDCEBC',
         },
         clay: {
-          DEFAULT: '#A87565',
-          hover: '#946455',
-          light: '#F7EFEB',
-          border: '#DEC2B9',
+          DEFAULT: '#A77D60',
+          hover: '#8F694F',
+          active: '#7A5740',
+          light: '#F4EEE8',
+          border: '#DFCEBF',
+        },
+        lavender: {
+          DEFAULT: '#B7A6C2',
+          light: '#F1ECF5',
         },
         status: {
-          success: '#457354',
-          successBg: '#E8F0EA',
-          error: '#A34A42',
-          errorBg: '#F7ECEB',
+          success: '#425B49',
+          successBg: '#E0E8DF',
+          error: '#A77D60',
+          errorBg: '#F4EEE8',
         },
       },
       fontFamily: {
@@ -67,14 +70,16 @@ export default {
         ],
       },
       boxShadow: {
-        subtle: '0 1px 2px 0 rgba(32, 43, 42, 0.04)',
-        card: '0 1px 3px 0 rgba(32, 43, 42, 0.05), 0 1px 2px -1px rgba(32, 43, 42, 0.03)',
-        cardHover: '0 4px 12px 0 rgba(32, 43, 42, 0.08), 0 2px 4px -1px rgba(32, 43, 42, 0.03)',
-        popover: '0 10px 25px -4px rgba(32, 43, 42, 0.08), 0 4px 6px -2px rgba(32, 43, 42, 0.03)',
+        subtle: '0 1px 2px 0 rgba(41, 46, 42, 0.04)',
+        card: '0 1px 3px 0 rgba(41, 46, 42, 0.05), 0 1px 2px -1px rgba(41, 46, 42, 0.03)',
+        cardHover: '0 4px 12px 0 rgba(41, 46, 42, 0.06), 0 2px 4px -1px rgba(41, 46, 42, 0.03)',
+        popover: '0 10px 25px -4px rgba(41, 46, 42, 0.08), 0 4px 6px -2px rgba(41, 46, 42, 0.03)',
       },
       borderRadius: {
+        'md': '0.375rem',
+        'lg': '0.5rem',
+        'xl': '0.75rem',
         '2xl': '1rem',
-        '3xl': '1.25rem',
       },
     },
   },

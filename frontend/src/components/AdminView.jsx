@@ -10,6 +10,8 @@ import {
   Cpu,
   ShieldAlert,
   AlertTriangle,
+  Key,
+  Copy,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { CANDIDATES, RADIX_BASE } from '../utils/constants';
@@ -24,7 +26,12 @@ import {
   decodeRadixTally,
   decodeSimpleTally,
 } from '../utils/crypto';
-import { truncateAddress, truncateCiphertext } from '../utils/contract';
+import {
+  truncateAddress,
+  truncateCiphertext,
+  sendContractTransaction,
+  formatContractError,
+} from '../utils/contract';
 
 export function AdminView({
   account,
@@ -52,7 +59,7 @@ export function AdminView({
   const [batchVoterAddresses, setBatchVoterAddresses] = useState('');
   const [isWhitelisting, setIsWhitelisting] = useState(false);
 
-  // Tally
+  // Tally & Decryption
   const [encryptedVotesList, setEncryptedVotesList] = useState([]);
   const [isLoadingVotes, setIsLoadingVotes] = useState(false);
   const [homomorphicSumCiphertext, setHomomorphicSumCiphertext] = useState('');
@@ -68,10 +75,11 @@ export function AdminView({
 
   const notify = (msg) => {
     setSuccessMsg(msg);
+    setActionError('');
     setTimeout(() => setSuccessMsg(''), 5000);
   };
 
-  // Restore private key from sessionStorage
+  // Restore private key from sessionStorage if available
   useEffect(() => {
     try {
       const savedPriv = sessionStorage.getItem('paillier_admin_privkey');
@@ -116,7 +124,7 @@ export function AdminView({
       sessionStorage.setItem('paillier_admin_pubkey_n', serPub.n);
       sessionStorage.setItem('paillier_admin_pubkey_g', serPub.g);
       sessionStorage.setItem('paillier_admin_privkey', JSON.stringify(serPriv));
-      notify(`Generated ${keyBitLength}-bit keypair. Ready to publish.`);
+      notify(`Generated ${keyBitLength}-bit Paillier keypair. Ready to publish on-chain.`);
     } catch (err) {
       setActionError('Key generation failed: ' + err.message);
     } finally {
@@ -124,7 +132,7 @@ export function AdminView({
     }
   };
 
-  // Publish public key
+  // Publish public key to smart contract with authoritative on-chain nonce
   const handlePublishKey = async () => {
     if (!contract) return;
     try {
@@ -132,123 +140,145 @@ export function AdminView({
       setActionError('');
       const pubN = localPrivateKey?.publicKey?.n?.toString() || sessionStorage.getItem('paillier_admin_pubkey_n');
       const pubG = localPrivateKey?.publicKey?.g?.toString() || sessionStorage.getItem('paillier_admin_pubkey_g');
-      if (!pubN || !pubG) throw new Error('No key found. Generate keys first.');
-      const tx = await contract.setPaillierPublicKey(pubN, pubG);
+      if (!pubN || !pubG) throw new Error('No key found. Please click "Generate Keys" first.');
+
+      const tx = await sendContractTransaction(contract, 'setPaillierPublicKey', [pubN, pubG]);
       await tx.wait();
-      notify('Public key published to Ethereum.');
+
+      notify('Paillier Public Key successfully published to Ethereum.');
       if (onRefreshContractData) onRefreshContractData();
     } catch (err) {
-      setActionError(err?.reason || err?.message || 'Failed to publish key.');
+      console.error('Publish key error:', err);
+      setActionError(formatContractError(err));
     } finally {
       setIsPublishingKey(false);
     }
   };
 
-  // Start election
+  // Start election with authoritative on-chain nonce
   const handleStartElection = async () => {
     if (!contract) return;
     try {
       setIsStartingElection(true);
       setActionError('');
-      const tx = await contract.startElection();
+
+      const tx = await sendContractTransaction(contract, 'startElection');
       await tx.wait();
-      notify('Election is now open.');
+
+      notify('Election is now OPEN. Whitelisted voters can cast encrypted ballots.');
       if (onRefreshContractData) onRefreshContractData();
     } catch (err) {
-      setActionError(err?.reason || err?.message || 'Failed to start election.');
+      console.error('Start election error:', err);
+      setActionError(formatContractError(err));
     } finally {
       setIsStartingElection(false);
       setShowStartModal(false);
     }
   };
 
-  // End election
+  // End election with authoritative on-chain nonce
   const handleEndElection = async () => {
     if (!contract) return;
     try {
       setIsEndingElection(true);
       setActionError('');
-      const tx = await contract.endElection();
+
+      const tx = await sendContractTransaction(contract, 'endElection');
       await tx.wait();
-      notify('Election closed. Tallying is now available.');
+
+      notify('Election CLOSED. Homomorphic aggregation and tallying are now unlocked.');
       if (onRefreshContractData) onRefreshContractData();
       fetchEncryptedVotes();
     } catch (err) {
-      setActionError(err?.reason || err?.message || 'Failed to close election.');
+      console.error('End election error:', err);
+      setActionError(formatContractError(err));
     } finally {
       setIsEndingElection(false);
       setShowEndModal(false);
     }
   };
 
-  // Whitelist single voter
+  // Whitelist single voter with authoritative on-chain nonce
   const handleAddSingleVoter = async (e) => {
     e?.preventDefault();
     if (!contract || !singleVoterAddress) return;
     try {
       setIsWhitelisting(true);
       setActionError('');
-      const tx = await contract.addVoter(singleVoterAddress.trim());
+
+      const targetAddr = singleVoterAddress.trim();
+      const tx = await sendContractTransaction(contract, 'addVoter', [targetAddr]);
       await tx.wait();
-      notify(`${truncateAddress(singleVoterAddress.trim())} has been whitelisted.`);
+
+      notify(`Address ${truncateAddress(targetAddr)} successfully whitelisted.`);
       setSingleVoterAddress('');
       if (onRefreshContractData) onRefreshContractData();
     } catch (err) {
-      setActionError(err?.reason || err?.message || 'Failed to whitelist voter.');
+      console.error('Add voter error:', err);
+      setActionError(formatContractError(err));
     } finally {
       setIsWhitelisting(false);
     }
   };
 
-  // Batch whitelist
+  // Whitelist batch voters with authoritative on-chain nonce
   const handleBatchAddVoters = async (e) => {
     e?.preventDefault();
     if (!contract || !batchVoterAddresses) return;
     try {
       setIsWhitelisting(true);
       setActionError('');
+
       const addresses = batchVoterAddresses
         .split(/[\n,]+/)
         .map((a) => a.trim())
         .filter((a) => a.length > 0);
-      if (addresses.length === 0) throw new Error('Enter at least one address.');
-      const tx = await contract.batchAddVoters(addresses);
+
+      if (addresses.length === 0) throw new Error('Please enter at least one valid address.');
+
+      const tx = await sendContractTransaction(contract, 'batchAddVoters', [addresses]);
       await tx.wait();
-      notify(`${addresses.length} voters whitelisted.`);
+
+      notify(`Successfully whitelisted batch of ${addresses.length} voters.`);
       setBatchVoterAddresses('');
       if (onRefreshContractData) onRefreshContractData();
     } catch (err) {
-      setActionError(err?.reason || err?.message || 'Batch whitelist failed.');
+      console.error('Batch add voters error:', err);
+      setActionError(formatContractError(err));
     } finally {
       setIsWhitelisting(false);
     }
   };
 
-  // Homomorphic aggregation
+  // Step 1: Compute Homomorphic Addition off-chain
   const handleComputeHomomorphicAddition = () => {
     try {
       setIsAggregating(true);
       setActionError('');
-      if (!publicKey) throw new Error('Encryption key not set on contract.');
-      if (encryptedVotesList.length === 0) throw new Error('No ballots to aggregate.');
-      const aggregate = homomorphicAddition(publicKey, encryptedVotesList);
-      setHomomorphicSumCiphertext(aggregate.toString());
+      if (!publicKey) throw new Error('Paillier public key is not set on the smart contract.');
+      if (encryptedVotesList.length === 0) throw new Error('No encrypted votes recorded on-chain.');
+
+      const aggregateCiphertext = homomorphicAddition(publicKey, encryptedVotesList);
+      setHomomorphicSumCiphertext(aggregateCiphertext.toString());
     } catch (err) {
+      console.error('Aggregation error:', err);
       setActionError('Aggregation failed: ' + err.message);
     } finally {
       setIsAggregating(false);
     }
   };
 
-  // Decrypt tally & announce winner
+  // Step 2: Decrypt Aggregate Ciphertext & Reveal Results
   const handleDecryptAndTally = () => {
     try {
       setIsDecrypting(true);
       setActionError('');
-      if (!localPrivateKey) throw new Error('Private key not in session. Generate keys first.');
-      if (!homomorphicSumCiphertext) throw new Error('Compute homomorphic product first.');
+      if (!localPrivateKey) throw new Error('Admin Paillier private key required in session. Generate keys first.');
+      if (!homomorphicSumCiphertext) throw new Error('Please compute homomorphic product first.');
+
       const rawSum = decryptTally(localPrivateKey, homomorphicSumCiphertext);
       setDecryptedSum(rawSum);
+
       let results = [];
       if (tallyMode === 'radix') {
         const decoded = decodeRadixTally(rawSum, CANDIDATES.length, RADIX_BASE);
@@ -263,53 +293,48 @@ export function AdminView({
           return { ...cand, votes: match ? match.count : 0 };
         });
       }
+
       results.sort((a, b) => b.votes - a.votes);
       setTallyResults(results);
+
       confetti({
-        particleCount: 80,
-        spread: 70,
+        particleCount: 75,
+        spread: 60,
         origin: { y: 0.6 },
-        colors: ['#536A55', '#A48B70', '#A87565', '#D2D2C9'],
+        colors: ['#425B49', '#A77D60', '#DCDAD1', '#B7A6C2'],
       });
     } catch (err) {
+      console.error('Decryption error:', err);
       setActionError('Decryption failed: ' + err.message);
     } finally {
       setIsDecrypting(false);
     }
   };
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
-  const Section = ({ title, children }) => (
-    <div className="bg-[#F4F3EE] border border-[#D2D2C9] rounded-xl p-6 space-y-5">
-      <h2 className="text-xs font-mono uppercase tracking-widest text-[#6F746B] border-b border-[#D2D2C9] pb-3">
-        {title}
-      </h2>
-      {children}
-    </div>
-  );
-
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4 space-y-6">
-      {/* Confirmation modal — Start */}
+    <div className="max-w-4xl mx-auto py-8 px-4 space-y-7">
+      {/* Confirmation Modal: Start Election */}
       {showStartModal && (
-        <div className="fixed inset-0 z-50 bg-[#30362F]/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#F8F7F2] border border-[#D2D2C9] rounded-xl max-w-sm w-full p-6 space-y-4 shadow-xl">
-            <h3 className="text-base font-semibold text-[#30362F]">Open Voting?</h3>
-            <p className="text-xs text-[#6F746B] leading-relaxed">
-              Whitelisted voters will be able to submit encrypted ballots. This action is recorded on the Ethereum blockchain.
+        <div className="fixed inset-0 z-50 bg-[#292E2A]/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#F8F7F3] border border-[#CCCBC1] rounded-xl max-w-sm w-full p-6 space-y-4 shadow-popover">
+            <h3 className="text-base font-semibold text-[#292E2A]">Open Voting Window?</h3>
+            <p className="text-xs text-[#70736C] leading-relaxed">
+              Opening the election enables whitelisted addresses to submit encrypted Paillier ballots. This action updates the on-chain state machine.
             </p>
-            <div className="flex items-center justify-end space-x-3 pt-1">
+            <div className="flex items-center justify-end space-x-2.5 pt-1">
               <button
+                type="button"
                 onClick={() => setShowStartModal(false)}
                 disabled={isStartingElection}
-                className="px-4 py-2 rounded-lg text-xs font-medium text-[#30362F] bg-[#F4F3EE] hover:bg-[#DEDED5] border border-[#D2D2C9] transition-all"
+                className="btn-secondary"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleStartElection}
                 disabled={isStartingElection}
-                className="px-4 py-2 rounded-lg text-xs font-medium text-[#F8F7F2] bg-[#536A55] hover:bg-[#465B48] active:scale-[0.99] transition-all shadow-sm flex items-center space-x-1.5"
+                className="btn-primary"
               >
                 {isStartingElection && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
                 <span>Confirm & Open</span>
@@ -319,139 +344,151 @@ export function AdminView({
         </div>
       )}
 
-      {/* Confirmation modal — End */}
+      {/* Confirmation Modal: End Election */}
       {showEndModal && (
-        <div className="fixed inset-0 z-50 bg-[#30362F]/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#F8F7F2] border border-[#D2D2C9] rounded-xl max-w-sm w-full p-6 space-y-4 shadow-xl">
-            <h3 className="text-base font-semibold text-[#30362F]">Close Voting?</h3>
-            <p className="text-xs text-[#6F746B] leading-relaxed">
-              No further ballots will be accepted. This permanently seals the ballot pool and enables off-chain tallying.
+        <div className="fixed inset-0 z-50 bg-[#292E2A]/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#F8F7F3] border border-[#CCCBC1] rounded-xl max-w-sm w-full p-6 space-y-4 shadow-popover">
+            <h3 className="text-base font-semibold text-[#292E2A]">Close Voting Window?</h3>
+            <p className="text-xs text-[#70736C] leading-relaxed">
+              Closing the election permanently prevents further ballot submissions and seals the encrypted ballot pool, enabling off-chain homomorphic tallying.
             </p>
-            <div className="flex items-center justify-end space-x-3 pt-1">
+            <div className="flex items-center justify-end space-x-2.5 pt-1">
               <button
+                type="button"
                 onClick={() => setShowEndModal(false)}
                 disabled={isEndingElection}
-                className="px-4 py-2 rounded-lg text-xs font-medium text-[#30362F] bg-[#F4F3EE] hover:bg-[#DEDED5] border border-[#D2D2C9] transition-all"
+                className="btn-secondary"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleEndElection}
                 disabled={isEndingElection}
-                className="px-4 py-2 rounded-lg text-xs font-medium text-[#F8F7F2] bg-[#A87565] hover:bg-[#946455] active:scale-[0.99] transition-all shadow-sm flex items-center space-x-1.5"
+                className="btn-destructive"
               >
                 {isEndingElection && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
-                <span>Confirm & Close</span>
+                <span>Confirm & Seal</span>
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Page header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-[#30362F] tracking-tight">Election Administration</h1>
-        <p className="text-sm text-[#6F746B] mt-1">
-          Manage the election lifecycle, encryption keys, voter access, and results.
+      {/* Editorial Page Header */}
+      <div className="border-b border-[#CCCBC1] pb-5">
+        <span className="text-[11px] font-mono uppercase tracking-widest text-[#A77D60]">
+          Console
+        </span>
+        <h1 className="text-2xl sm:text-3xl font-semibold text-[#292E2A] tracking-tight mt-1">
+          Election Administration
+        </h1>
+        <p className="text-xs text-[#70736C] mt-1 max-w-2xl leading-relaxed">
+          Manage lifecycle state transitions, configure Paillier homomorphic parameters, authorize voter addresses, and compute aggregate results.
         </p>
       </div>
 
-      {/* Not-admin warning */}
+      {/* Non-Admin Warning Banner */}
       {!isAdmin && account && (
-        <div className="p-4 rounded-xl bg-[#F7EFEB] border border-[#DEC2B9] text-[#30362F] flex items-start space-x-3">
-          <AlertTriangle className="w-4 h-4 flex-shrink-0 text-[#A87565] mt-0.5" />
-          <div className="text-xs">
-            <span className="font-semibold text-[#A87565] block mb-0.5">Not the election administrator</span>
-            <span className="text-[#6F746B]">
-              Connected as {truncateAddress(account)}. Admin is {truncateAddress(adminAddress)}. Switch to the deployer account in MetaMask to administer this election.
-            </span>
+        <div className="p-4 rounded-md bg-[#F4EEE8] border border-[#DFCEBF] text-[#292E2A] flex items-start space-x-3">
+          <AlertTriangle className="w-4 h-4 flex-shrink-0 text-[#A77D60] mt-0.5" />
+          <div className="text-xs space-y-1">
+            <span className="font-semibold text-[#A77D60] block">Connected Wallet is Not the Administrator</span>
+            <p className="text-[#70736C] leading-relaxed">
+              Your active address (<code className="font-mono text-[#292E2A]">{truncateAddress(account)}</code>) does not match the contract deployer (<code className="font-mono text-[#292E2A]">{truncateAddress(adminAddress)}</code>). Switch to Account #0 in MetaMask to authorize admin operations.
+            </p>
           </div>
         </div>
       )}
 
-      {/* Notifications */}
+      {/* Notification Alerts */}
       {successMsg && (
-        <div className="p-3.5 rounded-lg bg-[#E8F0EA] border border-[#C3D1C0] text-[#457354] text-xs flex items-center space-x-2.5">
+        <div className="p-3.5 rounded-md bg-[#E0E8DF] border border-[#BDCEBC] text-[#425B49] text-xs flex items-center space-x-2">
           <CheckCircle className="w-4 h-4 flex-shrink-0" />
           <span>{successMsg}</span>
         </div>
       )}
       {actionError && (
-        <div className="p-3.5 rounded-lg bg-[#F7ECEB] border border-[#DEC2B9] text-[#A34A42] text-xs flex items-center space-x-2.5">
+        <div className="p-3.5 rounded-md bg-[#F4EEE8] border border-[#DFCEBF] text-[#A77D60] text-xs flex items-center space-x-2 font-mono">
           <ShieldAlert className="w-4 h-4 flex-shrink-0" />
           <span>{actionError}</span>
         </div>
       )}
 
-      {/* ── 1. Election Lifecycle ──────────────────────────────────────── */}
-      <Section title="Election Lifecycle">
-        {/* Current status */}
-        <div className="flex items-center space-x-2 text-sm">
-          <span className={`w-2 h-2 rounded-full ${isElectionOpen ? 'bg-[#536A55]' : 'bg-[#93958C]'}`} />
-          <span className="font-medium text-[#30362F]">
-            {isElectionOpen ? 'Voting is open' : 'Voting is closed'}
-          </span>
-          <span className="text-[#93958C] text-xs font-mono ml-auto">
-            {encryptedVotesList.length} ballot{encryptedVotesList.length !== 1 ? 's' : ''} recorded
-          </span>
+      {/* ── Section 1: Election Lifecycle ──────────────────────────────── */}
+      <section className="bg-[#E8E6DE] border border-[#CCCBC1] rounded-xl p-5 sm:p-6 space-y-4">
+        <div className="flex items-center justify-between border-b border-[#CCCBC1] pb-3">
+          <h2 className="text-xs font-mono uppercase tracking-widest text-[#70736C]">
+            Election Lifecycle
+          </h2>
+          <div className="flex items-center space-x-1.5 text-xs font-mono">
+            <span className={`w-2 h-2 rounded-full ${isElectionOpen ? 'bg-[#425B49]' : 'bg-[#9A9C96]'}`} />
+            <span className="font-medium text-[#292E2A]">
+              {isElectionOpen ? 'POLLS OPEN' : 'POLLS CLOSED'}
+            </span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex items-center justify-between text-xs text-[#70736C]">
+          <span>Current On-Chain Ballots: <strong className="font-mono text-[#292E2A]">{encryptedVotesList.length}</strong></span>
+          <span className="font-mono">{isElectionOpen ? 'Accepting encrypted ballots' : 'Ballot recording sealed'}</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 pt-1">
           <button
+            type="button"
             onClick={() => setShowStartModal(true)}
             disabled={isElectionOpen || isStartingElection || !isAdmin}
-            className={`min-h-[44px] rounded-lg font-medium text-xs flex items-center justify-center space-x-2 transition-all ${
-              !isElectionOpen && isAdmin && !isStartingElection
-                ? 'bg-[#536A55] hover:bg-[#465B48] active:scale-[0.99] text-[#F8F7F2] shadow-sm'
-                : 'bg-[#DEDED5] text-[#93958C] cursor-not-allowed border border-[#D2D2C9]'
-            }`}
+            className="btn-primary"
           >
-            {isStartingElection
-              ? <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-              : <Play className="w-3.5 h-3.5 fill-current" />}
+            {isStartingElection ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Play className="w-3.5 h-3.5 fill-current" />
+            )}
             <span>Open Voting</span>
           </button>
 
           <button
+            type="button"
             onClick={() => setShowEndModal(true)}
             disabled={!isElectionOpen || isEndingElection || !isAdmin}
-            className={`min-h-[44px] rounded-lg font-medium text-xs flex items-center justify-center space-x-2 transition-all ${
-              isElectionOpen && isAdmin && !isEndingElection
-                ? 'bg-[#A87565] hover:bg-[#946455] active:scale-[0.99] text-[#F8F7F2] shadow-sm'
-                : 'bg-[#DEDED5] text-[#93958C] cursor-not-allowed border border-[#D2D2C9]'
-            }`}
+            className="btn-destructive"
           >
-            {isEndingElection
-              ? <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-              : <Square className="w-3.5 h-3.5 fill-current" />}
+            {isEndingElection ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Square className="w-3.5 h-3.5 fill-current" />
+            )}
             <span>Close Voting</span>
           </button>
         </div>
-      </Section>
+      </section>
 
-      {/* ── 2. Encryption Key ─────────────────────────────────────────── */}
-      <Section title="Paillier Encryption Key">
-        {/* Key status line */}
-        <div className="flex items-center space-x-2 text-xs font-mono text-[#6F746B]">
-          <span className={`w-1.5 h-1.5 rounded-full ${publicKey ? 'bg-[#536A55]' : 'bg-[#93958C]'}`} />
-          <span>{publicKey ? 'Key published on-chain' : 'No key on-chain'}</span>
-          {localPrivateKey && (
-            <span className="ml-auto text-[#536A55]">Private key in session</span>
-          )}
+      {/* ── Section 2: Paillier Encryption Keys ────────────────────────── */}
+      <section className="bg-[#E8E6DE] border border-[#CCCBC1] rounded-xl p-5 sm:p-6 space-y-4">
+        <div className="flex items-center justify-between border-b border-[#CCCBC1] pb-3">
+          <h2 className="text-xs font-mono uppercase tracking-widest text-[#70736C]">
+            Paillier Cryptographic Keys
+          </h2>
+          <span className="text-xs font-mono text-[#70736C]">
+            {publicKey ? 'Key Published On-Chain' : 'Key Not Published'}
+          </span>
         </div>
 
-        {/* Bitlength selector */}
-        <div className="flex items-center space-x-3">
-          <span className="text-xs text-[#6F746B]">Key size</span>
-          <div className="flex items-center space-x-1 bg-[#DEDED5] p-1 rounded-lg border border-[#D2D2C9]/60">
+        {/* Bitlength Segmented Control */}
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-[#70736C]">Key Bitlength</span>
+          <div className="flex items-center space-x-1 bg-[#DCDAD1] p-1 rounded-md border border-[#CCCBC1]">
             {[512, 1024, 2048].map((bits) => (
               <button
                 key={bits}
+                type="button"
                 onClick={() => setKeyBitLength(bits)}
-                className={`px-2.5 py-1 rounded-md text-xs font-mono transition-all ${
+                className={`px-2.5 py-1 rounded text-xs font-mono transition-all ${
                   keyBitLength === bits
-                    ? 'bg-[#F8F7F2] text-[#30362F] shadow-sm border border-[#D2D2C9]'
-                    : 'text-[#6F746B] hover:text-[#30362F]'
+                    ? 'bg-[#F8F7F3] text-[#292E2A] font-semibold shadow-subtle border border-[#CCCBC1]'
+                    : 'text-[#70736C] hover:text-[#292E2A]'
                 }`}
               >
                 {bits}-bit
@@ -460,45 +497,71 @@ export function AdminView({
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
           <button
+            type="button"
             onClick={handleGenerateKeys}
             disabled={isGeneratingKeys || !isAdmin}
-            className="min-h-[44px] flex-1 rounded-lg text-xs font-medium bg-[#F4F3EE] hover:bg-[#DEDED5] border border-[#D2D2C9] text-[#30362F] flex items-center justify-center space-x-2 transition-all disabled:opacity-50"
+            className="btn-secondary"
           >
-            {isGeneratingKeys && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+            {isGeneratingKeys ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Key className="w-3.5 h-3.5 text-[#A77D60]" />
+            )}
             <span>Generate {keyBitLength}-bit Keys</span>
           </button>
 
           <button
+            type="button"
             onClick={handlePublishKey}
             disabled={isPublishingKey || (!localPrivateKey && !publicKey) || !isAdmin}
-            className="min-h-[44px] flex-1 rounded-lg text-xs font-medium bg-[#536A55] hover:bg-[#465B48] text-[#F8F7F2] active:scale-[0.99] flex items-center justify-center space-x-2 disabled:opacity-50 transition-all shadow-sm"
+            className="btn-primary"
           >
             {isPublishingKey && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
-            <span>Publish to Contract</span>
+            <span>Publish Public Key On-Chain</span>
           </button>
         </div>
-      </Section>
 
-      {/* ── 3. Voter Whitelisting ─────────────────────────────────────── */}
-      <Section title="Voter Whitelisting">
+        {/* Key Summary */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+          <div className="bg-[#F8F7F3] p-3 rounded-md border border-[#CCCBC1]">
+            <span className="text-[10px] text-[#9A9C96] font-mono uppercase block mb-0.5">Modulus n</span>
+            <span className="font-mono text-[11px] text-[#292E2A] truncate block font-medium">
+              {publicKey ? truncateCiphertext(publicKey.n.toString(), 18) : 'Not published'}
+            </span>
+          </div>
+          <div className="bg-[#F8F7F3] p-3 rounded-md border border-[#CCCBC1]">
+            <span className="text-[10px] text-[#9A9C96] font-mono uppercase block mb-0.5">Private Key (λ, μ)</span>
+            <span className="font-mono text-[11px] text-[#425B49] truncate block font-medium">
+              {localPrivateKey ? 'Active in Session Storage' : 'Not Generated'}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section 3: Voter Access Whitelist ─────────────────────────── */}
+      <section className="bg-[#E8E6DE] border border-[#CCCBC1] rounded-xl p-5 sm:p-6 space-y-4">
+        <h2 className="text-xs font-mono uppercase tracking-widest text-[#70736C] border-b border-[#CCCBC1] pb-3">
+          Voter Access Whitelist
+        </h2>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Single */}
-          <form onSubmit={handleAddSingleVoter} className="space-y-2">
-            <label className="text-xs text-[#6F746B] block">Single address</label>
+          {/* Single Address */}
+          <form onSubmit={handleAddSingleVoter} className="space-y-2 bg-[#F8F7F3] p-4 rounded-lg border border-[#CCCBC1]">
+            <label className="text-xs text-[#70736C] block font-medium">Single Address</label>
             <div className="flex space-x-2">
               <input
                 type="text"
                 placeholder="0x…"
                 value={singleVoterAddress}
                 onChange={(e) => setSingleVoterAddress(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-lg bg-[#F8F7F2] border border-[#D2D2C9] text-[#30362F] placeholder-[#93958C] font-mono text-xs focus:outline-none focus:border-[#536A55]"
+                className="flex-1 px-3 py-2 rounded-md bg-[#F1EFE8] border border-[#CCCBC1] text-[#292E2A] placeholder-[#9A9C96] font-mono text-xs focus:outline-none focus:border-[#425B49]"
               />
               <button
                 type="submit"
                 disabled={isWhitelisting || !singleVoterAddress || !isAdmin}
-                className="min-h-[40px] px-4 rounded-lg text-xs font-medium bg-[#536A55] hover:bg-[#465B48] active:scale-[0.99] text-[#F8F7F2] flex items-center space-x-1.5 disabled:opacity-50 transition-all shadow-sm"
+                className="btn-primary min-h-[38px] px-3.5"
               >
                 {isWhitelisting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <UserPlus className="w-3.5 h-3.5" />}
                 <span>Add</span>
@@ -506,10 +569,10 @@ export function AdminView({
             </div>
           </form>
 
-          {/* Batch */}
-          <form onSubmit={handleBatchAddVoters} className="space-y-2">
+          {/* Batch Addresses */}
+          <form onSubmit={handleBatchAddVoters} className="space-y-2 bg-[#F8F7F3] p-4 rounded-lg border border-[#CCCBC1]">
             <div className="flex items-center justify-between">
-              <label className="text-xs text-[#6F746B]">Batch addresses</label>
+              <label className="text-xs text-[#70736C] font-medium">Batch Addresses</label>
               <button
                 type="button"
                 onClick={() =>
@@ -517,154 +580,164 @@ export function AdminView({
                     '0x70997970C51812dc3A010C7d01b50e0d17dc79C8\n0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC\n0x90F79bf6EB2c4f870365E785982E1f101E93b906'
                   )
                 }
-                className="text-[11px] text-[#A48B70] hover:underline font-mono"
+                className="text-[11px] text-[#A77D60] hover:underline font-mono"
               >
-                Fill test accounts
+                Auto-fill test accounts
               </button>
             </div>
-            <div className="flex space-x-2">
-              <textarea
-                rows={2}
-                placeholder="One address per line"
-                value={batchVoterAddresses}
-                onChange={(e) => setBatchVoterAddresses(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-lg bg-[#F8F7F2] border border-[#D2D2C9] text-[#30362F] placeholder-[#93958C] font-mono text-xs focus:outline-none focus:border-[#536A55] resize-none"
-              />
-              <button
-                type="submit"
-                disabled={isWhitelisting || !batchVoterAddresses || !isAdmin}
-                className="min-h-[40px] px-4 self-end rounded-lg text-xs font-medium bg-[#F4F3EE] hover:bg-[#DEDED5] border border-[#D2D2C9] text-[#30362F] flex items-center space-x-1.5 disabled:opacity-50 transition-all"
-              >
-                {isWhitelisting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Users className="w-3.5 h-3.5" />}
-                <span>Add All</span>
-              </button>
-            </div>
+            <textarea
+              rows={2}
+              placeholder="0x7099…&#10;0x3C44…"
+              value={batchVoterAddresses}
+              onChange={(e) => setBatchVoterAddresses(e.target.value)}
+              className="w-full px-3 py-2 rounded-md bg-[#F1EFE8] border border-[#CCCBC1] text-[#292E2A] placeholder-[#9A9C96] font-mono text-xs focus:outline-none focus:border-[#425B49] resize-none"
+            />
+            <button
+              type="submit"
+              disabled={isWhitelisting || !batchVoterAddresses || !isAdmin}
+              className="btn-secondary w-full min-h-[38px]"
+            >
+              {isWhitelisting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Users className="w-3.5 h-3.5 text-[#425B49]" />}
+              <span>Batch Whitelist Addresses</span>
+            </button>
           </form>
         </div>
-      </Section>
+      </section>
 
-      {/* ── 4. Homomorphic Tally ─────────────────────────────────────── */}
-      <Section title="Tally & Results">
-        {/* Tally mode selector */}
-        <div className="flex items-center space-x-3">
-          <span className="text-xs text-[#6F746B]">Encoding scheme</span>
-          <div className="flex items-center space-x-1 bg-[#DEDED5] p-1 rounded-lg border border-[#D2D2C9]/60">
+      {/* ── Section 4: Homomorphic Tally & Results ─────────────────────── */}
+      <section className="bg-[#E8E6DE] border border-[#CCCBC1] rounded-xl p-5 sm:p-6 space-y-4">
+        <div className="flex items-center justify-between border-b border-[#CCCBC1] pb-3">
+          <h2 className="text-xs font-mono uppercase tracking-widest text-[#70736C]">
+            Homomorphic Tally & Results
+          </h2>
+          <div className="flex items-center space-x-2">
+            {/* Scheme Selector */}
+            <div className="flex items-center space-x-1 bg-[#DCDAD1] p-1 rounded-md border border-[#CCCBC1]">
+              <button
+                type="button"
+                onClick={() => setTallyMode('radix')}
+                className={`px-2.5 py-1 rounded text-xs font-mono transition-all ${
+                  tallyMode === 'radix'
+                    ? 'bg-[#F8F7F3] text-[#292E2A] font-medium shadow-subtle border border-[#CCCBC1]'
+                    : 'text-[#70736C] hover:text-[#292E2A]'
+                }`}
+              >
+                Radix Multi
+              </button>
+              <button
+                type="button"
+                onClick={() => setTallyMode('simple')}
+                className={`px-2.5 py-1 rounded text-xs font-mono transition-all ${
+                  tallyMode === 'simple'
+                    ? 'bg-[#F8F7F3] text-[#292E2A] font-medium shadow-subtle border border-[#CCCBC1]'
+                    : 'text-[#70736C] hover:text-[#292E2A]'
+                }`}
+              >
+                Linear
+              </button>
+            </div>
             <button
-              onClick={() => setTallyMode('radix')}
-              className={`px-3 py-1 rounded-md text-xs font-mono transition-all ${
-                tallyMode === 'radix'
-                  ? 'bg-[#F8F7F2] text-[#30362F] shadow-sm border border-[#D2D2C9]'
-                  : 'text-[#6F746B] hover:text-[#30362F]'
-              }`}
+              type="button"
+              onClick={fetchEncryptedVotes}
+              disabled={isLoadingVotes}
+              className="p-1.5 rounded-md bg-[#F8F7F3] hover:bg-[#DCDAD1] border border-[#CCCBC1] text-[#70736C] transition-colors"
+              title="Refresh ballots from blockchain"
             >
-              Radix
-            </button>
-            <button
-              onClick={() => setTallyMode('simple')}
-              className={`px-3 py-1 rounded-md text-xs font-mono transition-all ${
-                tallyMode === 'simple'
-                  ? 'bg-[#F8F7F2] text-[#30362F] shadow-sm border border-[#D2D2C9]'
-                  : 'text-[#6F746B] hover:text-[#30362F]'
-              }`}
-            >
-              Linear
+              <RefreshCw className={`w-3.5 h-3.5 ${isLoadingVotes ? 'animate-spin' : ''}`} />
             </button>
           </div>
-          <button
-            onClick={fetchEncryptedVotes}
-            disabled={isLoadingVotes}
-            className="ml-auto p-2 rounded-lg bg-[#F8F7F2] hover:bg-[#DEDED5] text-[#6F746B] border border-[#D2D2C9] transition-colors"
-            title="Refresh ballots from blockchain"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isLoadingVotes ? 'animate-spin' : ''}`} />
-          </button>
         </div>
 
-        {/* Ballot count */}
-        <div className="text-xs text-[#6F746B] font-mono">
-          {encryptedVotesList.length} encrypted ballot{encryptedVotesList.length !== 1 ? 's' : ''} on-chain
+        <div className="text-xs text-[#70736C] font-mono">
+          {encryptedVotesList.length} encrypted ballot{encryptedVotesList.length !== 1 ? 's' : ''} stored on-chain
           {!isElectionOpen && encryptedVotesList.length > 0 && (
-            <span className="text-[#536A55] ml-2">— ready to tally</span>
+            <span className="text-[#425B49] ml-2 font-medium">— Ready to aggregate and decrypt</span>
           )}
         </div>
 
-        {/* Two-step tally actions */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* 2-Step Homomorphic Workflow */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
           <button
+            type="button"
             onClick={handleComputeHomomorphicAddition}
             disabled={encryptedVotesList.length === 0 || isAggregating || !isAdmin}
-            className={`min-h-[44px] rounded-lg font-medium text-xs flex items-center justify-center space-x-2 transition-all ${
-              encryptedVotesList.length > 0 && isAdmin && !isAggregating
-                ? 'bg-[#F4F3EE] hover:bg-[#DEDED5] text-[#30362F] border border-[#D2D2C9]'
-                : 'bg-[#DEDED5] text-[#93958C] cursor-not-allowed border border-[#D2D2C9]'
-            }`}
+            className="btn-secondary"
           >
-            {isAggregating ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Cpu className="w-3.5 h-3.5" />}
-            <span>Aggregate Ciphertexts</span>
+            {isAggregating ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Cpu className="w-3.5 h-3.5 text-[#425B49]" />
+            )}
+            <span>Step 1: Aggregate Ciphertexts</span>
           </button>
 
           <button
+            type="button"
             onClick={handleDecryptAndTally}
             disabled={!homomorphicSumCiphertext || !localPrivateKey || isDecrypting || !isAdmin}
-            className={`min-h-[44px] rounded-lg font-medium text-xs flex items-center justify-center space-x-2 transition-all ${
-              homomorphicSumCiphertext && localPrivateKey && isAdmin && !isDecrypting
-                ? 'bg-[#536A55] hover:bg-[#465B48] active:scale-[0.99] text-[#F8F7F2] shadow-sm'
-                : 'bg-[#DEDED5] text-[#93958C] cursor-not-allowed border border-[#D2D2C9]'
-            }`}
+            className="btn-primary"
           >
-            {isDecrypting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Unlock className="w-3.5 h-3.5" />}
-            <span>Decrypt & Reveal Results</span>
+            {isDecrypting ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Unlock className="w-3.5 h-3.5 text-[#F1EFE8]" />
+            )}
+            <span>Step 2: Decrypt & Reveal Results</span>
           </button>
         </div>
 
-        {/* Aggregate ciphertext preview */}
+        {/* Aggregated Ciphertext Box */}
         {homomorphicSumCiphertext && (
-          <div className="bg-[#E9E8E2] rounded-lg px-4 py-3 font-mono text-xs text-[#30362F] break-all space-y-2">
-            <span className="text-[#93958C] text-[10px] uppercase tracking-wider block">Aggregate ciphertext (C_total)</span>
-            <span>{truncateCiphertext(homomorphicSumCiphertext, 48)}</span>
+          <div className="bg-[#F8F7F3] border border-[#CCCBC1] rounded-md p-4 font-mono text-xs text-[#292E2A] space-y-2">
+            <span className="text-[10px] text-[#9A9C96] uppercase tracking-wider block">
+              Aggregated Ciphertext Product (C_total = ∏ cᵢ mod n²)
+            </span>
+            <div className="break-all text-[11px] leading-relaxed">
+              {truncateCiphertext(homomorphicSumCiphertext, 44)}
+            </div>
             {decryptedSum !== null && (
-              <div className="pt-2 border-t border-[#D2D2C9] flex items-center justify-between font-sans text-xs">
-                <span className="text-[#6F746B]">Decrypted sum</span>
-                <span className="font-mono font-bold text-[#536A55]">{decryptedSum.toString()}</span>
+              <div className="pt-2 border-t border-[#CCCBC1] flex items-center justify-between font-sans text-xs">
+                <span className="text-[#70736C]">Decrypted Plaintext Sum:</span>
+                <span className="font-mono font-bold text-base text-[#425B49]">{decryptedSum.toString()}</span>
               </div>
             )}
           </div>
         )}
 
-        {/* Election results */}
+        {/* Certified Results Presentation */}
         {tallyResults && tallyResults.length > 0 && (
-          <div className="space-y-4 pt-2 border-t border-[#D2D2C9]">
-            {/* Winner */}
-            <div className="rounded-xl bg-[#F8F7F2] border-2 border-[#536A55] p-5 flex items-center justify-between gap-4">
+          <div className="space-y-4 pt-3 border-t border-[#CCCBC1]">
+            {/* Winner Spotlight */}
+            <div className="rounded-lg bg-[#F8F7F3] border-2 border-[#425B49] p-5 flex items-center justify-between gap-4 shadow-card">
               <div>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-[#536A55] block mb-1">
-                  Winner
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#425B49] block mb-0.5 font-semibold">
+                  Certified Winner
                 </span>
-                <h4 className="text-lg font-semibold text-[#30362F] tracking-tight">{tallyResults[0].name}</h4>
-                <p className="text-xs text-[#6F746B] mt-0.5">{tallyResults[0].platform}</p>
+                <h4 className="text-lg font-semibold text-[#292E2A] tracking-tight">{tallyResults[0].name}</h4>
+                <p className="text-xs text-[#70736C] mt-0.5">{tallyResults[0].role} · {tallyResults[0].platform}</p>
               </div>
               <div className="text-right flex-shrink-0">
-                <div className="text-3xl font-mono font-semibold text-[#536A55]">{tallyResults[0].votes}</div>
-                <div className="text-[10px] text-[#93958C] font-mono uppercase tracking-wider">votes</div>
+                <div className="text-3xl font-mono font-semibold text-[#425B49]">{tallyResults[0].votes}</div>
+                <div className="text-[10px] text-[#9A9C96] font-mono uppercase tracking-wider">Votes</div>
               </div>
             </div>
 
-            {/* All candidates */}
-            <div className="space-y-3">
+            {/* Candidate Breakdown */}
+            <div className="space-y-3 bg-[#F8F7F3] border border-[#CCCBC1] rounded-lg p-4">
               {tallyResults.map((candidate, idx) => {
                 const totalBallots = encryptedVotesList.length || 1;
                 const pct = Math.round((candidate.votes / totalBallots) * 100);
                 return (
-                  <div key={candidate.id} className="space-y-1.5">
+                  <div key={candidate.id} className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-[#30362F]">{candidate.name}</span>
-                      <span className="font-mono text-[#30362F]">
-                        {candidate.votes} <span className="text-[#93958C] font-normal">votes · {pct}%</span>
+                      <span className="font-medium text-[#292E2A]">{candidate.name}</span>
+                      <span className="font-mono text-[#292E2A]">
+                        {candidate.votes} <span className="text-[#9A9C96] font-normal font-sans">votes ({pct}%)</span>
                       </span>
                     </div>
-                    <div className="w-full bg-[#E9E8E2] rounded-full h-1.5 overflow-hidden">
+                    <div className="w-full bg-[#E8E6DE] rounded-full h-1.5 overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all duration-700 ${idx === 0 ? 'bg-[#536A55]' : 'bg-[#A48B70]'}`}
+                        className={`h-full rounded-full transition-all duration-700 ${idx === 0 ? 'bg-[#425B49]' : 'bg-[#A77D60]'}`}
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -674,7 +747,7 @@ export function AdminView({
             </div>
           </div>
         )}
-      </Section>
+      </section>
     </div>
   );
 }

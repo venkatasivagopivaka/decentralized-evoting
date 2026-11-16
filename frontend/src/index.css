@@ -8,68 +8,155 @@
   }
 
   body {
-    background-color: #E9E8E2;
-    color: #30362F;
+    background-color: #F1EFE8;
+    color: #292E2A;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   ::selection {
-    background-color: #E4EAE1;
-    color: #30362F;
+    background-color: #E0E8DF;
+    color: #292E2A;
   }
 }
 
-/* Quiet Authority Component System */
-.qa-panel {
-  background-color: #F4F3EE;
-  border: 1px solid #D2D2C9;
+/* Contemporary Editorial Minimalism — Component Utility Classes */
+.editorial-panel {
+  background-color: #E8E6DE;
+  border: 1px solid #CCCBC1;
   border-radius: 0.75rem;
 }
 
-.qa-card {
-  background-color: #F8F7F2;
-  border: 1px solid #D2D2C9;
-  border-radius: 0.75rem;
+.editorial-card {
+  background-color: #F8F7F3;
+  border: 1px solid #CCCBC1;
+  border-radius: 0.5rem;
 }
 
-.qa-card-interactive {
-  background-color: #F8F7F2;
-  border: 1px solid #D2D2C9;
-  border-radius: 0.75rem;
-  transition: all 150ms ease;
+.editorial-card-interactive {
+  background-color: #F8F7F3;
+  border: 1px solid #CCCBC1;
+  border-radius: 0.5rem;
+  transition: all 180ms ease;
 }
 
-.qa-card-interactive:hover {
-  border-color: #A48B70;
-  box-shadow: 0 1px 3px rgba(48, 54, 47, 0.05);
+.editorial-card-interactive:hover {
+  border-color: #70736C;
+  box-shadow: 0 2px 6px rgba(41, 46, 42, 0.05);
+}
+
+/* Button System Standards (180ms timing, consistent proportions) */
+.btn-primary {
+  min-height: 42px;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  background-color: #425B49;
+  color: #F1EFE8;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  transition: all 180ms ease;
+  box-shadow: 0 1px 2px rgba(41, 46, 42, 0.04);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #354B3C;
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  min-height: 42px;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  background-color: #E8E6DE;
+  border: 1px solid #CCCBC1;
+  color: #292E2A;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  transition: all 180ms ease;
+  box-shadow: 0 1px 2px rgba(41, 46, 42, 0.03);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #DCDAD1;
+  border-color: #B3B2A6;
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-destructive {
+  min-height: 42px;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  background-color: #A77D60;
+  color: #F1EFE8;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  transition: all 180ms ease;
+  box-shadow: 0 1px 2px rgba(41, 46, 42, 0.04);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+}
+
+.btn-destructive:hover:not(:disabled) {
+  background-color: #8F694F;
+}
+
+.btn-destructive:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.btn-destructive:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Accessible focus ring */
-.qa-focus-ring:focus-visible {
+:focus-visible {
   outline: none;
-  ring: 2px;
-  ring-color: #536A55;
-  ring-offset: 2px;
-  ring-offset-color: #E9E8E2;
+  box-shadow: 0 0 0 2px #F1EFE8, 0 0 0 4px #425B49;
 }
 
-/* Minimalist Warm Mineral Scrollbars */
+/* Warm Ivory & Stone Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #E9E8E2;
+  background: #F1EFE8;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #C8C7BE;
+  background: #CCCBC1;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #AFAEA4;
+  background: #A7A69C;
 }
