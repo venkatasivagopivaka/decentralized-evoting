@@ -5,6 +5,8 @@ import { HeroSection } from './components/HeroSection';
 import { VoterView } from './components/VoterView';
 import { AdminView } from './components/AdminView';
 import { CryptoInspector } from './components/CryptoInspector';
+import { UnauthorizedView } from './components/UnauthorizedView';
+import { LandingGateway } from './components/LandingGateway';
 import { 
   hasEthereum, 
   connectWallet, 
@@ -33,8 +35,8 @@ export function App() {
   const [isElectionOpen, setIsElectionOpen] = useState(false);
   const [paillierPublicKey, setPaillierPublicKey] = useState(null);
 
-  // App UI State
-  const [activeTab, setActiveTab] = useState('voter'); // 'voter' | 'admin' | 'crypto'
+  // App Navigation View: 'landing' | 'voter' | 'admin' | 'unauthorized' | 'crypto'
+  const [currentView, setCurrentView] = useState('landing');
   const [notification, setNotification] = useState(null);
 
   // Reference to main interactive action section
@@ -46,6 +48,14 @@ export function App() {
       setNotification(null);
     }, 4500);
   };
+
+  // Authoritative Role Calculation
+  const isAdmin = Boolean(
+    account && adminAddress && account.toLowerCase() === adminAddress.toLowerCase()
+  );
+  const isAuthorizedVoter = Boolean(account && !isAdmin && isWhitelisted);
+  const isUnauthorized = Boolean(account && !isAdmin && !isWhitelisted);
+  const isCorrectNetwork = !chainId || chainId === HARDHAT_CHAIN_ID;
 
   // Fetch contract data directly from the active smart contract
   const refreshContractData = useCallback(async () => {
@@ -92,22 +102,149 @@ export function App() {
     }
   }, [account, provider, signer]);
 
-  // Connect Wallet Handler
+  // Dynamic role re-evaluation on MetaMask accountsChanged event
+  const handleAccountsChanged = useCallback(async (accs) => {
+    if (!accs || accs.length === 0) {
+      // User disconnected in MetaMask extension
+      setAccount('');
+      setSigner(null);
+      setIsWhitelisted(false);
+      setHasVoted(false);
+      setCurrentView('landing');
+      showToast("Wallet disconnected in MetaMask.", 'info');
+      return;
+    }
+
+    const newAcc = accs[0];
+    setAccount(newAcc);
+
+    if (window.ethereum) {
+      try {
+        const browserProvider = new ethers.BrowserProvider(window.ethereum);
+        let signerObj = null;
+        try {
+          signerObj = await browserProvider.getSigner();
+          setSigner(signerObj);
+        } catch {
+          // Ignored if detached or pending
+        }
+        setProvider(browserProvider);
+
+        const queryContract = signerObj 
+          ? getEVotingContract(signerObj) 
+          : getEVotingContract(browserProvider);
+        setContract(queryContract);
+
+        const [admin, [whitelisted, voted]] = await Promise.all([
+          queryContract.admin().catch(() => contractDeployment.admin || ''),
+          queryContract.getVoterStatus(newAcc),
+        ]);
+
+        setAdminAddress(admin);
+        const isUserWhitelisted = Boolean(whitelisted);
+        setIsWhitelisted(isUserWhitelisted);
+        setHasVoted(Boolean(voted));
+
+        // CRITICAL: Immediately re-evaluate role. Never leave an admin dashboard visible.
+        if (admin && newAcc.toLowerCase() === admin.toLowerCase()) {
+          setCurrentView('admin');
+          showToast(`Switched to Administrator Account (${newAcc.slice(0, 6)}...${newAcc.slice(-4)})`, 'info');
+        } else if (isUserWhitelisted) {
+          setCurrentView('voter');
+          showToast(`Switched to Whitelisted Voter Account (${newAcc.slice(0, 6)}...${newAcc.slice(-4)})`, 'info');
+        } else {
+          setCurrentView('unauthorized');
+          showToast(`Switched to Unregistered Account: Access Restricted (${newAcc.slice(0, 6)}...${newAcc.slice(-4)})`, 'error');
+        }
+      } catch (err) {
+        console.warn("Signer update on account change:", err);
+        setCurrentView('unauthorized');
+      }
+    }
+  }, [showToast]);
+
+  const handleChainChanged = useCallback((newChainId) => {
+    const parsedId = BigInt(newChainId);
+    setChainId(parsedId);
+    if (parsedId !== HARDHAT_CHAIN_ID) {
+      showToast("Notice: Switched away from Hardhat Localhost (31337).", 'error');
+    }
+  }, [showToast]);
+
+  const listenersAttachedRef = useRef(false);
+
+  const setupEthereumListeners = useCallback(() => {
+    if (!hasEthereum() || listenersAttachedRef.current) return;
+    window.ethereum.on('accountsChanged', handleAccountsChanged);
+    window.ethereum.on('chainChanged', handleChainChanged);
+    listenersAttachedRef.current = true;
+  }, [handleAccountsChanged, handleChainChanged]);
+
+  // Connect Wallet Handler with Immediate Role Routing
   const handleConnect = async () => {
     try {
       setIsConnecting(true);
+      sessionStorage.removeItem('evoting_manual_disconnect');
       const res = await connectWallet();
       setProvider(res.provider);
       setSigner(res.signer);
       setAccount(res.address);
       setChainId(res.chainId);
-      showToast(`Connected: ${res.address.slice(0, 6)}...${res.address.slice(-4)}`, 'success');
+
+      // Attach event listeners immediately upon wallet connection
+      setupEthereumListeners();
+
+      // Actively query smart contract for authoritative role detection
+      const activeContract = getEVotingContract(res.signer);
+      setContract(activeContract);
+
+      const [admin, openState, [pubN, pubG]] = await Promise.all([
+        activeContract.admin().catch(() => contractDeployment.admin || ''),
+        activeContract.isElectionOpen(),
+        activeContract.getPaillierPublicKey(),
+      ]);
+
+      setAdminAddress(admin);
+      setIsElectionOpen(openState);
+
+      if (pubN && pubG && pubN.length > 0 && pubG.length > 0) {
+        const pub = deserializePublicKey(pubN, pubG);
+        setPaillierPublicKey(pub);
+      }
+
+      const [whitelisted, voted] = await activeContract.getVoterStatus(res.address);
+      const isUserWhitelisted = Boolean(whitelisted);
+      setIsWhitelisted(isUserWhitelisted);
+      setHasVoted(Boolean(voted));
+
+      // Automatic Role Routing
+      if (admin && res.address.toLowerCase() === admin.toLowerCase()) {
+        setCurrentView('admin');
+        showToast(`Authenticated as Election Administrator (${res.address.slice(0, 6)}...${res.address.slice(-4)})`, 'success');
+      } else if (isUserWhitelisted) {
+        setCurrentView('voter');
+        showToast(`Authenticated as Registered Voter (${res.address.slice(0, 6)}...${res.address.slice(-4)})`, 'success');
+      } else {
+        setCurrentView('unauthorized');
+        showToast(`Connected: ${res.address.slice(0, 6)}...${res.address.slice(-4)} (Not Whitelisted)`, 'error');
+      }
     } catch (err) {
       console.error("Connect wallet error:", err);
       showToast(err.message, 'error');
     } finally {
       setIsConnecting(false);
     }
+  };
+
+  // Disconnect Wallet Handler
+  const handleDisconnect = () => {
+    sessionStorage.setItem('evoting_manual_disconnect', 'true');
+    setAccount('');
+    setSigner(null);
+    setIsWhitelisted(false);
+    setHasVoted(false);
+    setCurrentView('landing');
+    showToast("Wallet disconnected.", 'info');
   };
 
   // Switch Network Handler
@@ -121,61 +258,87 @@ export function App() {
     }
   };
 
-  // Check if wallet is already connected on mount
+  // Auto-connect check strictly on initial mount
   useEffect(() => {
     if (!hasEthereum()) return;
 
     const checkExistingConnection = async () => {
+      // Respect explicit manual disconnects across refreshes
+      if (sessionStorage.getItem('evoting_manual_disconnect') === 'true') {
+        return;
+      }
+
       try {
         const browserProvider = new ethers.BrowserProvider(window.ethereum);
         const accounts = await browserProvider.send('eth_accounts', []);
+        if (sessionStorage.getItem('evoting_manual_disconnect') === 'true') return;
+
         if (accounts && accounts.length > 0) {
           const signerObj = await browserProvider.getSigner();
           const net = await browserProvider.getNetwork();
+          if (sessionStorage.getItem('evoting_manual_disconnect') === 'true') return;
+
           setProvider(browserProvider);
           setSigner(signerObj);
           setAccount(accounts[0]);
           setChainId(net.chainId);
+
+          const activeContract = getEVotingContract(signerObj);
+          setContract(activeContract);
+
+          const [admin, openState, [pubN, pubG]] = await Promise.all([
+            activeContract.admin().catch(() => contractDeployment.admin || ''),
+            activeContract.isElectionOpen(),
+            activeContract.getPaillierPublicKey(),
+          ]);
+
+          if (sessionStorage.getItem('evoting_manual_disconnect') === 'true') return;
+
+          setAdminAddress(admin);
+          setIsElectionOpen(openState);
+
+          if (pubN && pubG && pubN.length > 0 && pubG.length > 0) {
+            setPaillierPublicKey(deserializePublicKey(pubN, pubG));
+          }
+
+          const [whitelisted, voted] = await activeContract.getVoterStatus(accounts[0]);
+          if (sessionStorage.getItem('evoting_manual_disconnect') === 'true') return;
+
+          const isUserWhitelisted = Boolean(whitelisted);
+          setIsWhitelisted(isUserWhitelisted);
+          setHasVoted(Boolean(voted));
+
+          // Auto-route on mount if connected
+          if (admin && accounts[0].toLowerCase() === admin.toLowerCase()) {
+            setCurrentView('admin');
+          } else if (isUserWhitelisted) {
+            setCurrentView('voter');
+          } else {
+            setCurrentView('unauthorized');
+          }
         }
       } catch (err) {
-        console.warn("Could not auto-connect wallet:", err);
+        console.warn("Could not auto-connect wallet on mount:", err);
       }
     };
 
     checkExistingConnection();
+  }, []);
 
-    // MetaMask Event Listeners with dynamic Signer refresh
-    const handleAccountsChanged = async (accs) => {
-      if (accs.length === 0) {
-        setAccount('');
-        setSigner(null);
-      } else {
-        setAccount(accs[0]);
-        if (window.ethereum) {
-          try {
-            const browserProvider = new ethers.BrowserProvider(window.ethereum);
-            const signerObj = await browserProvider.getSigner();
-            setProvider(browserProvider);
-            setSigner(signerObj);
-          } catch (err) {
-            console.warn("Signer update on account change:", err);
-          }
-        }
-      }
-    };
-
-    const handleChainChanged = (newChainId) => {
-      setChainId(BigInt(newChainId));
-    };
+  // MetaMask Event Listeners
+  useEffect(() => {
+    if (!hasEthereum() || !window.ethereum) return;
 
     window.ethereum.on('accountsChanged', handleAccountsChanged);
     window.ethereum.on('chainChanged', handleChainChanged);
 
     return () => {
-      window.ethereum?.removeListener('accountsChanged', handleAccountsChanged);
-      window.ethereum?.removeListener('chainChanged', handleChainChanged);
+      if (window.ethereum?.removeListener) {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        window.ethereum.removeListener('chainChanged', handleChainChanged);
+      }
     };
-  }, []);
+  }, [handleAccountsChanged, handleChainChanged]);
 
   // Update contract data when account, provider, or signer changes
   useEffect(() => {
@@ -190,6 +353,10 @@ export function App() {
       const onVoterAdded = (voter) => {
         if (account && voter.toLowerCase() === account.toLowerCase()) {
           showToast("Your address has been whitelisted on Ethereum.", 'success');
+          setIsWhitelisted(true);
+          if (currentView === 'unauthorized') {
+            setCurrentView('voter');
+          }
         }
         refreshContractData();
       };
@@ -197,6 +364,7 @@ export function App() {
       const onVoteCast = (voter) => {
         if (account && voter.toLowerCase() === account.toLowerCase()) {
           showToast("Ballot confirmed on Ethereum blockchain.", 'success');
+          setHasVoted(true);
         }
         refreshContractData();
       };
@@ -228,18 +396,37 @@ export function App() {
     } catch (err) {
       console.warn("Could not attach contract event listeners:", err);
     }
-  }, [contract, account, refreshContractData]);
+  }, [contract, account, currentView, refreshContractData]);
 
-  // Smooth, predictable tab navigation without erratic scroll jumps
-  const handleNavbarTabChange = (tab) => {
-    setActiveTab(tab);
-    
-    // Only adjust scroll if user is above the action area (e.g. browsing the hero)
-    if (actionSectionRef.current) {
+  // Controlled Navigation Handler with Access Guards
+  const handleNavigateView = (view) => {
+    // Security Guard: Prevent unauthorized access to Admin View
+    if (view === 'admin' && !isAdmin) {
+      setCurrentView('unauthorized');
+      showToast("Access Denied: Administrator credentials required.", 'error');
+      return;
+    }
+
+    // Security Guard: Prevent non-whitelisted access to Voter View
+    if (view === 'voter' && !isAuthorizedVoter) {
+      if (!account) {
+        setCurrentView('landing');
+        showToast("Please connect your wallet first to vote.", 'info');
+      } else {
+        setCurrentView('unauthorized');
+        showToast("Access Denied: Wallet is not registered to vote.", 'error');
+      }
+      return;
+    }
+
+    setCurrentView(view);
+
+    // Smooth scroll positioning
+    if (view === 'landing') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (actionSectionRef.current) {
       const rect = actionSectionRef.current.getBoundingClientRect();
       const headerOffset = window.innerWidth >= 768 ? 90 : 120;
-      
-      // If user is scrolled way above the action area, scroll down smoothly
       if (rect.top > headerOffset + 50) {
         window.scrollTo({
           top: window.pageYOffset + rect.top - headerOffset,
@@ -249,38 +436,22 @@ export function App() {
     }
   };
 
-  // Intentional CTA navigation from Hero section buttons
-  const handleHeroNavigateTab = (tab) => {
-    setActiveTab(tab);
-    if (actionSectionRef.current) {
-      const rect = actionSectionRef.current.getBoundingClientRect();
-      const headerOffset = window.innerWidth >= 768 ? 90 : 120;
-      window.scrollTo({
-        top: window.pageYOffset + rect.top - headerOffset,
-        behavior: 'smooth'
-      });
-    }
-  };
-
-  const isAdmin = Boolean(
-    account && adminAddress && account.toLowerCase() === adminAddress.toLowerCase()
-  );
-  const isCorrectNetwork = !chainId || chainId === HARDHAT_CHAIN_ID;
-
   return (
     <div className="min-h-screen flex flex-col bg-[#08090B] text-white font-sans selection:bg-[#C6FF00] selection:text-[#08090B] pt-24 md:pt-20">
       
-      {/* Persistently Sticky / Fixed Luxury Header */}
+      {/* Persistently Sticky Luxury Navigation with Role-First Tabs */}
       <Navbar
         account={account}
         isAdmin={isAdmin}
+        isWhitelisted={isWhitelisted}
         isConnecting={isConnecting}
         onConnectWallet={handleConnect}
+        onDisconnectWallet={handleDisconnect}
         onSwitchNetwork={handleSwitchNetwork}
         isCorrectNetwork={isCorrectNetwork}
         isElectionOpen={isElectionOpen}
-        activeTab={activeTab}
-        setActiveTab={handleNavbarTabChange}
+        currentView={currentView}
+        setCurrentView={handleNavigateView}
         hasContract={Boolean(contract)}
       />
 
@@ -298,45 +469,123 @@ export function App() {
         </div>
       )}
 
-      {/* Monumental Hero Section */}
-      <HeroSection
-        isElectionOpen={isElectionOpen}
-        onNavigateTab={handleHeroNavigateTab}
-        onConnectWallet={handleConnect}
-        account={account}
-        isAdmin={isAdmin}
-      />
+      {/* VIEW ROUTING ARCHITECTURE */}
 
-      {/* Main Expansive Content Area in Soft Ivory */}
-      <main ref={actionSectionRef} className="flex-1 w-full bg-[#F3F0E6] text-[#08090B] scroll-mt-28 transition-colors duration-300">
-        {activeTab === 'voter' && (
-          <VoterView
-            account={account}
-            contract={contract}
-            isWhitelisted={isWhitelisted}
-            hasVoted={hasVoted}
+      {/* 1. LANDING VIEW: Monumental Hero + Soft Ivory Gateway */}
+      {currentView === 'landing' && (
+        <>
+          <HeroSection
             isElectionOpen={isElectionOpen}
-            publicKey={paillierPublicKey}
-            onVoteCastSuccess={refreshContractData}
-          />
-        )}
-
-        {activeTab === 'admin' && (
-          <AdminView
+            onNavigateTab={handleNavigateView}
+            onConnectWallet={handleConnect}
             account={account}
-            contract={contract}
-            adminAddress={adminAddress}
             isAdmin={isAdmin}
-            isElectionOpen={isElectionOpen}
-            publicKey={paillierPublicKey}
-            onRefreshContractData={refreshContractData}
+            isWhitelisted={isWhitelisted}
           />
-        )}
+          <main ref={actionSectionRef} className="flex-1 w-full bg-[#F3F0E6] text-[#08090B] scroll-mt-28 transition-colors duration-300">
+            <LandingGateway
+              isConnecting={isConnecting}
+              onConnectWallet={handleConnect}
+              onNavigateCrypto={() => handleNavigateView('crypto')}
+              isElectionOpen={isElectionOpen}
+            />
+          </main>
+        </>
+      )}
 
-        {activeTab === 'crypto' && (
+      {/* 2. CRYPTOGRAPHY LAB VIEW: Independent Math Specification & Sandbox */}
+      {currentView === 'crypto' && (
+        <main ref={actionSectionRef} className="flex-1 w-full bg-[#F3F0E6] text-[#08090B] scroll-mt-28 transition-colors duration-300 pt-8 sm:pt-12">
+          {/* Breadcrumb Return Action */}
+          <div className="w-full max-w-[1700px] mx-auto px-6 sm:px-12 lg:px-16 pb-4">
+            <button
+              onClick={() => {
+                if (!account) handleNavigateView('landing');
+                else if (isAdmin) handleNavigateView('admin');
+                else if (isWhitelisted) handleNavigateView('voter');
+                else handleNavigateView('unauthorized');
+              }}
+              className="inline-flex items-center space-x-2 text-xs font-mono font-bold tracking-wider uppercase text-[#08090B] bg-[#08090B]/5 hover:bg-[#08090B]/10 px-4 py-2 rounded-full border border-[#08090B]/15 transition-all"
+            >
+              <span>←</span>
+              <span>
+                {!account
+                  ? 'Return to Landing Screen'
+                  : isAdmin
+                  ? 'Return to Admin Console'
+                  : isWhitelisted
+                  ? 'Return to Voter Ballot'
+                  : 'Return to Access Status'}
+              </span>
+            </button>
+          </div>
+
           <CryptoInspector publicKey={paillierPublicKey} />
-        )}
-      </main>
+        </main>
+      )}
+
+      {/* 3. VOTER BALLOT VIEW: Authorized Voters Only */}
+      {currentView === 'voter' && (
+        <main ref={actionSectionRef} className="flex-1 w-full bg-[#F3F0E6] text-[#08090B] scroll-mt-28 transition-colors duration-300 pt-8 sm:pt-12">
+          {isAuthorizedVoter ? (
+            <VoterView
+              account={account}
+              contract={contract}
+              isWhitelisted={isWhitelisted}
+              hasVoted={hasVoted}
+              isElectionOpen={isElectionOpen}
+              publicKey={paillierPublicKey}
+              onVoteCastSuccess={refreshContractData}
+            />
+          ) : (
+            <UnauthorizedView
+              account={account}
+              contractAddress={contractDeployment.address}
+              onDisconnectWallet={handleDisconnect}
+              onNavigateCrypto={() => handleNavigateView('crypto')}
+              onNavigateLanding={() => handleNavigateView('landing')}
+            />
+          )}
+        </main>
+      )}
+
+      {/* 4. ADMIN CONSOLE VIEW: Election Authority Only */}
+      {currentView === 'admin' && (
+        <main ref={actionSectionRef} className="flex-1 w-full bg-[#F3F0E6] text-[#08090B] scroll-mt-28 transition-colors duration-300 pt-8 sm:pt-12">
+          {isAdmin ? (
+            <AdminView
+              account={account}
+              contract={contract}
+              adminAddress={adminAddress}
+              isAdmin={isAdmin}
+              isElectionOpen={isElectionOpen}
+              publicKey={paillierPublicKey}
+              onRefreshContractData={refreshContractData}
+            />
+          ) : (
+            <UnauthorizedView
+              account={account}
+              contractAddress={contractDeployment.address}
+              onDisconnectWallet={handleDisconnect}
+              onNavigateCrypto={() => handleNavigateView('crypto')}
+              onNavigateLanding={() => handleNavigateView('landing')}
+            />
+          )}
+        </main>
+      )}
+
+      {/* 5. UNAUTHORIZED VIEW: Connected but Unregistered Wallet */}
+      {currentView === 'unauthorized' && (
+        <main ref={actionSectionRef} className="flex-1 w-full bg-[#F3F0E6] text-[#08090B] scroll-mt-28 transition-colors duration-300 pt-8 sm:pt-12">
+          <UnauthorizedView
+            account={account}
+            contractAddress={contractDeployment.address}
+            onDisconnectWallet={handleDisconnect}
+            onNavigateCrypto={() => handleNavigateView('crypto')}
+            onNavigateLanding={() => handleNavigateView('landing')}
+          />
+        </main>
+      )}
 
       {/* Luxury Architectural Footer */}
       <footer className="border-t border-[#232730] bg-[#08090B] py-8">

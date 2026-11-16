@@ -9,6 +9,7 @@ export function HeroSection({
   onConnectWallet,
   account,
   isAdmin,
+  isWhitelisted,
 }) {
   return (
     <section className="relative w-full border-b border-[#232730] overflow-hidden bg-[#08090B]">
@@ -46,29 +47,78 @@ export function HeroSection({
 
             {/* Capsule Button Row in Neo-Lime Editorial Style */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
-              <button
-                onClick={() => onNavigateTab('voter')}
-                className="btn-pill-lime group"
-              >
-                <span>Cast Ballot Now</span>
-                <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-1" />
-              </button>
+              {!account ? (
+                <>
+                  <button
+                    onClick={onConnectWallet}
+                    className="btn-pill-lime group"
+                  >
+                    <span>Connect Wallet to Enter</span>
+                    <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-1" />
+                  </button>
 
-              <button
-                onClick={() => onNavigateTab('crypto')}
-                className="btn-pill-outline group"
-              >
-                <span>Explore Cryptography</span>
-                <span className="text-[#C6FF00] ml-2 font-mono text-xs">→</span>
-              </button>
+                  <button
+                    onClick={() => onNavigateTab('crypto')}
+                    className="btn-pill-outline group"
+                  >
+                    <span>Explore Cryptography</span>
+                    <span className="text-[#C6FF00] ml-2 font-mono text-xs">→</span>
+                  </button>
+                </>
+              ) : isAdmin ? (
+                <>
+                  <button
+                    onClick={() => onNavigateTab('admin')}
+                    className="btn-pill-lime group"
+                  >
+                    <span>Open Admin Console</span>
+                    <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-1" />
+                  </button>
 
-              {!account && (
-                <button
-                  onClick={onConnectWallet}
-                  className="hidden sm:inline-flex btn-pill-outline text-[#8B909D] hover:text-white"
-                >
-                  <span>Connect Wallet</span>
-                </button>
+                  <button
+                    onClick={() => onNavigateTab('crypto')}
+                    className="btn-pill-outline group"
+                  >
+                    <span>Explore Cryptography</span>
+                    <span className="text-[#C6FF00] ml-2 font-mono text-xs">→</span>
+                  </button>
+                </>
+              ) : isWhitelisted ? (
+                <>
+                  <button
+                    onClick={() => onNavigateTab('voter')}
+                    className="btn-pill-lime group"
+                  >
+                    <span>Cast Encrypted Ballot</span>
+                    <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-1" />
+                  </button>
+
+                  <button
+                    onClick={() => onNavigateTab('crypto')}
+                    className="btn-pill-outline group"
+                  >
+                    <span>Explore Cryptography</span>
+                    <span className="text-[#C6FF00] ml-2 font-mono text-xs">→</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => onNavigateTab('unauthorized')}
+                    className="btn-pill-lime group !bg-[#FF5C5C] !text-white"
+                  >
+                    <span>Check Whitelist Status</span>
+                    <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-1" />
+                  </button>
+
+                  <button
+                    onClick={() => onNavigateTab('crypto')}
+                    className="btn-pill-outline group"
+                  >
+                    <span>Explore Cryptography</span>
+                    <span className="text-[#C6FF00] ml-2 font-mono text-xs">→</span>
+                  </button>
+                </>
               )}
             </div>
 
