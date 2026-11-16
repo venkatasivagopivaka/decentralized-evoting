@@ -46,11 +46,12 @@ async function runControlledCryptoVerification() {
   console.log('    Serialization round-trip: PASS (Lossless BigInt recovery)\n');
 
   // Step 3: Multi-Candidate Ballot Encoding & Encryption
-  console.log('>>> [3/7] Simulating 3-Voter, 2-Candidate Election...');
-  // Scenario:
+  console.log('>>> [3/7] Simulating 3-Voter, 3-Candidate Election...');
+  // Scenario across all 3 configured candidates (CANDIDATES[0..2]):
   // Voter 1 votes Candidate 0 (Satoshi Nakamoto) -> Weight: 10,000^0 = 1
   // Voter 2 votes Candidate 1 (Vitalik Buterin)  -> Weight: 10,000^1 = 10,000
   // Voter 3 votes Candidate 1 (Vitalik Buterin)  -> Weight: 10,000^1 = 10,000
+  // Candidate 2 (Ada Lovelace) receives 0 votes  -> Weight: 10,000^2 * 0 = 0
   const m1 = encodeCandidateVoteRadix(0, RADIX_BASE); // 1n
   const m2 = encodeCandidateVoteRadix(1, RADIX_BASE); // 10000n
   const m3 = encodeCandidateVoteRadix(1, RADIX_BASE); // 10000n
