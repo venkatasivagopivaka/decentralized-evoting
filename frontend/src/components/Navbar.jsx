@@ -4,7 +4,8 @@ import {
   ShieldCheck, 
   Wallet, 
   Binary, 
-  AlertCircle
+  AlertCircle,
+  Activity
 } from 'lucide-react';
 import { truncateAddress } from '../utils/contract';
 
@@ -21,30 +22,30 @@ export function Navbar({
   hasContract,
 }) {
   return (
-    <header className="sticky top-0 z-50 bg-[#111111]/95 backdrop-blur-md border-b border-[#353535]">
+    <header className="sticky top-0 z-50 bg-[#F4F3EE]/95 backdrop-blur-sm border-b border-[#D2D2C9]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo & Brand Identity */}
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2">
-              <span className="font-mono text-base font-bold tracking-widest text-[#F5F5F5]">
+              <span className="w-2 h-2 rounded-full bg-[#536A55]" />
+              <span className="font-mono text-base font-semibold tracking-wider text-[#30362F]">
                 VERIFIO
               </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#D9225C]" />
-              <span className="text-xs font-mono tracking-wider text-[#777477]">
-                E-VOTING
+              <span className="text-[11px] font-mono tracking-widest text-[#93958C] hidden sm:inline">
+                // DEMOCRATIC PROTOCOL
               </span>
             </div>
           </div>
 
-          {/* Clean Navigation Links with Hot Pink Active State */}
-          <nav className="hidden md:flex items-center space-x-8">
+          {/* Refined Segmented Navigation Control */}
+          <nav className="hidden md:flex items-center bg-[#DEDED5] p-1 rounded-lg border border-[#D2D2C9]/60">
             <button
               onClick={() => setActiveTab('voter')}
-              className={`text-xs uppercase tracking-wider font-medium py-5 border-b-2 transition-colors ${
+              className={`px-4 py-1.5 rounded-md text-xs font-medium transition-all duration-150 ${
                 activeTab === 'voter'
-                  ? 'border-[#D9225C] text-[#F5F5F5] font-semibold'
-                  : 'border-transparent text-[#A6A3A5] hover:text-[#F5F5F5]'
+                  ? 'bg-[#F8F7F2] text-[#30362F] shadow-sm border border-[#D2D2C9]'
+                  : 'text-[#6F746B] hover:text-[#30362F]'
               }`}
             >
               Voter Portal
@@ -52,27 +53,29 @@ export function Navbar({
 
             <button
               onClick={() => setActiveTab('admin')}
-              className={`text-xs uppercase tracking-wider font-medium py-5 border-b-2 transition-colors flex items-center space-x-1.5 ${
+              className={`px-4 py-1.5 rounded-md text-xs font-medium transition-all duration-150 flex items-center space-x-1.5 ${
                 activeTab === 'admin'
-                  ? 'border-[#D9225C] text-[#F5F5F5] font-semibold'
-                  : 'border-transparent text-[#A6A3A5] hover:text-[#F5F5F5]'
+                  ? 'bg-[#F8F7F2] text-[#30362F] shadow-sm border border-[#D2D2C9]'
+                  : 'text-[#6F746B] hover:text-[#30362F]'
               }`}
             >
-              <span>Admin Dashboard</span>
+              <span>Operations Console</span>
               {isAdmin && (
-                <span className="w-1 h-1 rounded-full bg-[#D9225C]" />
+                <span className="px-1.5 py-0.2 bg-[#E4EAE1] text-[#536A55] text-[9px] font-mono rounded">
+                  Admin
+                </span>
               )}
             </button>
 
             <button
               onClick={() => setActiveTab('crypto')}
-              className={`text-xs uppercase tracking-wider font-medium py-5 border-b-2 transition-colors ${
+              className={`px-4 py-1.5 rounded-md text-xs font-medium transition-all duration-150 ${
                 activeTab === 'crypto'
-                  ? 'border-[#D9225C] text-[#F5F5F5] font-semibold'
-                  : 'border-transparent text-[#A6A3A5] hover:text-[#F5F5F5]'
+                  ? 'bg-[#F8F7F2] text-[#30362F] shadow-sm border border-[#D2D2C9]'
+                  : 'text-[#6F746B] hover:text-[#30362F]'
               }`}
             >
-              Crypto Inspector
+              Cryptographic Spec
             </button>
           </nav>
 
@@ -80,16 +83,19 @@ export function Navbar({
           <div className="flex items-center space-x-3">
             {/* Network Indicator */}
             {account && isCorrectNetwork && (
-              <span className="hidden lg:inline-block font-mono text-[11px] text-[#777477]">
-                [31337]
+              <span className="hidden lg:inline-flex items-center space-x-1 font-mono text-[11px] text-[#6F746B] bg-[#E9E8E2] px-2.5 py-1 rounded-md border border-[#D2D2C9]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#536A55]" />
+                <span>Hardhat:31337</span>
               </span>
             )}
 
             {/* Election Status Indicator */}
             {hasContract && (
-              <div className="hidden sm:flex items-center space-x-1.5 text-xs font-mono text-[#A6A3A5]">
-                <span className={`w-1.5 h-1.5 rounded-full ${isElectionOpen ? 'bg-[#D9225C]' : 'bg-[#555555]'}`} />
-                <span className="tracking-wide">{isElectionOpen ? 'OPEN' : 'CLOSED'}</span>
+              <div className="hidden sm:flex items-center space-x-1.5 text-xs font-mono px-2.5 py-1 rounded-md bg-[#E9E8E2] border border-[#D2D2C9] text-[#6F746B]">
+                <span className={`w-1.5 h-1.5 rounded-full ${isElectionOpen ? 'bg-[#536A55]' : 'bg-[#93958C]'}`} />
+                <span className="tracking-wide text-[#30362F]">
+                  {isElectionOpen ? 'Voting Open' : 'Voting Closed'}
+                </span>
               </div>
             )}
 
@@ -97,20 +103,24 @@ export function Navbar({
             {account && !isCorrectNetwork && (
               <button
                 onClick={onSwitchNetwork}
-                className="flex items-center space-x-1.5 px-3 py-1.5 rounded text-xs font-mono text-[#D9225C] border border-[#D9225C]/50 hover:bg-[#D9225C]/10 transition-colors"
+                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-mono text-[#A87565] bg-[#F7EFEB] border border-[#A87565]/40 hover:bg-[#F0E3DE] transition-colors"
               >
-                <AlertCircle className="h-3.5 w-3.5" />
-                <span>Switch Network</span>
+                <AlertCircle className="h-3.5 w-3.5 text-[#A87565]" />
+                <span>Switch to 31337</span>
               </button>
             )}
 
             {/* Wallet Address or Connect Button */}
             {account ? (
-              <div className="flex items-center space-x-2 bg-[#181818] border border-[#353535] rounded px-3 py-1.5 text-xs font-mono">
-                <span className="text-[#F5F5F5]">{truncateAddress(account)}</span>
-                {isAdmin && (
-                  <span className="text-[10px] text-[#D9225C] font-bold tracking-wider">
+              <div className="flex items-center space-x-2 bg-[#F8F7F2] border border-[#D2D2C9] rounded-lg px-3 py-1.5 text-xs font-mono text-[#30362F] shadow-sm">
+                <span>{truncateAddress(account)}</span>
+                {isAdmin ? (
+                  <span className="text-[10px] bg-[#E4EAE1] text-[#536A55] font-semibold px-1.5 py-0.5 rounded">
                     ADMIN
+                  </span>
+                ) : (
+                  <span className="text-[10px] bg-[#DEDED5] text-[#6F746B] font-medium px-1.5 py-0.5 rounded">
+                    VOTER
                   </span>
                 )}
               </div>
@@ -118,39 +128,46 @@ export function Navbar({
               <button
                 onClick={onConnectWallet}
                 disabled={isConnecting}
-                className="px-4 py-2 rounded text-xs font-semibold bg-[#D9225C] hover:bg-[#BA1B4E] text-white transition-colors disabled:opacity-50"
+                className="min-h-[40px] px-4 rounded-lg text-xs font-medium bg-[#536A55] hover:bg-[#465B48] active:scale-[0.99] text-[#F8F7F2] transition-all shadow-sm disabled:opacity-50 flex items-center space-x-1.5"
               >
-                {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+                <Wallet className="w-3.5 h-3.5" />
+                <span>{isConnecting ? 'Connecting...' : 'Connect Wallet'}</span>
               </button>
             )}
           </div>
         </div>
 
-        {/* Mobile Navigation */}
-        <div className="md:hidden flex items-center justify-around py-2 border-t border-[#353535] bg-[#181818]">
+        {/* Mobile Segmented Navigation */}
+        <div className="md:hidden flex items-center justify-around py-2 border-t border-[#D2D2C9] bg-[#E9E8E2]">
           <button
             onClick={() => setActiveTab('voter')}
-            className={`py-1 px-3 text-xs uppercase tracking-wider ${
-              activeTab === 'voter' ? 'text-[#D9225C] font-bold' : 'text-[#A6A3A5]'
+            className={`py-1.5 px-3 rounded-md text-xs font-medium transition-colors ${
+              activeTab === 'voter'
+                ? 'bg-[#F8F7F2] text-[#30362F] border border-[#D2D2C9] font-semibold'
+                : 'text-[#6F746B]'
             }`}
           >
             Voter
           </button>
           <button
             onClick={() => setActiveTab('admin')}
-            className={`py-1 px-3 text-xs uppercase tracking-wider ${
-              activeTab === 'admin' ? 'text-[#D9225C] font-bold' : 'text-[#A6A3A5]'
+            className={`py-1.5 px-3 rounded-md text-xs font-medium transition-colors ${
+              activeTab === 'admin'
+                ? 'bg-[#F8F7F2] text-[#30362F] border border-[#D2D2C9] font-semibold'
+                : 'text-[#6F746B]'
             }`}
           >
-            Admin
+            Operations
           </button>
           <button
             onClick={() => setActiveTab('crypto')}
-            className={`py-1 px-3 text-xs uppercase tracking-wider ${
-              activeTab === 'crypto' ? 'text-[#D9225C] font-bold' : 'text-[#A6A3A5]'
+            className={`py-1.5 px-3 rounded-md text-xs font-medium transition-colors ${
+              activeTab === 'crypto'
+                ? 'bg-[#F8F7F2] text-[#30362F] border border-[#D2D2C9] font-semibold'
+                : 'text-[#6F746B]'
             }`}
           >
-            Crypto
+            Cryptography
           </button>
         </div>
       </div>

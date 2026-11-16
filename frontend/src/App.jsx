@@ -231,7 +231,7 @@ export function App() {
   const isCorrectNetwork = !chainId || chainId === HARDHAT_CHAIN_ID;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#111111] text-[#F5F5F5] selection:bg-[#D9225C] selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#E9E8E2] text-[#30362F] font-sans selection:bg-[#E4EAE1] selection:text-[#30362F]">
       {/* Navbar */}
       <Navbar
         account={account}
@@ -249,11 +249,11 @@ export function App() {
       {/* Toast Notification */}
       {notification && (
         <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-3 duration-200">
-          <div className="flex items-center space-x-3 px-4 py-3 rounded-xl bg-[#202020] text-[#F5F5F5] border border-[#353535] text-xs font-mono font-medium shadow-2xl">
+          <div className="flex items-center space-x-3 px-4 py-3 rounded-xl bg-[#F8F7F2] text-[#30362F] border border-[#D2D2C9] text-xs font-mono font-medium shadow-lg">
             {notification.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-[#D9225C] flex-shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-[#536A55] flex-shrink-0" />
             ) : (
-              <AlertCircle className="w-4 h-4 text-[#D9225C] flex-shrink-0" />
+              <AlertCircle className="w-4 h-4 text-[#A87565] flex-shrink-0" />
             )}
             <span>{notification.message}</span>
           </div>
@@ -294,17 +294,17 @@ export function App() {
         )}
       </main>
 
-      {/* Editorial Monochrome Footer */}
-      <footer className="border-t border-[#353535] bg-[#111111] py-6 text-xs text-[#777477]">
+      {/* Quiet Authority Institutional Single-Line Footer */}
+      <footer className="border-t border-[#D2D2C9] bg-[#F4F3EE] py-6 text-xs text-[#6F746B]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center space-x-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D9225C]"></span>
-            <p className="font-mono text-[#A6A3A5] text-[11px]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#536A55]"></span>
+            <p className="font-mono text-[#6F746B] text-[11px]">
               VERIFIO // E-VOTING PROTOCOL · ETHEREUM & PAILLIER HOMOMORPHIC CRYPTOSYSTEM
             </p>
           </div>
           <div className="flex items-center space-x-3">
-            <span className="font-mono text-[11px] text-[#A6A3A5] bg-[#181818] px-2.5 py-1 rounded-md border border-[#353535]">
+            <span className="font-mono text-[11px] text-[#30362F] bg-[#F8F7F2] px-2.5 py-1 rounded-md border border-[#D2D2C9]">
               CONTRACT: {contractDeployment.address ? `${contractDeployment.address.slice(0, 10)}...${contractDeployment.address.slice(-6)}` : 'NOT DEPLOYED'}
             </span>
           </div>

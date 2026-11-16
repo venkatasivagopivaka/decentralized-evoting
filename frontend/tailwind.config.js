@@ -7,32 +7,46 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Monochrome + Hot Pink Color System
-        main: '#111111',
-        secondary: '#181818',
-        card: '#202020',
-        elevated: '#272727',
-        border: '#353535',
-        primaryText: '#F5F5F5',
-        secondaryText: '#A6A3A5',
-        mutedText: '#777477',
-        // Signature Hot Pink
-        pink: {
-          DEFAULT: '#D9225C',
-          hover: '#BA1B4E',
-          active: '#9E1541',
-          faint: 'rgba(217, 34, 92, 0.10)',
-          subtle: 'rgba(217, 34, 92, 0.18)',
-          border: 'rgba(217, 34, 92, 0.40)',
-        },
-        // Core structural aliases
+        // Quiet Authority Color System
+        mineral: '#E9E8E2',
         surface: {
-          main: '#111111',
-          secondary: '#181818',
-          card: '#202020',
-          elevated: '#272727',
-          border: '#353535',
-          borderLight: '#454545',
+          primary: '#F4F3EE',
+          elevated: '#F8F7F2',
+          recessed: '#DEDED5',
+        },
+        border: {
+          subtle: '#D2D2C9',
+          focus: '#536A55',
+        },
+        ink: {
+          primary: '#30362F',
+          secondary: '#6F746B',
+          muted: '#93958C',
+        },
+        olive: {
+          DEFAULT: '#536A55',
+          hover: '#465B48',
+          active: '#3A4D3C',
+          light: '#E4EAE1',
+          border: '#C3D1C0',
+        },
+        bronze: {
+          DEFAULT: '#A48B70',
+          hover: '#8E775F',
+          light: '#F2EDE7',
+          border: '#D8CABE',
+        },
+        clay: {
+          DEFAULT: '#A87565',
+          hover: '#946455',
+          light: '#F7EFEB',
+          border: '#DEC2B9',
+        },
+        status: {
+          success: '#457354',
+          successBg: '#E8F0EA',
+          error: '#A34A42',
+          errorBg: '#F7ECEB',
         },
       },
       fontFamily: {

@@ -4,54 +4,72 @@
 
 @layer base {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   body {
-    background-color: #111111;
-    color: #F5F5F5;
+    background-color: #E9E8E2;
+    color: #30362F;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   ::selection {
-    background-color: #D9225C;
-    color: #FFFFFF;
+    background-color: #E4EAE1;
+    color: #30362F;
   }
 }
 
-/* Minimalist Dark Panel System */
-.panel-card {
-  background-color: #202020;
-  border: 1px solid #353535;
-  border-radius: 0.5rem;
+/* Quiet Authority Component System */
+.qa-panel {
+  background-color: #F4F3EE;
+  border: 1px solid #D2D2C9;
+  border-radius: 0.75rem;
 }
 
-.panel-card-hover {
-  transition: all 0.15s ease-in-out;
+.qa-card {
+  background-color: #F8F7F2;
+  border: 1px solid #D2D2C9;
+  border-radius: 0.75rem;
 }
 
-.panel-card-hover:hover {
-  border-color: #555555;
-  background-color: #242424;
+.qa-card-interactive {
+  background-color: #F8F7F2;
+  border: 1px solid #D2D2C9;
+  border-radius: 0.75rem;
+  transition: all 150ms ease;
 }
 
-/* Minimalist Dark Scrollbars */
+.qa-card-interactive:hover {
+  border-color: #A48B70;
+  box-shadow: 0 1px 3px rgba(48, 54, 47, 0.05);
+}
+
+/* Accessible focus ring */
+.qa-focus-ring:focus-visible {
+  outline: none;
+  ring: 2px;
+  ring-color: #536A55;
+  ring-offset: 2px;
+  ring-offset-color: #E9E8E2;
+}
+
+/* Minimalist Warm Mineral Scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #111111;
+  background: #E9E8E2;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #353535;
+  background: #C8C7BE;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #505050;
+  background: #AFAEA4;
 }
