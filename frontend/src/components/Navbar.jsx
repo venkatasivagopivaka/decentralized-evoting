@@ -5,7 +5,10 @@ import {
   Wallet, 
   Binary, 
   AlertCircle, 
-  Radio
+  Radio,
+  Layers,
+  Sparkles,
+  Lock
 } from 'lucide-react';
 import { truncateAddress } from '../utils/contract';
 
@@ -22,123 +25,139 @@ export function Navbar({
   hasContract,
 }) {
   return (
-    <header className="sticky top-0 z-50 bg-surface-card/95 backdrop-blur-sm border-b border-surface-border">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#E8E8E2] shadow-[0_1px_2px_rgba(32,43,42,0.02)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo & Section: Election Overview (Emerald & Mint) */}
-          <div className="flex items-center space-x-3">
-            <div className="h-9 w-9 rounded-lg bg-emerald flex items-center justify-center text-white shadow-subtle">
-              <Vote className="h-5 w-5 stroke-[2.2]" />
+          {/* Logo & Brand Identity */}
+          <div className="flex items-center space-x-3.5">
+            <div className="relative group cursor-pointer">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald to-emerald-dark flex items-center justify-center text-white shadow-sm ring-2 ring-emerald/20 transition-transform group-hover:scale-105">
+                <Vote className="h-5 w-5 stroke-[2.2]" />
+              </div>
+              <span className="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full bg-violet border-2 border-white flex items-center justify-center" title="Paillier Encryption Active">
+                <Lock className="w-2 h-2 text-white stroke-[2.5]" />
+              </span>
             </div>
+
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-semibold text-base text-ink tracking-tight">
-                  Decentralized E-Voting
+                <span className="font-bold text-base text-ink tracking-tight font-sans">
+                  VERIFIO
                 </span>
-                <span className="text-[10px] uppercase font-semibold tracking-wider px-2 py-0.5 rounded bg-mint text-emerald-dark border border-mint-border">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-pale-mint text-emerald-dark border border-emerald-border/60">
                   Paillier Homomorphic
                 </span>
               </div>
-              <p className="text-xs text-ink-muted">Zero-Knowledge Ballot Secrecy on Ethereum</p>
+              <p className="text-[11px] text-ink-secondary">
+                Decentralized E-Voting Protocol on Ethereum
+              </p>
             </div>
           </div>
 
-          {/* Navigation with Distinct Color Identities */}
-          <nav className="hidden md:flex items-center p-1 bg-surface-inset rounded-lg border border-surface-border">
-            {/* Voter Portal (Emerald identity) */}
+          {/* Navigation with Distinct Color Active States */}
+          <nav className="hidden md:flex items-center p-1 bg-[#F7F6F1] rounded-xl border border-[#E8E8E2] space-x-1 shadow-inner">
+            {/* Voter Portal (Emerald accent + Pale Mint active state) */}
             <button
               onClick={() => setActiveTab('voter')}
-              className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-md text-xs font-medium transition-all ${
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs transition-all duration-150 ${
                 activeTab === 'voter'
-                  ? 'bg-surface-card text-emerald-dark shadow-subtle font-semibold border border-surface-border/80'
-                  : 'text-ink-secondary hover:text-ink hover:bg-surface-card/60'
+                  ? 'bg-white text-emerald-dark shadow-card font-semibold border border-[#E8E8E2]'
+                  : 'text-ink-secondary hover:text-ink hover:bg-white/60 font-medium'
               }`}
             >
-              <Vote className="h-3.5 w-3.5 text-emerald" />
+              <Vote className={`h-4 w-4 ${activeTab === 'voter' ? 'text-emerald' : 'text-ink-muted'}`} />
               <span>Voter Portal</span>
             </button>
 
-            {/* Admin Dashboard (Indigo identity) */}
+            {/* Admin Dashboard (Royal Indigo accent + Pale Lavender active state) */}
             <button
               onClick={() => setActiveTab('admin')}
-              className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-md text-xs font-medium transition-all ${
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs transition-all duration-150 ${
                 activeTab === 'admin'
-                  ? 'bg-surface-card text-indigo-dark shadow-subtle font-semibold border border-surface-border/80'
-                  : 'text-ink-secondary hover:text-ink hover:bg-surface-card/60'
+                  ? 'bg-white text-indigo-dark shadow-card font-semibold border border-[#E8E8E2]'
+                  : 'text-ink-secondary hover:text-ink hover:bg-white/60 font-medium'
               }`}
             >
-              <ShieldCheck className="h-3.5 w-3.5 text-indigo" />
+              <ShieldCheck className={`h-4 w-4 ${activeTab === 'admin' ? 'text-indigo' : 'text-ink-muted'}`} />
               <span>Admin Dashboard</span>
               {isAdmin && (
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo" />
+                <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-pale-lavender text-indigo-dark border border-indigo-border/70">
+                  ADMIN
+                </span>
               )}
             </button>
 
-            {/* Crypto Inspector (Violet identity) */}
+            {/* Crypto Inspector (Violet accent + Pale Violet active state) */}
             <button
               onClick={() => setActiveTab('crypto')}
-              className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-md text-xs font-medium transition-all ${
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs transition-all duration-150 ${
                 activeTab === 'crypto'
-                  ? 'bg-surface-card text-violet-dark shadow-subtle font-semibold border border-surface-border/80'
-                  : 'text-ink-secondary hover:text-ink hover:bg-surface-card/60'
+                  ? 'bg-white text-violet-dark shadow-card font-semibold border border-[#E8E8E2]'
+                  : 'text-ink-secondary hover:text-ink hover:bg-white/60 font-medium'
               }`}
             >
-              <Binary className="h-3.5 w-3.5 text-violet" />
+              <Binary className={`h-4 w-4 ${activeTab === 'crypto' ? 'text-violet' : 'text-ink-muted'}`} />
               <span>Crypto Inspector</span>
             </button>
           </nav>
 
-          {/* Right Section: Blockchain Network (Ocean Blue), Election State (Emerald / Amber), & Wallet */}
-          <div className="flex items-center space-x-3">
+          {/* Right Section: Blockchain Network, Election State & Wallet */}
+          <div className="flex items-center space-x-2.5">
             {/* Blockchain Network Badge (Ocean Blue Identity) */}
             {account && isCorrectNetwork && (
-              <div className="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-ocean-light text-ocean-dark border border-ocean-border">
-                <Radio className="w-3 h-3 text-ocean" />
-                <span className="font-mono text-[11px]">Hardhat:31337</span>
+              <div className="hidden lg:flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-pale-blue text-ocean-dark border border-ocean-border/80 shadow-subtle">
+                <Radio className="w-3.5 h-3.5 text-ocean animate-pulse" />
+                <span className="font-mono text-[11px] font-semibold">Hardhat:31337</span>
               </div>
             )}
 
-            {/* Election Status Badge (Emerald when Open / Amber when Closed) */}
+            {/* Election Status Badge (Pale Mint / Pale Amber) */}
             {hasContract && (
               <div
-                className={`hidden sm:flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-xs font-medium border ${
+                className={`hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold border shadow-subtle ${
                   isElectionOpen
-                    ? 'bg-mint text-emerald-dark border-mint-border'
-                    : 'bg-amber-light text-amber-dark border-amber-border'
+                    ? 'bg-pale-mint text-emerald-dark border-emerald-border/80'
+                    : 'bg-pale-amber text-amber-dark border-amber-border/80'
                 }`}
               >
                 <span
                   className={`w-2 h-2 rounded-full ${
-                    isElectionOpen ? 'bg-emerald animate-pulse' : 'bg-amber'
+                    isElectionOpen ? 'bg-emerald animate-ping' : 'bg-amber'
                   }`}
                 />
-                <span className="font-medium">{isElectionOpen ? 'Election Open' : 'Election Closed'}</span>
+                <span className="font-medium">
+                  {isElectionOpen ? 'Voting Open' : 'Voting Closed'}
+                </span>
               </div>
             )}
 
-            {/* Wrong Network Warning (Coral Identity) */}
+            {/* Network Warning (Coral Identity) */}
             {account && !isCorrectNetwork && (
               <button
                 onClick={onSwitchNetwork}
-                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-coral-light text-coral-dark border border-coral-border hover:bg-coral/10 transition-colors"
+                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-pale-coral text-coral-dark border border-coral-border hover:bg-coral/15 transition-colors shadow-subtle"
               >
                 <AlertCircle className="h-3.5 w-3.5 text-coral" />
-                <span>Switch to Hardhat (31337)</span>
+                <span>Switch to 31337</span>
               </button>
             )}
 
-            {/* Wallet Address or Connect Button */}
+            {/* Wallet Chip or Connect Button */}
             {account ? (
-              <div className="flex items-center space-x-2 bg-surface-subtle border border-surface-border rounded-lg p-1.5 pl-3">
+              <div className="flex items-center space-x-2.5 bg-white border border-[#E8E8E2] rounded-xl p-1.5 pl-3 shadow-card">
                 <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald" />
-                  <span className="font-mono text-xs text-ink font-medium">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald ring-2 ring-emerald/20" />
+                  <span className="font-mono text-xs text-ink font-semibold tracking-tight">
                     {truncateAddress(account)}
                   </span>
                 </div>
-                {isAdmin && (
-                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-indigo-light text-indigo border border-indigo-border">
+                {isAdmin ? (
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-pale-lavender text-indigo-dark border border-indigo-border/60">
                     Admin
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-[#F7F6F1] text-ink-secondary border border-[#E8E8E2]">
+                    Voter
                   </span>
                 )}
               </div>
@@ -146,7 +165,7 @@ export function Navbar({
               <button
                 onClick={onConnectWallet}
                 disabled={isConnecting}
-                className="flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-semibold bg-emerald hover:bg-emerald-hover text-white shadow-subtle transition-all disabled:opacity-50"
+                className="flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold bg-emerald hover:bg-emerald-hover text-white shadow-card hover:shadow-cardHover transition-all disabled:opacity-50"
               >
                 <Wallet className="h-3.5 w-3.5" />
                 <span>{isConnecting ? 'Connecting...' : 'Connect Wallet'}</span>
@@ -156,11 +175,11 @@ export function Navbar({
         </div>
 
         {/* Mobile Navigation Bar */}
-        <div className="md:hidden flex items-center justify-around py-2 border-t border-surface-border">
+        <div className="md:hidden flex items-center justify-around py-2 border-t border-[#E8E8E2] bg-[#F7F6F1]">
           <button
             onClick={() => setActiveTab('voter')}
-            className={`flex items-center space-x-1.5 py-1 px-3 rounded-md text-xs font-medium ${
-              activeTab === 'voter' ? 'bg-mint text-emerald-dark font-semibold' : 'text-ink-secondary'
+            className={`flex items-center space-x-1.5 py-1.5 px-3 rounded-lg text-xs font-medium transition-colors ${
+              activeTab === 'voter' ? 'bg-white text-emerald-dark font-bold shadow-subtle border border-[#E8E8E2]' : 'text-ink-secondary'
             }`}
           >
             <Vote className="h-3.5 w-3.5 text-emerald" />
@@ -168,8 +187,8 @@ export function Navbar({
           </button>
           <button
             onClick={() => setActiveTab('admin')}
-            className={`flex items-center space-x-1.5 py-1 px-3 rounded-md text-xs font-medium ${
-              activeTab === 'admin' ? 'bg-indigo-light text-indigo font-semibold' : 'text-ink-secondary'
+            className={`flex items-center space-x-1.5 py-1.5 px-3 rounded-lg text-xs font-medium transition-colors ${
+              activeTab === 'admin' ? 'bg-white text-indigo-dark font-bold shadow-subtle border border-[#E8E8E2]' : 'text-ink-secondary'
             }`}
           >
             <ShieldCheck className="h-3.5 w-3.5 text-indigo" />
@@ -177,8 +196,8 @@ export function Navbar({
           </button>
           <button
             onClick={() => setActiveTab('crypto')}
-            className={`flex items-center space-x-1.5 py-1 px-3 rounded-md text-xs font-medium ${
-              activeTab === 'crypto' ? 'bg-violet-light text-violet font-semibold' : 'text-ink-secondary'
+            className={`flex items-center space-x-1.5 py-1.5 px-3 rounded-lg text-xs font-medium transition-colors ${
+              activeTab === 'crypto' ? 'bg-white text-violet-dark font-bold shadow-subtle border border-[#E8E8E2]' : 'text-ink-secondary'
             }`}
           >
             <Binary className="h-3.5 w-3.5 text-violet" />

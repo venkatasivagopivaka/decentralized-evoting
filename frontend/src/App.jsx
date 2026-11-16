@@ -248,28 +248,32 @@ export function App() {
 
       {/* Toast Notification */}
       {notification && (
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-3 duration-200">
           <div
-            className={`flex items-center space-x-2.5 px-4 py-3 rounded-xl shadow-popover text-xs font-semibold border ${
+            className={`flex items-center space-x-3 px-5 py-3.5 rounded-2xl shadow-popover text-xs font-bold border ${
               notification.type === 'success'
-                ? 'bg-surface-card text-emerald-dark border-emerald-border'
+                ? 'bg-white text-emerald-dark border-emerald-border shadow-cardHover'
                 : notification.type === 'error'
-                ? 'bg-surface-card text-crimson border-crimson-border'
-                : 'bg-surface-card text-indigo border-indigo-border'
+                ? 'bg-white text-coral-dark border-coral-border shadow-cardHover'
+                : 'bg-white text-indigo-dark border-indigo-border shadow-cardHover'
             }`}
           >
             {notification.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald flex-shrink-0" />
+              <div className="w-6 h-6 rounded-lg bg-pale-mint text-emerald flex items-center justify-center">
+                <CheckCircle2 className="w-4 h-4 text-emerald flex-shrink-0" />
+              </div>
             ) : (
-              <AlertCircle className="w-4 h-4 text-crimson flex-shrink-0" />
+              <div className="w-6 h-6 rounded-lg bg-pale-coral text-coral flex items-center justify-center">
+                <AlertCircle className="w-4 h-4 text-coral flex-shrink-0" />
+              </div>
             )}
-            <span>{notification.message}</span>
+            <span className="font-sans">{notification.message}</span>
           </div>
         </div>
       )}
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-7">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'voter' && (
           <VoterView
             account={account}
@@ -303,14 +307,17 @@ export function App() {
       </main>
 
       {/* Editorial Footer */}
-      <footer className="border-t border-surface-border bg-surface-card/60 py-6 text-xs text-ink-muted">
+      <footer className="border-t border-[#E8E8E2] bg-white py-6 text-xs text-ink-muted">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="font-medium text-ink-secondary">
-            Decentralized E-Voting Protocol · Ethereum Smart Contracts & Paillier Homomorphic Cryptosystem
-          </p>
+          <div className="flex items-center space-x-2">
+            <span className="w-2 h-2 rounded-full bg-emerald"></span>
+            <p className="font-semibold text-ink-secondary">
+              VERIFIO E-Voting Protocol · Ethereum Smart Contracts & Paillier Homomorphic Cryptosystem
+            </p>
+          </div>
           <div className="flex items-center space-x-3">
-            <span className="font-mono text-[11px] text-ink-muted bg-surface-subtle px-2 py-0.5 rounded border border-surface-border">
-              Contract: {contractDeployment.address ? `${contractDeployment.address.slice(0, 10)}...` : 'Not Deployed'}
+            <span className="font-mono text-[11px] text-ink-secondary bg-[#FAF9F5] px-2.5 py-1 rounded-lg border border-[#E8E8E2] shadow-subtle">
+              Contract: {contractDeployment.address ? `${contractDeployment.address.slice(0, 10)}...${contractDeployment.address.slice(-6)}` : 'Not Deployed'}
             </span>
           </div>
         </div>

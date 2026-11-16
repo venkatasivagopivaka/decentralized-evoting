@@ -338,80 +338,162 @@ export function AdminView({
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto py-2">
-      {/* Non-Admin Warning Banner (Amber & Sand Identity) */}
+      {/* 1. Four Rich Colourful Statistic Cards for Dashboard Overview */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Stat 1: Election State (Warm Amber & Pale Amber) */}
+        <div className="rounded-2xl p-5 bg-pale-amber border border-amber-border/70 flex items-center space-x-4 shadow-subtle">
+          <div className="w-12 h-12 rounded-xl bg-amber text-white flex items-center justify-center shadow-subtle">
+            <Cpu className="w-6 h-6 stroke-[2.2]" />
+          </div>
+          <div>
+            <div className="text-[10px] uppercase font-bold text-amber-dark/80 tracking-wider">Election State</div>
+            <div className="text-base font-extrabold text-amber-dark flex items-center space-x-1.5 mt-0.5">
+              <span className={`w-2 h-2 rounded-full ${isElectionOpen ? 'bg-emerald animate-pulse' : 'bg-amber'}`} />
+              <span>{isElectionOpen ? 'Voting Active' : 'Voting Closed'}</span>
+            </div>
+            <div className="text-[11px] text-ink-muted">On-chain state machine</div>
+          </div>
+        </div>
+
+        {/* Stat 2: Paillier Public Key (Violet & Pale Lavender) */}
+        <div className="rounded-2xl p-5 bg-[#F3ECFA] border border-violet-border/70 flex items-center space-x-4 shadow-subtle">
+          <div className="w-12 h-12 rounded-xl bg-violet text-white flex items-center justify-center shadow-subtle">
+            <Key className="w-6 h-6 stroke-[2.2]" />
+          </div>
+          <div>
+            <div className="text-[10px] uppercase font-bold text-violet-dark/80 tracking-wider">Paillier Key</div>
+            <div className="text-base font-extrabold text-violet-dark mt-0.5">
+              {publicKey ? `${keyBitLength}-bit Synced` : 'Not Synced'}
+            </div>
+            <div className="text-[11px] text-ink-muted">
+              {publicKey ? 'Published on contract' : 'Requires publishing'}
+            </div>
+          </div>
+        </div>
+
+        {/* Stat 3: Encrypted Ballots On-Chain (Ocean Blue & Pale Blue) */}
+        <div className="rounded-2xl p-5 bg-pale-blue border border-ocean-border/70 flex items-center space-x-4 shadow-subtle">
+          <div className="w-12 h-12 rounded-xl bg-ocean text-white flex items-center justify-center shadow-subtle">
+            <Radio className="w-6 h-6 stroke-[2.2]" />
+          </div>
+          <div>
+            <div className="text-[10px] uppercase font-bold text-ocean-dark/80 tracking-wider">Ballots Recorded</div>
+            <div className="text-base font-extrabold text-ocean-dark font-mono mt-0.5">
+              {encryptedVotesList.length} <span className="font-sans text-xs font-semibold">Ballots</span>
+            </div>
+            <div className="text-[11px] text-ink-muted">In immutable storage</div>
+          </div>
+        </div>
+
+        {/* Stat 4: Admin Authority (Emerald & Pale Mint) */}
+        <div className="rounded-2xl p-5 bg-pale-mint border border-emerald-border/70 flex items-center space-x-4 shadow-subtle">
+          <div className="w-12 h-12 rounded-xl bg-emerald text-white flex items-center justify-center shadow-subtle">
+            <ShieldCheck className="w-6 h-6 stroke-[2.2]" />
+          </div>
+          <div>
+            <div className="text-[10px] uppercase font-bold text-emerald-dark/80 tracking-wider">Admin Status</div>
+            <div className="text-base font-extrabold text-emerald-dark mt-0.5">
+              {isAdmin ? 'Contract Owner' : 'Non-Admin'}
+            </div>
+            <div className="text-[11px] text-ink-muted font-mono">
+              {adminAddress ? truncateAddress(adminAddress) : 'Fetching...'}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Non-Admin Warning Banner (Pale Amber) */}
       {!isAdmin && account && (
-        <div className="p-4 rounded-xl bg-sand-subtle border border-sand-border text-ink flex items-start space-x-3">
+        <div className="p-5 rounded-2xl bg-pale-amber border border-amber-border text-ink flex items-start space-x-3.5 shadow-subtle">
           <AlertTriangle className="w-5 h-5 flex-shrink-0 text-amber-dark mt-0.5" />
-          <div className="text-sm">
-            <span className="font-semibold text-amber-dark">Connected Account is Not Election Administrator</span>
-            <p className="text-xs text-ink-secondary mt-0.5">
-              Your connected account ({truncateAddress(account)}) is not the contract administrator ({truncateAddress(adminAddress)}).
-              Admin transactions (whitelisting voters, starting/ending elections, setting keys) will revert if submitted from non-admin accounts.
-              Please switch accounts in MetaMask to the deployer account (Hardhat Account #0).
+          <div className="text-xs">
+            <span className="font-bold text-amber-dark text-sm block mb-0.5">
+              Connected Account is Not Election Administrator
+            </span>
+            <p className="text-ink-secondary leading-relaxed">
+              Your connected wallet address ({truncateAddress(account)}) does not match the contract deployer administrator address ({truncateAddress(adminAddress)}).
+              Admin operations (whitelisting voters, starting/ending elections, setting Paillier keys) are protected by Solidity's <code className="text-ink font-mono font-bold">onlyAdmin</code> modifier.
+              Please switch accounts in MetaMask to Account #0 to administer the election.
             </p>
           </div>
         </div>
       )}
 
-      {/* Success Notification Alert (Emerald & Mint Identity) */}
+      {/* Success Notification Alert (Pale Mint) */}
       {whitelistSuccessMsg && (
-        <div className="p-4 rounded-xl bg-mint-subtle border border-mint-border text-emerald-dark text-xs flex items-center space-x-2 font-medium">
+        <div className="p-4 rounded-xl bg-pale-mint border border-emerald-border text-emerald-dark text-xs flex items-center space-x-2.5 font-bold shadow-subtle">
           <CheckCircle className="w-4 h-4 text-emerald flex-shrink-0" />
           <span>{whitelistSuccessMsg}</span>
         </div>
       )}
 
-      {/* Error Notification Alert (Coral / Crimson Identity) */}
+      {/* Error Notification Alert (Pale Coral) */}
       {actionError && (
-        <div className="p-4 rounded-xl bg-coral-light border border-coral-border text-coral-dark text-xs flex items-center space-x-2 font-medium">
+        <div className="p-4 rounded-xl bg-pale-coral border border-coral-border text-coral-dark text-xs flex items-center space-x-2.5 font-bold shadow-subtle">
           <ShieldAlert className="w-4 h-4 flex-shrink-0" />
           <span>{actionError}</span>
         </div>
       )}
 
       {/* Grid: Election Lifecycle (Amber) & Paillier Keys (Violet) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Card 1: Election Lifecycle Controls (Section Identity: Warm Amber & Warm Sand) */}
-        <div className="panel-card p-6 space-y-5 border-t-2 border-t-amber">
-          <div className="flex items-center justify-between border-b border-surface-border pb-3.5">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-sand text-amber-dark flex items-center justify-center">
-                <Cpu className="w-4 h-4 stroke-[2.2]" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Card 1: Election Lifecycle Controls (Warm Amber & Pale Amber) */}
+        <div className="panel-card p-6 sm:p-7 space-y-6 border-t-4 border-t-amber">
+          <div className="flex items-center justify-between border-b border-[#E8E8E2] pb-4">
+            <div className="flex items-center space-x-3.5">
+              <div className="w-10 h-10 rounded-xl bg-pale-amber text-amber-dark flex items-center justify-center border border-amber-border/60 shadow-subtle">
+                <Cpu className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div>
                 <div className="flex items-center space-x-2">
-                  <h3 className="text-base font-bold text-ink">Election Lifecycle Control</h3>
-                  <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-sand text-amber-dark border border-sand-border">
+                  <h3 className="text-base font-bold text-ink">Election State Machine</h3>
+                  <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-pale-amber text-amber-dark border border-amber-border/70">
                     Lifecycle
                   </span>
                 </div>
-                <p className="text-xs text-ink-muted mt-0.5">On-chain state machine</p>
+                <p className="text-xs text-ink-muted mt-0.5">Control on-chain ballot acceptance phases</p>
               </div>
             </div>
             <div
-              className={`px-2.5 py-1 rounded text-xs font-semibold border ${
+              className={`px-3 py-1 rounded-full text-xs font-bold border shadow-subtle ${
                 isElectionOpen
-                  ? 'bg-mint text-emerald-dark border-mint-border'
-                  : 'bg-sand text-amber-dark border-sand-border'
+                  ? 'bg-pale-mint text-emerald-dark border-emerald-border'
+                  : 'bg-pale-amber text-amber-dark border-amber-border'
               }`}
             >
-              {isElectionOpen ? '● Active' : '○ Closed'}
+              {isElectionOpen ? '● Voting Active' : '○ Voting Closed'}
+            </div>
+          </div>
+
+          {/* Stepper Timeline */}
+          <div className="grid grid-cols-3 gap-2 py-1 text-center text-xs">
+            <div className={`p-2.5 rounded-xl border ${publicKey ? 'bg-pale-mint text-emerald-dark border-emerald-border/60 font-bold' : 'bg-[#FAF9F5] text-ink-muted border-[#E8E8E2]'}`}>
+              <span className="block text-[10px] uppercase tracking-wider mb-0.5">Phase 1</span>
+              <span>Keys Synced</span>
+            </div>
+            <div className={`p-2.5 rounded-xl border ${isElectionOpen ? 'bg-pale-amber text-amber-dark border-amber-border/60 font-bold' : 'bg-[#FAF9F5] text-ink-muted border-[#E8E8E2]'}`}>
+              <span className="block text-[10px] uppercase tracking-wider mb-0.5">Phase 2</span>
+              <span>Ballots Open</span>
+            </div>
+            <div className={`p-2.5 rounded-xl border ${!isElectionOpen && encryptedVotesList.length > 0 ? 'bg-pale-coral text-coral-dark border-coral-border/60 font-bold' : 'bg-[#FAF9F5] text-ink-muted border-[#E8E8E2]'}`}>
+              <span className="block text-[10px] uppercase tracking-wider mb-0.5">Phase 3</span>
+              <span>Tally Ready</span>
             </div>
           </div>
 
           <p className="text-xs text-ink-secondary leading-relaxed">
-            When <span className="font-semibold text-emerald">Open</span>, verified voter accounts can broadcast encrypted ciphertexts to the contract.
-            When <span className="font-semibold text-amber-dark">Closed</span>, no new ballots are accepted, enabling deterministic homomorphic summation.
+            When <span className="font-bold text-emerald">Open</span>, authorized voter accounts can submit encrypted Paillier ballots.
+            When <span className="font-bold text-amber-dark">Closed</span>, ballot recording is sealed, enabling the administrator to perform deterministic homomorphic tallying.
           </p>
 
-          <div className="grid grid-cols-2 gap-3 pt-1">
+          <div className="grid grid-cols-2 gap-3.5 pt-1">
             <button
               onClick={handleStartElection}
               disabled={isElectionOpen || isStartingElection}
-              className={`py-2.5 px-4 rounded-lg font-semibold text-xs flex items-center justify-center space-x-2 transition-all ${
+              className={`py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all duration-150 ${
                 !isElectionOpen && !isStartingElection
-                  ? 'bg-emerald hover:bg-emerald-hover text-white shadow-subtle'
-                  : 'bg-surface-inset text-ink-muted cursor-not-allowed border border-surface-border'
+                  ? 'bg-emerald hover:bg-emerald-hover text-white shadow-card hover:shadow-cardHover'
+                  : 'bg-[#F1EFE8] text-ink-muted cursor-not-allowed border border-[#E8E8E2]'
               }`}
             >
               {isStartingElection ? (
@@ -425,10 +507,10 @@ export function AdminView({
             <button
               onClick={handleEndElection}
               disabled={!isElectionOpen || isEndingElection}
-              className={`py-2.5 px-4 rounded-lg font-semibold text-xs flex items-center justify-center space-x-2 transition-all ${
+              className={`py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all duration-150 ${
                 isElectionOpen && !isEndingElection
-                  ? 'bg-surface-card hover:bg-coral-light text-coral border border-coral-border shadow-subtle'
-                  : 'bg-surface-inset text-ink-muted cursor-not-allowed border border-surface-border'
+                  ? 'bg-white hover:bg-pale-coral text-coral-dark border border-coral-border shadow-card hover:shadow-cardHover'
+                  : 'bg-[#F1EFE8] text-ink-muted cursor-not-allowed border border-[#E8E8E2]'
               }`}
             >
               {isEndingElection ? (
@@ -441,95 +523,114 @@ export function AdminView({
           </div>
         </div>
 
-        {/* Card 2: Paillier Key Management (Section Identity: Elegant Violet) */}
-        <div className="panel-card p-6 space-y-5 border-t-2 border-t-violet">
-          <div className="flex items-center justify-between border-b border-surface-border pb-3.5">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-violet-light text-violet flex items-center justify-center">
-                <Key className="w-4 h-4 stroke-[2.2]" />
+        {/* Card 2: Paillier Key Management (Elegant Violet & Pale Lavender) */}
+        <div className="panel-card p-6 sm:p-7 space-y-6 border-t-4 border-t-violet">
+          <div className="flex items-center justify-between border-b border-[#E8E8E2] pb-4">
+            <div className="flex items-center space-x-3.5">
+              <div className="w-10 h-10 rounded-xl bg-pale-lavender text-violet flex items-center justify-center border border-violet-border/60 shadow-subtle">
+                <Key className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div>
                 <div className="flex items-center space-x-2">
                   <h3 className="text-base font-bold text-ink">Paillier Key Management</h3>
-                  <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-violet-light text-violet-dark border border-violet-border">
-                    Security
+                  <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-pale-lavender text-violet-dark border border-violet-border/70">
+                    Security Layer
                   </span>
                 </div>
-                <p className="text-xs text-ink-muted mt-0.5">Asymmetric homomorphic keypair</p>
+                <p className="text-xs text-ink-muted mt-0.5">Asymmetric homomorphic cryptographic keypair</p>
               </div>
             </div>
-            <div className="text-xs font-mono text-ink-secondary bg-surface-inset px-2 py-0.5 rounded border border-surface-border">
+            <div className="text-xs font-mono font-semibold text-ink-secondary bg-[#FAF9F5] px-2.5 py-1 rounded-lg border border-[#E8E8E2]">
               {publicKey ? 'Key Published' : 'No Key On-Chain'}
             </div>
           </div>
 
-          <div className="flex items-center space-x-2.5">
+          {/* Key Length Selector */}
+          <div className="flex items-center space-x-2">
+            <span className="text-[11px] font-bold text-ink-muted uppercase tracking-wider">Bitlength:</span>
+            {[512, 1024, 2048].map((bits) => (
+              <button
+                key={bits}
+                type="button"
+                onClick={() => setKeyBitLength(bits)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  keyBitLength === bits
+                    ? 'bg-pale-lavender text-violet-dark border border-violet-border shadow-subtle'
+                    : 'bg-[#FAF9F5] text-ink-muted hover:text-ink border border-[#E8E8E2]'
+                }`}
+              >
+                {bits}-bit
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-3">
             <button
               onClick={handleGenerateKeys}
               disabled={isGeneratingKeys}
-              className="flex-1 py-2.5 px-3 rounded-lg text-xs font-semibold bg-violet hover:bg-violet-hover text-white flex items-center justify-center space-x-1.5 shadow-subtle"
+              className="w-full sm:flex-1 py-3 px-4 rounded-xl text-xs font-bold bg-violet hover:bg-violet-hover text-white flex items-center justify-center space-x-2 shadow-card hover:shadow-cardHover transition-all"
             >
               {isGeneratingKeys ? (
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
               ) : (
                 <Sparkles className="w-3.5 h-3.5" />
               )}
-              <span>Generate {keyBitLength}-bit Keys</span>
+              <span>Generate {keyBitLength}-bit Keypair</span>
             </button>
 
             <button
               onClick={handlePublishKey}
               disabled={isPublishingKey || (!localPrivateKey && !publicKey)}
-              className="py-2.5 px-3.5 rounded-lg text-xs font-semibold bg-surface-card hover:bg-mint-subtle text-emerald-dark border border-emerald-border flex items-center space-x-1.5 disabled:opacity-50 shadow-subtle"
+              className="w-full sm:w-auto py-3 px-4 rounded-xl text-xs font-bold bg-white hover:bg-pale-mint text-emerald-dark border border-emerald-border flex items-center justify-center space-x-2 disabled:opacity-50 shadow-card hover:shadow-cardHover transition-all"
             >
               {isPublishingKey ? (
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
               ) : (
                 <Lock className="w-3.5 h-3.5 text-emerald" />
               )}
-              <span>Publish to Contract</span>
+              <span>Publish On-Chain</span>
             </button>
           </div>
 
           {/* Key Status Details */}
           <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="bg-surface-subtle p-3 rounded-lg border border-surface-border">
-              <span className="text-[11px] text-ink-muted uppercase font-semibold block mb-0.5">Public Modulus (n)</span>
-              <span className="font-mono text-ink block truncate">
-                {publicKey ? truncateCiphertext(publicKey.n.toString(), 14) : 'Not published'}
+            <div className="bg-[#FAF9F5] p-3.5 rounded-xl border border-[#E8E8E2]">
+              <span className="text-[10px] text-ink-muted uppercase font-bold block mb-1">Public Modulus (n)</span>
+              <span className="font-mono text-ink text-[11px] block truncate font-semibold">
+                {publicKey ? truncateCiphertext(publicKey.n.toString(), 16) : 'Not published'}
               </span>
             </div>
-            <div className="bg-surface-subtle p-3 rounded-lg border border-surface-border">
-              <span className="text-[11px] text-ink-muted uppercase font-semibold block mb-0.5">Private Key (λ, μ)</span>
-              <span className="font-mono text-violet-dark font-medium block truncate">
-                {localPrivateKey ? 'Active in Session' : 'Not Loaded'}
+            <div className="bg-[#FAF9F5] p-3.5 rounded-xl border border-[#E8E8E2]">
+              <span className="text-[10px] text-ink-muted uppercase font-bold block mb-1">Private Key (λ, μ)</span>
+              <span className="font-mono text-violet-dark text-[11px] font-bold block truncate">
+                {localPrivateKey ? 'Active in Session Storage' : 'Not Loaded'}
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Voter Whitelisting Engine (Section Identity: Royal Indigo) */}
-      <section className="panel-card p-6 sm:p-7 space-y-6 border-t-2 border-t-indigo">
-        <div className="flex items-center space-x-3 border-b border-surface-border pb-4">
-          <div className="w-8 h-8 rounded-lg bg-indigo-light text-indigo flex items-center justify-center">
-            <Users className="w-4 h-4 stroke-[2.2]" />
+      {/* 3. Voter Whitelisting Engine (Royal Indigo & Pale Lavender) */}
+      <section className="panel-card p-6 sm:p-7 space-y-6 border-t-4 border-t-indigo">
+        <div className="flex items-center space-x-3.5 border-b border-[#E8E8E2] pb-4">
+          <div className="w-10 h-10 rounded-xl bg-pale-lavender text-indigo flex items-center justify-center border border-indigo-border/60 shadow-subtle">
+            <Users className="w-5 h-5 stroke-[2.2]" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h3 className="text-base font-bold text-ink">Voter Whitelisting Engine</h3>
-              <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-indigo-light text-indigo-dark border border-indigo-border">
-                Voter Management
+              <h3 className="text-base font-bold text-ink">Voter Access Whitelisting Engine</h3>
+              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-pale-lavender text-indigo-dark border border-indigo-border/70">
+                Access Control
               </span>
             </div>
-            <p className="text-xs text-ink-muted mt-0.5">Authorize voter addresses on Ethereum to submit encrypted ballots</p>
+            <p className="text-xs text-ink-muted mt-0.5">Authorize Ethereum addresses to participate in encrypted voting</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Single Voter Whitelist */}
-          <form onSubmit={handleAddSingleVoter} className="space-y-3">
-            <label className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider block">
+          <form onSubmit={handleAddSingleVoter} className="space-y-3 bg-[#FAF9F5] p-5 rounded-2xl border border-[#E8E8E2]">
+            <label className="text-[11px] font-bold text-indigo-dark uppercase tracking-wider block">
               Whitelist Individual Address
             </label>
             <div className="flex space-x-2">
@@ -538,27 +639,27 @@ export function AdminView({
                 placeholder="0x..."
                 value={singleVoterAddress}
                 onChange={(e) => setSingleVoterAddress(e.target.value)}
-                className="flex-1 px-3.5 py-2.5 rounded-lg bg-surface-subtle border border-surface-border text-ink placeholder-ink-muted font-mono text-xs focus:outline-none focus:border-indigo focus:bg-surface-card"
+                className="flex-1 px-3.5 py-2.5 rounded-xl bg-white border border-[#E8E8E2] text-ink placeholder-ink-muted font-mono text-xs focus:outline-none focus:border-indigo shadow-subtle"
               />
               <button
                 type="submit"
                 disabled={isWhitelisting || !singleVoterAddress}
-                className="px-4 py-2.5 rounded-lg text-xs font-semibold bg-indigo hover:bg-indigo-hover text-white flex items-center space-x-1.5 disabled:opacity-50 shadow-subtle"
+                className="px-4 py-2.5 rounded-xl text-xs font-bold bg-indigo hover:bg-indigo-hover text-white flex items-center space-x-1.5 disabled:opacity-50 shadow-card transition-all"
               >
                 {isWhitelisting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <UserPlus className="w-3.5 h-3.5" />}
                 <span>Add</span>
               </button>
             </div>
             <p className="text-[11px] text-ink-muted">
-              Calls contract method <code className="text-ink font-semibold">addVoter(address)</code>.
+              Calls contract method <code className="text-ink font-mono font-bold">addVoter(address)</code> on-chain.
             </p>
           </form>
 
           {/* Batch Voter Whitelist */}
-          <form onSubmit={handleBatchAddVoters} className="space-y-3">
+          <form onSubmit={handleBatchAddVoters} className="space-y-3 bg-[#FAF9F5] p-5 rounded-2xl border border-[#E8E8E2]">
             <div className="flex items-center justify-between">
-              <label className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider block">
-                Batch Whitelist (Comma or Newline Separated)
+              <label className="text-[11px] font-bold text-indigo-dark uppercase tracking-wider block">
+                Batch Whitelist (Multiple Addresses)
               </label>
               <button
                 type="button"
@@ -567,9 +668,9 @@ export function AdminView({
                     "0x70997970C51812dc3A010C7d01b50e0d17dc79C8\n0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC\n0x90F79bf6EB2c4f870365E785982E1f101E93b906"
                   );
                 }}
-                className="text-[11px] text-indigo hover:text-indigo-hover underline font-medium"
+                className="text-[11px] text-indigo hover:text-indigo-hover underline font-bold"
               >
-                Fill Hardhat Test Accounts
+                Auto-fill Test Accounts
               </button>
             </div>
             <textarea
@@ -577,12 +678,12 @@ export function AdminView({
               placeholder="0x709979...&#10;0x3C44Cd...&#10;0x90F79b..."
               value={batchVoterAddresses}
               onChange={(e) => setBatchVoterAddresses(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-lg bg-surface-subtle border border-surface-border text-ink placeholder-ink-muted font-mono text-xs focus:outline-none focus:border-indigo focus:bg-surface-card"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#E8E8E2] text-ink placeholder-ink-muted font-mono text-xs focus:outline-none focus:border-indigo shadow-subtle"
             />
             <button
               type="submit"
               disabled={isWhitelisting || !batchVoterAddresses}
-              className="w-full py-2.5 px-4 rounded-lg text-xs font-semibold bg-surface-subtle hover:bg-indigo-light text-indigo-dark border border-indigo-border flex items-center justify-center space-x-1.5 disabled:opacity-50"
+              className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-white hover:bg-pale-lavender text-indigo-dark border border-indigo-border flex items-center justify-center space-x-1.5 disabled:opacity-50 shadow-card transition-all"
             >
               {isWhitelisting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Users className="w-3.5 h-3.5 text-indigo" />}
               <span>Batch Whitelist Addresses</span>
@@ -591,18 +692,18 @@ export function AdminView({
         </div>
       </section>
 
-      {/* Homomorphic Tally & Results (Section Identity: Coral & Emerald with Dusty Rose & Sage) */}
-      <section className="panel-card p-6 sm:p-7 space-y-6 border-t-2 border-t-coral">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-surface-border pb-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-lg bg-coral-light text-coral flex items-center justify-center">
-              <Trophy className="w-4 h-4 stroke-[2.2]" />
+      {/* 4. Homomorphic Tally & Results Dashboard (Coral & Emerald & Sage) */}
+      <section className="panel-card p-6 sm:p-7 space-y-6 border-t-4 border-t-coral">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E8E8E2] pb-4">
+          <div className="flex items-center space-x-3.5">
+            <div className="w-10 h-10 rounded-xl bg-pale-coral text-coral flex items-center justify-center border border-coral-border/60 shadow-subtle">
+              <Trophy className="w-5 h-5 stroke-[2.2]" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="text-base font-bold text-ink">Homomorphic Tally & Results</h3>
-                <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-coral-light text-coral-dark border border-coral-border">
-                  Election Results
+                <h3 className="text-base font-bold text-ink">Homomorphic Tally & Results Dashboard</h3>
+                <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-pale-coral text-coral-dark border border-coral-border/70">
+                  Results Ledger
                 </span>
               </div>
               <p className="text-xs text-ink-muted mt-0.5">Aggregate encrypted ballots directly in ciphertext space off-chain</p>
@@ -611,12 +712,12 @@ export function AdminView({
 
           <div className="flex items-center space-x-3">
             <span className="text-xs text-ink-muted font-medium">Scheme:</span>
-            <div className="flex items-center space-x-1 bg-surface-inset p-1 rounded-md border border-surface-border text-xs">
+            <div className="flex items-center space-x-1 bg-white p-1 rounded-xl border border-[#E8E8E2] text-xs shadow-subtle">
               <button
                 onClick={() => setTallyMode('radix')}
-                className={`px-2.5 py-1 rounded text-xs font-medium ${
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
                   tallyMode === 'radix'
-                    ? 'bg-surface-card text-ink shadow-subtle font-semibold border border-surface-border'
+                    ? 'bg-pale-coral text-coral-dark border border-coral-border/60 shadow-subtle'
                     : 'text-ink-secondary hover:text-ink'
                 }`}
               >
@@ -624,9 +725,9 @@ export function AdminView({
               </button>
               <button
                 onClick={() => setTallyMode('simple')}
-                className={`px-2.5 py-1 rounded text-xs font-medium ${
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
                   tallyMode === 'simple'
-                    ? 'bg-surface-card text-ink shadow-subtle font-semibold border border-surface-border'
+                    ? 'bg-pale-lavender text-indigo-dark border border-indigo-border/60 shadow-subtle'
                     : 'text-ink-secondary hover:text-ink'
                 }`}
               >
@@ -636,45 +737,45 @@ export function AdminView({
             <button
               onClick={fetchEncryptedVotes}
               disabled={isLoadingVotes}
-              className="p-1.5 rounded-lg bg-surface-subtle hover:bg-surface-inset text-ink-secondary border border-surface-border"
-              title="Refresh Ballots"
+              className="p-2 rounded-xl bg-white hover:bg-[#F7F6F1] text-ink-secondary border border-[#E8E8E2] shadow-subtle transition-colors"
+              title="Refresh Ballots from Blockchain"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoadingVotes ? 'animate-spin' : ''}`} />
             </button>
           </div>
         </div>
 
-        {/* Ledger Overview Card */}
-        <div className="bg-surface-subtle rounded-lg p-4 border border-surface-border flex items-center justify-between">
+        {/* Ledger Overview Summary Box */}
+        <div className="bg-[#FAF9F5] rounded-2xl p-5 border border-[#E8E8E2] flex items-center justify-between">
           <div>
-            <span className="text-[11px] text-ink-muted uppercase font-semibold">Total Encrypted Ballots:</span>
-            <div className="text-2xl font-bold text-ink font-mono mt-0.5">
+            <span className="text-[10px] text-ink-muted uppercase font-bold tracking-wider">Total Encrypted Ballots</span>
+            <div className="text-2xl font-black text-ink font-mono mt-0.5">
               {encryptedVotesList.length} <span className="text-xs text-ink-secondary font-sans font-normal">ballots cast</span>
             </div>
           </div>
           <div className="text-right">
-            <span className="text-[11px] text-ink-muted uppercase font-semibold">Ready for Tally:</span>
+            <span className="text-[10px] text-ink-muted uppercase font-bold tracking-wider">Ready for Decryption</span>
             <div className={`text-xs font-bold mt-0.5 ${
               !isElectionOpen && encryptedVotesList.length > 0 ? 'text-emerald' : 'text-amber-dark'
             }`}>
               {!isElectionOpen && encryptedVotesList.length > 0
-                ? 'Yes (Election Closed)'
+                ? 'Yes (Election Concluded)'
                 : isElectionOpen
-                ? 'No (Close Election First)'
+                ? 'No (Close Voting First)'
                 : 'No Ballots Recorded'}
             </div>
           </div>
         </div>
 
-        {/* Step-by-Step Tally Buttons */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {/* 2-Step Homomorphic Tally Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
           <button
             onClick={handleComputeHomomorphicAddition}
             disabled={encryptedVotesList.length === 0 || isAggregating}
-            className={`py-3 px-4 rounded-lg font-semibold text-xs flex items-center justify-center space-x-2 transition-all ${
+            className={`py-3.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all duration-150 ${
               encryptedVotesList.length > 0 && !isAggregating
-                ? 'bg-ocean-light hover:bg-ocean/15 text-ocean-dark border border-ocean-border shadow-subtle'
-                : 'bg-surface-inset text-ink-muted cursor-not-allowed border border-surface-border'
+                ? 'bg-pale-blue hover:bg-ocean/20 text-ocean-dark border border-ocean-border shadow-card hover:shadow-cardHover'
+                : 'bg-[#F1EFE8] text-ink-muted cursor-not-allowed border border-[#E8E8E2]'
             }`}
           >
             {isAggregating ? (
@@ -682,16 +783,16 @@ export function AdminView({
             ) : (
               <Cpu className="w-3.5 h-3.5 text-ocean" />
             )}
-            <span>Step 1: Compute Homomorphic Sum (∏ cᵢ mod n²)</span>
+            <span>Step 1: Compute Homomorphic Product (∏ cᵢ mod n²)</span>
           </button>
 
           <button
             onClick={handleDecryptAndTally}
             disabled={!homomorphicSumCiphertext || !localPrivateKey || isDecrypting}
-            className={`py-3 px-4 rounded-lg font-semibold text-xs flex items-center justify-center space-x-2 transition-all ${
+            className={`py-3.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all duration-150 ${
               homomorphicSumCiphertext && localPrivateKey && !isDecrypting
-                ? 'bg-coral hover:bg-coral-hover text-white shadow-subtle'
-                : 'bg-surface-inset text-ink-muted cursor-not-allowed border border-surface-border'
+                ? 'bg-coral hover:bg-coral-hover text-white shadow-card hover:shadow-cardHover'
+                : 'bg-[#F1EFE8] text-ink-muted cursor-not-allowed border border-[#E8E8E2]'
             }`}
           >
             {isDecrypting ? (
@@ -699,62 +800,62 @@ export function AdminView({
             ) : (
               <Unlock className="w-3.5 h-3.5" />
             )}
-            <span>Step 2 & 3: Decrypt Tally & Reveal Winner</span>
+            <span>Step 2: Decrypt Tally & Reveal Winner</span>
           </button>
         </div>
 
         {/* Aggregated Ciphertext Box */}
         {homomorphicSumCiphertext && (
-          <div className="space-y-2 bg-surface-subtle p-4 rounded-lg border border-surface-border font-mono text-xs">
-            <span className="text-ink-muted block font-semibold text-[11px] uppercase tracking-wider">
+          <div className="space-y-2.5 bg-[#FAF9F5] p-5 rounded-2xl border border-[#E8E8E2] font-mono text-xs shadow-inner">
+            <span className="text-ink-muted block font-bold text-[10px] uppercase tracking-wider">
               Aggregated Ciphertext (C_total = c₁ · c₂ · ... mod n²):
             </span>
-            <div className="break-all text-ink text-[11px]">
+            <div className="break-all text-ink text-[11px] leading-relaxed">
               {truncateCiphertext(homomorphicSumCiphertext, 44)}
             </div>
             {decryptedSum !== null && (
-              <div className="pt-2 border-t border-surface-border flex items-center justify-between text-xs">
-                <span className="text-ink-muted">Decrypted Plaintext Sum (M_total):</span>
-                <span className="text-emerald font-bold text-sm">{decryptedSum.toString()}</span>
+              <div className="pt-2.5 border-t border-[#E8E8E2] flex items-center justify-between text-xs font-sans">
+                <span className="text-ink-muted font-medium">Decrypted Plaintext Sum (M_total):</span>
+                <span className="text-emerald font-extrabold text-base font-mono">{decryptedSum.toString()}</span>
               </div>
             )}
           </div>
         )}
 
-        {/* Election Results & Winner Presentation (Coral & Emerald & Sage Identity) */}
+        {/* Election Results & Winner Presentation */}
         {tallyResults && tallyResults.length > 0 && (
-          <div className="space-y-5 pt-3 border-t border-surface-border">
-            {/* Editorial Winner Card (Soft Coral & Warm Sand Identity) */}
-            <div className="rounded-xl bg-sand-subtle p-6 border-2 border-coral-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-5 pt-4 border-t border-[#E8E8E2]">
+            {/* Winner Spotlight Card (Pale Amber & Coral Ribbon) */}
+            <div className="rounded-2xl bg-pale-amber p-6 sm:p-7 border-2 border-coral-border flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-card">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 rounded-xl bg-coral-light border border-coral-border flex items-center justify-center text-2xl">
+                <div className="w-14 h-14 rounded-2xl bg-white border border-coral-border/80 flex items-center justify-center text-3xl shadow-card">
                   👑
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-[11px] uppercase font-bold tracking-wider text-coral-dark block">
-                      Winner Declared
+                    <span className="text-[11px] uppercase font-black tracking-wider text-coral-dark block">
+                      Election Winner Declared
                     </span>
-                    <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-rose-light text-rose-dark border border-rose-border">
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-pale-rose text-rose-dark border border-rose-border">
                       Verified
                     </span>
                   </div>
-                  <h4 className="text-xl font-bold text-ink">
+                  <h4 className="text-2xl font-black text-ink tracking-tight">
                     {tallyResults[0].name}
                   </h4>
-                  <p className="text-xs text-ink-secondary">{tallyResults[0].role} · {tallyResults[0].platform}</p>
+                  <p className="text-xs text-ink-secondary mt-0.5">{tallyResults[0].role} · {tallyResults[0].platform}</p>
                 </div>
               </div>
 
-              <div className="text-right sm:border-l sm:border-surface-border sm:pl-6">
-                <div className="text-3xl font-extrabold text-emerald font-mono">
+              <div className="text-right sm:border-l sm:border-coral-border/60 sm:pl-7">
+                <div className="text-4xl font-black text-emerald font-mono">
                   {tallyResults[0].votes}
                 </div>
-                <div className="text-[10px] text-ink-muted uppercase font-semibold">Total Verified Votes</div>
+                <div className="text-[10px] text-ink-muted uppercase font-bold tracking-wider">Total Verified Votes</div>
               </div>
             </div>
 
-            {/* Candidate Breakdown Grid (Multi-color bars: Amber, Indigo, Sage) */}
+            {/* Candidate Breakdown Grid (Multi-color cards & progress bars) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {tallyResults.map((candidate, idx) => {
                 const totalBallots = encryptedVotesList.length || 1;
@@ -763,31 +864,31 @@ export function AdminView({
                 return (
                   <div
                     key={candidate.id}
-                    className="bg-surface-card rounded-lg p-4 border border-surface-border space-y-2.5"
+                    className="bg-white rounded-2xl p-5 border border-[#E8E8E2] space-y-3 shadow-subtle hover:shadow-cardHover transition-shadow"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-base">{candidate.avatar}</span>
+                      <div className="flex items-center space-x-2.5">
+                        <span className="text-xl">{candidate.avatar}</span>
                         <div>
-                          <span className="font-semibold text-xs text-ink block">{candidate.name}</span>
+                          <span className="font-bold text-xs text-ink block">{candidate.name}</span>
                           <span className="text-[10px] text-ink-muted">{candidate.role}</span>
                         </div>
                       </div>
-                      <span className="font-mono text-sm font-bold text-ink">
+                      <span className="font-mono text-base font-extrabold text-ink">
                         {candidate.votes} <span className="text-[10px] text-ink-muted font-normal">votes</span>
                       </span>
                     </div>
 
-                    {/* Progress Bar with Candidate's Distinct Color */}
-                    <div className="w-full bg-surface-inset rounded-full h-1.5 overflow-hidden">
+                    {/* Progress Bar with Candidate's Signature Color */}
+                    <div className="w-full bg-[#FAF9F5] rounded-full h-2 overflow-hidden border border-[#E8E8E2]">
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${candidate.barColor || (idx === 0 ? 'bg-emerald' : 'bg-indigo')}`}
+                        className={`h-full rounded-full transition-all duration-700 ${candidate.barColor || (idx === 0 ? 'bg-amber' : 'bg-indigo')}`}
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
                     <div className="flex justify-between text-[11px] text-ink-muted">
                       <span>Vote Share:</span>
-                      <span className="font-semibold text-ink">{percentage}%</span>
+                      <span className="font-bold text-ink">{percentage}%</span>
                     </div>
                   </div>
                 );

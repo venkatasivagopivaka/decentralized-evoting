@@ -11,83 +11,94 @@ export default {
         ink: {
           DEFAULT: '#202B2A',
           primary: '#202B2A',
-          secondary: '#556361',
-          muted: '#84918F',
-          faint: '#B2BDBB',
+          secondary: '#737B78',
+          muted: '#8E9693',
+          faint: '#C2C9C6',
         },
-        // 1. Emerald green & Mint (Election overview)
+        // Base borders
+        appBorder: {
+          DEFAULT: '#E8E8E2',
+          subtle: '#F0F0EA',
+          strong: '#D0D0C8',
+        },
+        // Pale background fills
+        pale: {
+          mint: '#E6F3ED',
+          lavender: '#EEECFA',
+          coral: '#FCECE7',
+          blue: '#E8F2F7',
+          amber: '#FAF1DF',
+          rose: '#F8EAF0',
+        },
+        // Rich accent colors
         emerald: {
           DEFAULT: '#087F6A',
-          light: '#E6F4F1',
-          border: '#A7DDD2',
+          light: '#E6F3ED',
+          border: '#A3D9C9',
           hover: '#066B59',
-          dark: '#044C3F',
+          dark: '#055446',
         },
-        mint: {
-          DEFAULT: '#DCEBE5',
-          subtle: '#F0F6F4',
-          border: '#BFD9CF',
-          dark: '#2C5C4E',
-        },
-        // 2. Royal indigo (Voter management)
         indigo: {
           DEFAULT: '#4959C8',
-          light: '#EEF0FA',
-          border: '#C0C7F0',
+          light: '#EEECFA',
+          border: '#BDC4EE',
           hover: '#3D4BAF',
-          dark: '#2E3987',
+          dark: '#2B3580',
         },
-        // 3. Elegant violet (Encryption & security)
-        violet: {
-          DEFAULT: '#9367C7',
-          light: '#F4EEFB',
-          border: '#D7C4EF',
-          hover: '#7E52B4',
-          dark: '#583286',
-        },
-        // 4. Ocean blue (Blockchain & network)
-        ocean: {
-          DEFAULT: '#3998B5',
-          light: '#EAF5F8',
-          border: '#B0DBE6',
-          hover: '#2E819B',
-          dark: '#1F586A',
-        },
-        // 5. Warm amber & Warm sand (Election lifecycle)
-        amber: {
-          DEFAULT: '#D99A35',
-          light: '#FDF6EB',
-          border: '#F2D39E',
-          hover: '#BE8327',
-          dark: '#936317',
-        },
-        sand: {
-          DEFAULT: '#F3E6CC',
-          subtle: '#FAF3E6',
-          border: '#E8D4AE',
-          dark: '#735728',
-        },
-        // 6. Soft coral, Dusty rose & Sage green (Results & candidate accents)
         coral: {
           DEFAULT: '#E77D68',
-          light: '#FDEDEA',
-          border: '#F5BEB5',
+          light: '#FCECE7',
+          border: '#F6BEB4',
           hover: '#D46853',
-          dark: '#9E3825',
+          dark: '#A6412D',
         },
-        rose: {
-          DEFAULT: '#E8B9C8',
-          light: '#FAF1F4',
-          border: '#F3D2DD',
-          hover: '#D49DAE',
-          dark: '#8C4B61',
+        violet: {
+          DEFAULT: '#9367C7',
+          light: '#F3ECFA',
+          border: '#D3BEEA',
+          hover: '#7E52B4',
+          dark: '#5C3888',
+        },
+        ocean: {
+          DEFAULT: '#3998B5',
+          light: '#E8F2F7',
+          border: '#A8D6E2',
+          hover: '#2E819B',
+          dark: '#1C596B',
+        },
+        amber: {
+          DEFAULT: '#D99A35',
+          light: '#FAF1DF',
+          border: '#F0D49B',
+          hover: '#BE8327',
+          dark: '#875C17',
         },
         sage: {
           DEFAULT: '#8BAA63',
-          light: '#F1F6EC',
-          border: '#C8DCB0',
+          light: '#EDF4E7',
+          border: '#C7DCAD',
           hover: '#759350',
           dark: '#4B622F',
+        },
+        rose: {
+          DEFAULT: '#D987A5',
+          light: '#F8EAF0',
+          border: '#EBBFCE',
+          hover: '#C26F8D',
+          dark: '#8C3D5A',
+        },
+        // Backwards compatibility tokens
+        mint: {
+          DEFAULT: '#E6F3ED',
+          subtle: '#F2F8F5',
+          border: '#A3D9C9',
+          dark: '#055446',
+        },
+        sand: {
+          DEFAULT: '#FAF1DF',
+          subtle: '#FDF7EB',
+          border: '#F0D49B',
+          dark: '#875C17',
         },
         crimson: {
           DEFAULT: '#D13838',
@@ -99,8 +110,8 @@ export default {
           card: '#FFFFFF',
           subtle: '#FAF9F5',
           inset: '#F1EFE8',
-          border: '#E5E3DA',
-          borderLight: '#ECE9E0',
+          border: '#E8E8E2',
+          borderLight: '#F0F0EA',
         },
       },
       fontFamily: {
