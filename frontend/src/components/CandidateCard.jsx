@@ -10,44 +10,58 @@ export function CandidateCard({
   return (
     <div
       onClick={() => !disabled && onSelect(candidate)}
-      className={`relative rounded-lg p-5 transition-all duration-180 flex flex-col justify-between ${
+      className={`relative rounded-lg p-6 transition-all duration-200 flex flex-col justify-between ${
         disabled
-          ? 'opacity-40 cursor-not-allowed bg-[#E8E6DE] border border-[#CCCBC1]'
+          ? 'opacity-35 cursor-not-allowed bg-[#0F1115] border border-[#232730]'
           : isSelected
-          ? 'cursor-pointer bg-[#F8F7F3] border-2 border-[#425B49] shadow-card'
-          : 'cursor-pointer bg-[#E8E6DE] border border-[#CCCBC1] hover:bg-[#F8F7F3] hover:border-[#70736C]'
+          ? 'cursor-pointer bg-[#16191F] border-2 border-[#FFD426] shadow-goldGlow'
+          : 'cursor-pointer bg-[#0F1115] border border-[#232730] hover:bg-[#16191F] hover:border-white/40'
       }`}
     >
       <div>
-        {/* Top Header: Candidate Index & Custom Radio */}
-        <div className="flex items-start justify-between mb-3">
-          <span className="font-mono text-xs font-semibold tracking-wider text-[#A77D60]">
-            {candidate.number || `0${candidate.id + 1}`}
-          </span>
+        {/* Top Header: Candidate Index in Electric Gold & Custom Radio Indicator */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-baseline space-x-1.5">
+            <span className="text-[10px] font-mono text-[#8B909D] uppercase tracking-wider">CANDIDATE</span>
+            <span className="font-mono text-sm font-bold text-[#FFD426]">
+              {candidate.number || `0${candidate.id + 1}`}
+            </span>
+          </div>
+
           <div
-            className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors flex-shrink-0 ${
+            className={`w-5 h-5 rounded-[4px] flex items-center justify-center transition-all duration-180 flex-shrink-0 ${
               isSelected
-                ? 'bg-[#425B49] text-[#F1EFE8]'
-                : 'border border-[#CCCBC1] bg-[#F1EFE8]'
+                ? 'bg-[#FFD426] text-[#08090B] shadow-[0_0_10px_#FFD426]'
+                : 'border border-[#232730] bg-[#08090B]'
             }`}
           >
-            {isSelected && <Check className="w-3 h-3 stroke-[2.5]" />}
+            {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
           </div>
         </div>
 
-        {/* Name & Role */}
-        <h3 className="text-base font-semibold text-[#292E2A] tracking-tight leading-snug">
+        {/* Candidate Name in Bold Pure White */}
+        <h3 className="text-lg font-bold text-white tracking-tight leading-snug">
           {candidate.name}
         </h3>
-        <p className="text-[11px] font-mono text-[#70736C] mt-0.5 mb-2">
+
+        {/* Candidate Role */}
+        <p className="text-xs font-mono text-[#FFD426]/90 mt-1 mb-3">
           {candidate.role}
         </p>
 
         {/* Platform Statement */}
-        <p className="text-xs text-[#70736C] leading-relaxed">
+        <p className="text-xs text-[#8B909D] leading-relaxed">
           {candidate.platform}
         </p>
       </div>
+
+      {/* Selected Indicator Bar */}
+      {isSelected && (
+        <div className="mt-5 pt-3 border-t border-[#232730] flex items-center justify-between text-[11px] font-mono text-[#FFD426]">
+          <span>BALLOT SELECTION</span>
+          <span className="font-bold">ACTIVE</span>
+        </div>
+      )}
     </div>
   );
 }

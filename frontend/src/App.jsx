@@ -232,7 +232,7 @@ export function App() {
   const isCorrectNetwork = !chainId || chainId === HARDHAT_CHAIN_ID;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F1EFE8] text-[#292E2A] font-sans selection:bg-[#E0E8DF] selection:text-[#292E2A]">
+    <div className="min-h-screen flex flex-col bg-[#08090B] text-white font-sans selection:bg-[#FFD426] selection:text-[#08090B]">
       {/* Navbar */}
       <Navbar
         account={account}
@@ -250,11 +250,11 @@ export function App() {
       {/* Toast Notification */}
       {notification && (
         <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-3 duration-200">
-          <div className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-[#F8F7F3] text-[#292E2A] border border-[#CCCBC1] text-xs font-mono font-medium shadow-popover">
+          <div className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-[#16191F] text-white border border-[#232730] text-xs font-mono font-medium shadow-popover">
             {notification.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-[#425B49] flex-shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-[#FFD426] flex-shrink-0" />
             ) : (
-              <AlertCircle className="w-4 h-4 text-[#A77D60] flex-shrink-0" />
+              <AlertCircle className="w-4 h-4 text-[#FF5C5C] flex-shrink-0" />
             )}
             <span>{notification.message}</span>
           </div>
@@ -292,11 +292,16 @@ export function App() {
         )}
       </main>
 
-      {/* Editorial Minimalist Footer */}
-      <footer className="border-t border-[#CCCBC1] bg-[#E8E6DE] py-4">
+      {/* Architectural Midnight & Electric Gold Footer */}
+      <footer className="border-t border-[#232730] bg-[#0F1115] py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span className="font-mono text-[11px] text-[#70736C]">VERIFIO · Contemporary Decentralized E-Voting Protocol</span>
-          <span className="font-mono text-[11px] text-[#292E2A] bg-[#F8F7F3] px-2.5 py-1 rounded border border-[#CCCBC1]">
+          <div className="flex items-center space-x-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#FFD426]" />
+            <span className="font-mono text-[11px] text-[#8B909D]">
+              VERIFIO // Ethereum Democratic E-Voting Protocol · Paillier Cryptosystem
+            </span>
+          </div>
+          <span className="font-mono text-[11px] text-[#FFD426] bg-[#08090B] px-3 py-1 rounded border border-[#232730]">
             CONTRACT: {contractDeployment.address
               ? `${contractDeployment.address.slice(0, 10)}…${contractDeployment.address.slice(-6)}`
               : 'Contract not deployed'}

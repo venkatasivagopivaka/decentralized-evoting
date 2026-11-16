@@ -7,49 +7,35 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Contemporary Editorial Minimalism — Earth & Ink Palette
-        ivory: {
-          DEFAULT: '#F1EFE8',
-          secondary: '#E8E6DE',
-          light: '#F8F7F3',
+        // Midnight / White / Electric Gold Palette
+        midnight: {
+          DEFAULT: '#08090B',
+          surface: '#0F1115',
+          elevated: '#16191F',
+          hover: '#1D212A',
         },
-        stone: {
-          DEFAULT: '#DCDAD1',
-          light: '#E4E2D9',
-          deep: '#CCCBC1',
+        gold: {
+          DEFAULT: '#FFD426',
+          hover: '#FFE066',
+          active: '#E6BC15',
+          dim: 'rgba(255, 212, 38, 0.12)',
+          border: 'rgba(255, 212, 38, 0.35)',
         },
         border: {
-          subtle: '#CCCBC1',
-          focus: '#425B49',
+          subtle: '#232730',
+          hover: '#353B49',
+          focus: '#FFD426',
         },
         ink: {
-          primary: '#292E2A',
-          secondary: '#70736C',
-          muted: '#9A9C96',
-        },
-        forest: {
-          DEFAULT: '#425B49',
-          hover: '#354B3C',
-          active: '#2A3C30',
-          light: '#E0E8DF',
-          border: '#BDCEBC',
-        },
-        clay: {
-          DEFAULT: '#A77D60',
-          hover: '#8F694F',
-          active: '#7A5740',
-          light: '#F4EEE8',
-          border: '#DFCEBF',
-        },
-        lavender: {
-          DEFAULT: '#B7A6C2',
-          light: '#F1ECF5',
+          primary: '#FFFFFF',
+          secondary: '#8B909D',
+          muted: '#525765',
         },
         status: {
-          success: '#425B49',
-          successBg: '#E0E8DF',
-          error: '#A77D60',
-          errorBg: '#F4EEE8',
+          success: '#FFD426',
+          successBg: 'rgba(255, 212, 38, 0.1)',
+          error: '#FF5C5C',
+          errorBg: 'rgba(255, 92, 92, 0.1)',
         },
       },
       fontFamily: {
@@ -70,10 +56,11 @@ export default {
         ],
       },
       boxShadow: {
-        subtle: '0 1px 2px 0 rgba(41, 46, 42, 0.04)',
-        card: '0 1px 3px 0 rgba(41, 46, 42, 0.05), 0 1px 2px -1px rgba(41, 46, 42, 0.03)',
-        cardHover: '0 4px 12px 0 rgba(41, 46, 42, 0.06), 0 2px 4px -1px rgba(41, 46, 42, 0.03)',
-        popover: '0 10px 25px -4px rgba(41, 46, 42, 0.08), 0 4px 6px -2px rgba(41, 46, 42, 0.03)',
+        subtle: '0 1px 2px 0 rgba(0, 0, 0, 0.5)',
+        goldGlow: '0 0 25px rgba(255, 212, 38, 0.18)',
+        goldGlowLg: '0 0 45px rgba(255, 212, 38, 0.25)',
+        card: '0 2px 8px rgba(0, 0, 0, 0.6)',
+        popover: '0 16px 36px rgba(0, 0, 0, 0.75)',
       },
       borderRadius: {
         'md': '0.375rem',

@@ -15,64 +15,75 @@ export function Navbar({
   hasContract,
 }) {
   return (
-    <header className="sticky top-0 z-50 bg-[#F1EFE8]/95 backdrop-blur-sm border-b border-[#CCCBC1]">
+    <header className="sticky top-0 z-50 bg-[#08090B]/95 backdrop-blur-md border-b border-[#232730]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14">
-          {/* Brand */}
-          <div className="flex items-center space-x-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#425B49]" />
-            <span className="font-mono text-sm font-semibold tracking-wider text-[#292E2A]">
-              VERIFIO
-            </span>
+        <div className="flex items-center justify-between h-16">
+          {/* Brand Wordmark with Signature Electric Gold Geometric Dot */}
+          <div className="flex items-center space-x-2.5">
+            <span className="w-2 h-2 rounded-[2px] bg-[#FFD426] shadow-[0_0_10px_#FFD426] flex-shrink-0" />
+            <div className="flex flex-col">
+              <span className="font-mono text-sm font-bold tracking-widest text-white">
+                VERIFIO
+              </span>
+              <span className="text-[9px] font-mono tracking-wider text-[#8B909D] uppercase -mt-0.5">
+                Protocol
+              </span>
+            </div>
           </div>
 
-          {/* Segmented Editorial Navigation */}
-          <nav className="hidden md:flex items-center bg-[#E8E6DE] p-1 rounded-md border border-[#CCCBC1]/70">
+          {/* Segmented Architecture Navigation */}
+          <nav className="hidden md:flex items-center bg-[#0F1115] p-1 rounded-md border border-[#232730]">
             <button
               onClick={() => setActiveTab('voter')}
-              className={`px-3.5 py-1.5 rounded text-xs font-medium transition-all duration-150 ${
+              className={`px-4 py-1.5 rounded text-xs font-medium tracking-wide transition-all duration-180 ${
                 activeTab === 'voter'
-                  ? 'bg-[#F8F7F3] text-[#292E2A] shadow-subtle border border-[#CCCBC1]'
-                  : 'text-[#70736C] hover:text-[#292E2A]'
+                  ? 'bg-[#16191F] text-white shadow-sm border border-[#232730] border-b-2 border-b-[#FFD426]'
+                  : 'text-[#8B909D] hover:text-white'
               }`}
             >
               Vote
             </button>
             <button
               onClick={() => setActiveTab('admin')}
-              className={`px-3.5 py-1.5 rounded text-xs font-medium transition-all duration-150 flex items-center space-x-1.5 ${
+              className={`px-4 py-1.5 rounded text-xs font-medium tracking-wide transition-all duration-180 flex items-center space-x-1.5 ${
                 activeTab === 'admin'
-                  ? 'bg-[#F8F7F3] text-[#292E2A] shadow-subtle border border-[#CCCBC1]'
-                  : 'text-[#70736C] hover:text-[#292E2A]'
+                  ? 'bg-[#16191F] text-white shadow-sm border border-[#232730] border-b-2 border-b-[#FFD426]'
+                  : 'text-[#8B909D] hover:text-white'
               }`}
             >
               <span>Admin</span>
               {isAdmin && (
-                <span className="px-1.5 py-0.5 bg-[#E0E8DF] text-[#425B49] text-[9px] font-mono rounded">
-                  You
+                <span className="px-1.5 py-0.5 bg-[#FFD426]/10 text-[#FFD426] border border-[#FFD426]/30 text-[9px] font-mono rounded">
+                  Auth
                 </span>
               )}
             </button>
             <button
               onClick={() => setActiveTab('crypto')}
-              className={`px-3.5 py-1.5 rounded text-xs font-medium transition-all duration-150 ${
+              className={`px-4 py-1.5 rounded text-xs font-medium tracking-wide transition-all duration-180 ${
                 activeTab === 'crypto'
-                  ? 'bg-[#F8F7F3] text-[#292E2A] shadow-subtle border border-[#CCCBC1]'
-                  : 'text-[#70736C] hover:text-[#292E2A]'
+                  ? 'bg-[#16191F] text-white shadow-sm border border-[#232730] border-b-2 border-b-[#FFD426]'
+                  : 'text-[#8B909D] hover:text-white'
               }`}
             >
               Cryptography
             </button>
           </nav>
 
-          {/* Right Section: Network & Wallet Controls */}
-          <div className="flex items-center space-x-2.5">
-            {/* Live Election Status Dot */}
+          {/* Right Section: Status Beacon & Wallet */}
+          <div className="flex items-center space-x-3">
+            {/* Live Election Status Beacon */}
             {hasContract && (
-              <div className="hidden sm:flex items-center space-x-1.5 text-xs font-mono px-2.5 py-1 rounded bg-[#E8E6DE] border border-[#CCCBC1] text-[#70736C]">
-                <span className={`w-1.5 h-1.5 rounded-full ${isElectionOpen ? 'bg-[#425B49]' : 'bg-[#9A9C96]'}`} />
-                <span className="text-[#292E2A]">
-                  {isElectionOpen ? 'Voting Open' : 'Voting Closed'}
+              <div className="hidden sm:flex items-center space-x-2 text-xs font-mono px-3 py-1.5 rounded bg-[#0F1115] border border-[#232730]">
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    isElectionOpen
+                      ? 'bg-[#FFD426] shadow-[0_0_8px_#FFD426] animate-pulse'
+                      : 'bg-[#525765]'
+                  }`}
+                />
+                <span className={isElectionOpen ? 'text-[#FFD426] font-semibold' : 'text-[#8B909D]'}>
+                  {isElectionOpen ? 'LIVE POLLS' : 'POLLS SEALED'}
                 </span>
               </div>
             )}
@@ -81,23 +92,23 @@ export function Navbar({
             {account && !isCorrectNetwork && (
               <button
                 onClick={onSwitchNetwork}
-                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-mono text-[#A77D60] bg-[#F4EEE8] border border-[#A77D60]/40 hover:bg-[#EADFD5] transition-colors"
+                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-mono text-[#FF5C5C] bg-[#FF5C5C]/10 border border-[#FF5C5C]/30 hover:bg-[#FF5C5C]/20 transition-colors"
               >
-                <AlertCircle className="h-3.5 w-3.5 text-[#A77D60]" />
+                <AlertCircle className="h-3.5 w-3.5 text-[#FF5C5C]" />
                 <span>Switch to 31337</span>
               </button>
             )}
 
-            {/* Wallet Address or Connect Button */}
+            {/* Wallet Status / Connect Button */}
             {account ? (
-              <div className="flex items-center space-x-2 bg-[#F8F7F3] border border-[#CCCBC1] rounded-md px-3 py-1.5 text-xs font-mono text-[#292E2A] shadow-subtle">
+              <div className="flex items-center space-x-2.5 bg-[#0F1115] border border-[#232730] rounded-md px-3.5 py-1.5 text-xs font-mono text-white shadow-sm">
                 <span>{truncateAddress(account)}</span>
                 {isAdmin ? (
-                  <span className="text-[10px] bg-[#E0E8DF] text-[#425B49] font-medium px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] bg-[#FFD426] text-[#08090B] font-bold px-1.5 py-0.5 rounded">
                     ADMIN
                   </span>
                 ) : (
-                  <span className="text-[10px] bg-[#E8E6DE] text-[#70736C] font-medium px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] bg-[#16191F] text-[#8B909D] border border-[#232730] font-medium px-1.5 py-0.5 rounded">
                     VOTER
                   </span>
                 )}
@@ -106,7 +117,7 @@ export function Navbar({
               <button
                 onClick={onConnectWallet}
                 disabled={isConnecting}
-                className="min-h-[36px] px-3.5 rounded-md text-xs font-medium bg-[#425B49] hover:bg-[#354B3C] active:scale-[0.99] text-[#F1EFE8] transition-all shadow-subtle disabled:opacity-50 flex items-center space-x-1.5"
+                className="btn-primary-gold min-h-[38px] px-4 py-1.5 text-xs"
               >
                 <Wallet className="w-3.5 h-3.5" />
                 <span>{isConnecting ? 'Connecting…' : 'Connect Wallet'}</span>
@@ -115,8 +126,8 @@ export function Navbar({
           </div>
         </div>
 
-        {/* Mobile Navigation Bar */}
-        <div className="md:hidden flex items-center justify-around py-2 border-t border-[#CCCBC1]">
+        {/* Mobile Navigation */}
+        <div className="md:hidden flex items-center justify-around py-2 border-t border-[#232730]">
           {[
             { key: 'voter', label: 'Vote' },
             { key: 'admin', label: 'Admin' },
@@ -127,8 +138,8 @@ export function Navbar({
               onClick={() => setActiveTab(key)}
               className={`py-1 px-3 rounded text-xs font-medium transition-colors ${
                 activeTab === key
-                  ? 'bg-[#F8F7F3] text-[#292E2A] border border-[#CCCBC1] font-semibold'
-                  : 'text-[#70736C]'
+                  ? 'bg-[#16191F] text-white border border-[#232730] border-b-2 border-b-[#FFD426]'
+                  : 'text-[#8B909D]'
               }`}
             >
               {label}
