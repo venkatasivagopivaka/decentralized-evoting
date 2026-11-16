@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-11-16T15:53:32.916Z",
+  "screenshots": [
+    "/home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/01-desktop-main-landing.png",
+    "/home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/02-desktop-voter-interface.png",
+    "/home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/03-desktop-candidate-selection.png",
+    "/home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/04-desktop-ballot-ciphertext-expanded.png",
+    "/home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/05-desktop-admin-dashboard.png",
+    "/home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/06-desktop-admin-voter-verification.png",
+    "/home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/07-desktop-admin-tally-results.png",
+    "/home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/08-desktop-cryptography-interface.png",
+    "/home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/09-desktop-crypto-sandbox-simulation.png",
+    "/home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/10-mobile-landing.png",
+    "/home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/11-mobile-voter-interface.png",
+    "/home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/12-mobile-admin-dashboard.png",
+    "/home/venkata-siva-gopi-vaka/.gemini/antigravity/scratch/decentralized-evoting/frontend-qa/screenshots/13-mobile-crypto-laboratory.png"
+  ],
+  "consoleErrors": [],
+  "pageErrors": []
+}

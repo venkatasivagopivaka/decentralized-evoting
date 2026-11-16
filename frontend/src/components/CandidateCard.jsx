@@ -12,7 +12,7 @@ export function CandidateCard({
       onClick={() => !disabled && onSelect(candidate)}
       className={`group relative rounded-3xl p-8 sm:p-10 lg:p-12 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-2xl ${
         disabled
-          ? 'opacity-35 cursor-not-allowed bg-[#08090B] border border-[#1F232B]'
+          ? 'opacity-80 cursor-not-allowed bg-[#08090B] border border-[#1F232B]'
           : isSelected
           ? 'cursor-pointer bg-[#0B0E14] border-2 border-[#C6FF00] shadow-[0_0_45px_rgba(198,255,0,0.25)] transform -translate-y-1'
           : 'cursor-pointer bg-[#08090B] border border-[#1F232B] hover:bg-[#101319] hover:border-black/50 hover:-translate-y-1'
