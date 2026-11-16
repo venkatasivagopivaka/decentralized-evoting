@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ethers } from 'ethers';
 import { Navbar } from './components/Navbar';
+import { HeroSection } from './components/HeroSection';
 import { VoterView } from './components/VoterView';
 import { AdminView } from './components/AdminView';
 import { CryptoInspector } from './components/CryptoInspector';
@@ -35,6 +36,9 @@ export function App() {
   // App UI State
   const [activeTab, setActiveTab] = useState('voter'); // 'voter' | 'admin' | 'crypto'
   const [notification, setNotification] = useState(null);
+
+  // Reference to scroll to interactive section
+  const actionSectionRef = useRef(null);
 
   const showToast = (message, type = 'info') => {
     setNotification({ message, type });
@@ -226,14 +230,21 @@ export function App() {
     }
   }, [contract, account, refreshContractData]);
 
+  const handleNavigateTab = (tab) => {
+    setActiveTab(tab);
+    if (actionSectionRef.current) {
+      actionSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const isAdmin = Boolean(
     account && adminAddress && account.toLowerCase() === adminAddress.toLowerCase()
   );
   const isCorrectNetwork = !chainId || chainId === HARDHAT_CHAIN_ID;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#08090B] text-white font-sans selection:bg-[#FFD426] selection:text-[#08090B]">
-      {/* Navbar */}
+    <div className="min-h-screen flex flex-col bg-[#08090B] text-white font-sans selection:bg-[#FFD426] selection:text-[#08090B] overflow-x-hidden">
+      {/* Editorial Luxury Header */}
       <Navbar
         account={account}
         isAdmin={isAdmin}
@@ -243,14 +254,14 @@ export function App() {
         isCorrectNetwork={isCorrectNetwork}
         isElectionOpen={isElectionOpen}
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleNavigateTab}
         hasContract={Boolean(contract)}
       />
 
       {/* Toast Notification */}
       {notification && (
-        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-3 duration-200">
-          <div className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-[#16191F] text-white border border-[#232730] text-xs font-mono font-medium shadow-popover">
+        <div className="fixed bottom-8 right-8 z-50 animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="flex items-center space-x-3 px-5 py-3.5 rounded-full bg-[#14171E] text-white border border-[#232730] text-xs font-mono font-medium shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
             {notification.type === 'success' ? (
               <CheckCircle2 className="w-4 h-4 text-[#FFD426] flex-shrink-0" />
             ) : (
@@ -261,8 +272,17 @@ export function App() {
         </div>
       )}
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Memorable Monumental Hero Section (Reference Images 1, 2, 4) */}
+      <HeroSection
+        isElectionOpen={isElectionOpen}
+        onNavigateTab={handleNavigateTab}
+        onConnectWallet={handleConnect}
+        account={account}
+        isAdmin={isAdmin}
+      />
+
+      {/* Main Expansive Operational Area */}
+      <main ref={actionSectionRef} className="flex-1 w-full">
         {activeTab === 'voter' && (
           <VoterView
             account={account}
@@ -292,20 +312,29 @@ export function App() {
         )}
       </main>
 
-      {/* Architectural Midnight & Electric Gold Footer */}
-      <footer className="border-t border-[#232730] bg-[#0F1115] py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div className="flex items-center space-x-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#FFD426]" />
-            <span className="font-mono text-[11px] text-[#8B909D]">
-              VERIFIO // Ethereum Democratic E-Voting Protocol · Paillier Cryptosystem
+      {/* Expansive Architectural Footer */}
+      <footer className="border-t border-[#232730] bg-[#0A0C0F] py-8">
+        <div className="w-full max-w-[1700px] mx-auto px-6 sm:px-12 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center space-x-3">
+            <span className="w-2 h-2 rounded-[2px] bg-[#FFD426]" />
+            <span className="font-mono text-xs tracking-wider text-white font-bold uppercase">
+              VERIFIO
+            </span>
+            <span className="text-[#8B909D] font-mono text-xs">
+              // ETHEREUM DEMOCRATIC PROTOCOL · PAILLIER CRYPTOSYSTEM
             </span>
           </div>
-          <span className="font-mono text-[11px] text-[#FFD426] bg-[#08090B] px-3 py-1 rounded border border-[#232730]">
-            CONTRACT: {contractDeployment.address
-              ? `${contractDeployment.address.slice(0, 10)}…${contractDeployment.address.slice(-6)}`
-              : 'Contract not deployed'}
-          </span>
+
+          <div className="flex items-center space-x-4">
+            <span className="font-mono text-[11px] text-[#FFD426] bg-[#0F1115] px-4 py-1.5 rounded-full border border-[#232730]">
+              CONTRACT: {contractDeployment.address
+                ? `${contractDeployment.address.slice(0, 10)}…${contractDeployment.address.slice(-8)}`
+                : 'Not Deployed'}
+            </span>
+            <span className="font-mono text-[11px] text-[#8B909D]">
+              CHAIN ID: {HARDHAT_CHAIN_ID.toString()}
+            </span>
+          </div>
         </div>
       </footer>
     </div>

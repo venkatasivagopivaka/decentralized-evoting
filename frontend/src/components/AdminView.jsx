@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   Key,
   Crown,
+  ArrowRight,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { CANDIDATES, RADIX_BASE } from '../utils/constants';
@@ -306,7 +307,7 @@ export function AdminView({
       setHomomorphicSumCiphertext(aggregateCiphertext.toString());
       setTxStatus({
         stage: 'confirmed',
-        message: 'Homomorphic addition of all encrypted ballots computed successfully.',
+        message: 'Homomorphic product of all encrypted ballots computed successfully.',
         txHash: null,
       });
     } catch (err) {
@@ -351,15 +352,15 @@ export function AdminView({
       setTallyResults(results);
 
       confetti({
-        particleCount: 85,
-        spread: 65,
+        particleCount: 95,
+        spread: 70,
         origin: { y: 0.6 },
         colors: ['#FFD426', '#FFE066', '#FFFFFF', '#8B909D'],
       });
 
       setTxStatus({
         stage: 'confirmed',
-        message: 'Homomorphic tally decrypted and winner certified.',
+        message: 'Homomorphic tally decrypted and certified winner revealed.',
         txHash: null,
       });
     } catch (err) {
@@ -378,29 +379,34 @@ export function AdminView({
   const isTxBusy = txStatus.stage === 'submitting' || txStatus.stage === 'waiting';
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4 space-y-8">
+    <div className="w-full max-w-[1700px] mx-auto px-6 sm:px-12 lg:px-16 py-12 sm:py-16 space-y-12">
+      
       {/* Confirmation Modal: Start Election */}
       {showStartModal && (
-        <div className="fixed inset-0 z-50 bg-[#08090B]/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0F1115] border border-[#232730] rounded-xl max-w-sm w-full p-6 space-y-4 shadow-popover">
-            <h3 className="text-base font-bold text-white tracking-tight">Open Voting Window?</h3>
-            <p className="text-xs text-[#8B909D] leading-relaxed">
-              Opening the election enables whitelisted addresses to submit encrypted Paillier ballots. This action updates the on-chain state machine.
+        <div className="fixed inset-0 z-50 bg-[#08090B]/85 backdrop-blur-xl flex items-center justify-center p-4">
+          <div className="bg-[#0F1115] border border-[#232730] rounded-3xl max-w-md w-full p-8 space-y-5 shadow-2xl">
+            <div className="flex items-center space-x-2 text-[11px] font-mono uppercase tracking-widest text-[#FFD426]">
+              <span className="w-2 h-2 rounded-full bg-[#FFD426]" />
+              <span>State Transition</span>
+            </div>
+            <h3 className="text-2xl font-black text-white tracking-tight">Open Voting Window?</h3>
+            <p className="text-sm text-[#8B909D] leading-relaxed">
+              Opening the election enables registered addresses to cast encrypted ballots. This triggers an immutable state transition on the Ethereum contract.
             </p>
 
             {isTxBusy && (
-              <div className="p-3 rounded-md bg-[#08090B] border border-[#232730] text-xs font-mono text-white flex items-center space-x-2">
-                <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#FFD426]" />
+              <div className="p-4 rounded-xl bg-[#08090B] border border-[#232730] text-xs font-mono text-white flex items-center space-x-2.5">
+                <RefreshCw className="w-4 h-4 animate-spin text-[#FFD426]" />
                 <span>{txStatus.message}</span>
               </div>
             )}
 
-            <div className="flex items-center justify-end space-x-2.5 pt-2">
+            <div className="flex items-center justify-end space-x-3 pt-3">
               <button
                 type="button"
                 onClick={() => setShowStartModal(false)}
                 disabled={isTxBusy}
-                className="btn-secondary-dark"
+                className="btn-pill-outline !min-h-[42px] !py-2 !px-6 !text-xs"
               >
                 Cancel
               </button>
@@ -408,10 +414,10 @@ export function AdminView({
                 type="button"
                 onClick={handleStartElection}
                 disabled={isTxBusy}
-                className="btn-primary-gold"
+                className="btn-pill-gold !min-h-[42px] !py-2 !px-6 !text-xs"
               >
                 {isTxBusy && <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#08090B]" />}
-                <span>{isTxBusy ? 'Processing…' : 'Confirm & Open'}</span>
+                <span>{isTxBusy ? 'Broadcasting…' : 'Confirm & Open'}</span>
               </button>
             </div>
           </div>
@@ -420,26 +426,30 @@ export function AdminView({
 
       {/* Confirmation Modal: End Election */}
       {showEndModal && (
-        <div className="fixed inset-0 z-50 bg-[#08090B]/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0F1115] border border-[#232730] rounded-xl max-w-sm w-full p-6 space-y-4 shadow-popover">
-            <h3 className="text-base font-bold text-white tracking-tight">Close Voting Window?</h3>
-            <p className="text-xs text-[#8B909D] leading-relaxed">
-              Closing the election permanently prevents further ballot submissions and seals the encrypted ballot pool, enabling off-chain homomorphic tallying.
+        <div className="fixed inset-0 z-50 bg-[#08090B]/85 backdrop-blur-xl flex items-center justify-center p-4">
+          <div className="bg-[#0F1115] border border-[#232730] rounded-3xl max-w-md w-full p-8 space-y-5 shadow-2xl">
+            <div className="flex items-center space-x-2 text-[11px] font-mono uppercase tracking-widest text-[#FF5C5C]">
+              <span className="w-2 h-2 rounded-full bg-[#FF5C5C]" />
+              <span>Seal Ballot Box</span>
+            </div>
+            <h3 className="text-2xl font-black text-white tracking-tight">Close Voting Window?</h3>
+            <p className="text-sm text-[#8B909D] leading-relaxed">
+              Closing the election permanently seals the encrypted ballot pool and halts further voting. The aggregate sum can then be decrypted off-chain.
             </p>
 
             {isTxBusy && (
-              <div className="p-3 rounded-md bg-[#08090B] border border-[#232730] text-xs font-mono text-white flex items-center space-x-2">
-                <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#FF5C5C]" />
+              <div className="p-4 rounded-xl bg-[#08090B] border border-[#232730] text-xs font-mono text-white flex items-center space-x-2.5">
+                <RefreshCw className="w-4 h-4 animate-spin text-[#FF5C5C]" />
                 <span>{txStatus.message}</span>
               </div>
             )}
 
-            <div className="flex items-center justify-end space-x-2.5 pt-2">
+            <div className="flex items-center justify-end space-x-3 pt-3">
               <button
                 type="button"
                 onClick={() => setShowEndModal(false)}
                 disabled={isTxBusy}
-                className="btn-secondary-dark"
+                className="btn-pill-outline !min-h-[42px] !py-2 !px-6 !text-xs"
               >
                 Cancel
               </button>
@@ -447,7 +457,7 @@ export function AdminView({
                 type="button"
                 onClick={handleEndElection}
                 disabled={isTxBusy}
-                className="btn-destructive-dark"
+                className="btn-pill-destructive !min-h-[42px] !py-2 !px-6 !text-xs"
               >
                 {isTxBusy && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
                 <span>{isTxBusy ? 'Sealing…' : 'Confirm & Seal'}</span>
@@ -457,27 +467,29 @@ export function AdminView({
         </div>
       )}
 
-      {/* Large Editorial Headline */}
-      <div className="border-b border-[#232730] pb-6">
-        <div className="flex items-center space-x-2 text-[11px] font-mono tracking-widest text-[#FFD426] uppercase">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#FFD426]" />
-          <span>Console // Administrative Engine</span>
+      {/* Section Header: Bold Editorial Typography */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between pb-8 border-b border-[#232730] gap-6">
+        <div>
+          <div className="flex items-center space-x-2.5 text-[11px] font-mono tracking-widest text-[#FFD426] uppercase mb-2">
+            <span className="w-2 h-2 rounded-[2px] bg-[#FFD426]" />
+            <span>OPERATIONAL SUITE // ADMINISTRATOR ENGINE</span>
+          </div>
+          <h2 className="text-4xl sm:text-6xl font-black text-white tracking-tighter uppercase leading-none">
+            Election Administration<span className="text-[#FFD426]">.</span>
+          </h2>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mt-2">
-          Election Administration
-        </h1>
-        <p className="text-xs sm:text-sm text-[#8B909D] mt-2 max-w-2xl leading-relaxed">
-          Manage lifecycle state transitions, configure Paillier homomorphic parameters, authorize voter addresses, and compute aggregate results.
+        <p className="text-sm sm:text-base text-[#8B909D] max-w-md leading-relaxed">
+          Manage election lifecycle, generate and publish Paillier keys, whitelist authorized voters, and tally encrypted ballots homomorphically.
         </p>
       </div>
 
       {/* Non-Admin Warning Banner */}
       {!isAdmin && account && (
-        <div className="p-4 rounded-md bg-[#FF5C5C]/10 border border-[#FF5C5C]/30 text-white flex items-start space-x-3">
-          <AlertTriangle className="w-4 h-4 flex-shrink-0 text-[#FF5C5C] mt-0.5" />
-          <div className="text-xs space-y-1">
-            <span className="font-bold text-[#FF5C5C] block">Connected Wallet is Not the Administrator</span>
-            <p className="text-[#8B909D] leading-relaxed">
+        <div className="p-6 rounded-2xl bg-[#FF5C5C]/10 border border-[#FF5C5C]/30 text-white flex items-start space-x-4">
+          <AlertTriangle className="w-5 h-5 flex-shrink-0 text-[#FF5C5C] mt-0.5" />
+          <div className="space-y-1">
+            <span className="font-bold text-[#FF5C5C] block text-sm">Connected Wallet is Not the Administrator</span>
+            <p className="text-xs text-[#8B909D] leading-relaxed">
               Your active address (<code className="font-mono text-white">{truncateAddress(account)}</code>) does not match the contract deployer (<code className="font-mono text-[#FFD426]">{truncateAddress(adminAddress)}</code>). Switch to Account #0 in MetaMask to authorize admin operations.
             </p>
           </div>
@@ -486,7 +498,7 @@ export function AdminView({
 
       {/* Local Session Key Notice */}
       {localSessionMsg && (
-        <div className="p-3.5 rounded-md bg-[#FFD426]/10 border border-[#FFD426]/30 text-[#FFD426] text-xs flex items-center space-x-2 font-mono">
+        <div className="p-4 rounded-2xl bg-[#FFD426]/10 border border-[#FFD426]/30 text-[#FFD426] text-xs flex items-center space-x-3 font-mono">
           <Key className="w-4 h-4 text-[#FFD426] flex-shrink-0" />
           <span>{localSessionMsg}</span>
         </div>
@@ -494,9 +506,9 @@ export function AdminView({
 
       {/* Explicit On-Chain Transaction Feedback Banner */}
       {txStatus.stage === 'submitting' && (
-        <div className="p-4 rounded-md bg-[#0F1115] border border-[#232730] text-xs font-mono space-y-1 text-white">
-          <div className="flex items-center space-x-2 text-[#FFD426] font-medium">
-            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+        <div className="p-5 rounded-2xl bg-[#0F1115] border border-[#232730] text-xs font-mono space-y-1 text-white">
+          <div className="flex items-center space-x-2 text-[#FFD426] font-bold">
+            <RefreshCw className="w-4 h-4 animate-spin" />
             <span>Submitting to Wallet…</span>
           </div>
           <p className="text-[#8B909D]">Please review and sign the transaction in MetaMask.</p>
@@ -504,9 +516,9 @@ export function AdminView({
       )}
 
       {txStatus.stage === 'waiting' && (
-        <div className="p-4 rounded-md bg-[#0F1115] border border-[#FFD426]/30 text-xs font-mono space-y-1.5 text-white">
-          <div className="flex items-center space-x-2 text-[#FFD426] font-medium">
-            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+        <div className="p-5 rounded-2xl bg-[#0F1115] border border-[#FFD426]/30 text-xs font-mono space-y-1.5 text-white">
+          <div className="flex items-center space-x-2 text-[#FFD426] font-bold">
+            <RefreshCw className="w-4 h-4 animate-spin" />
             <span>Waiting for Block Confirmation…</span>
           </div>
           <div className="text-[#8B909D] break-all">
@@ -517,8 +529,8 @@ export function AdminView({
       )}
 
       {txStatus.stage === 'confirmed' && (
-        <div className="p-4 rounded-md bg-[#FFD426]/10 border border-[#FFD426]/40 text-xs font-mono space-y-1 text-[#FFD426]">
-          <div className="font-semibold flex items-center space-x-1.5">
+        <div className="p-5 rounded-2xl bg-[#FFD426]/10 border border-[#FFD426]/40 text-xs font-mono space-y-1 text-[#FFD426]">
+          <div className="font-bold flex items-center space-x-2">
             <CheckCircle className="w-4 h-4 text-[#FFD426]" />
             <span>{txStatus.message}</span>
           </div>
@@ -529,8 +541,8 @@ export function AdminView({
       )}
 
       {txStatus.stage === 'failed' && (
-        <div className="p-4 rounded-md bg-[#FF5C5C]/10 border border-[#FF5C5C]/40 text-xs font-mono space-y-1.5 text-[#FF5C5C]">
-          <div className="font-semibold flex items-center space-x-1.5">
+        <div className="p-5 rounded-2xl bg-[#FF5C5C]/10 border border-[#FF5C5C]/40 text-xs font-mono space-y-1.5 text-[#FF5C5C]">
+          <div className="font-bold flex items-center space-x-2">
             <ShieldAlert className="w-4 h-4 text-[#FF5C5C]" />
             <span>Transaction Failed</span>
           </div>
@@ -541,171 +553,207 @@ export function AdminView({
         </div>
       )}
 
-      {/* ── Section 1: Election Lifecycle ──────────────────────────────── */}
-      <section className="bg-[#0F1115] border border-[#232730] rounded-xl p-6 space-y-5">
-        <div className="flex items-center justify-between border-b border-[#232730] pb-4">
-          <h2 className="text-xs font-mono uppercase tracking-widest text-[#8B909D]">
-            Election Lifecycle
-          </h2>
-          <div className="flex items-center space-x-2 text-xs font-mono">
+      {/* ── Section 1: Election Lifecycle (Expansive Horizontal Layout) ── */}
+      <section className="p-8 sm:p-10 rounded-3xl bg-[#0F1115] border border-[#232730] space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#232730] gap-4">
+          <div>
+            <span className="text-[10px] font-mono text-[#8B909D] uppercase tracking-widest block mb-1">
+              SECTION 01
+            </span>
+            <h3 className="text-2xl font-black text-white tracking-tight uppercase">
+              Election Lifecycle
+            </h3>
+          </div>
+          <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-[#08090B] border border-[#232730] text-xs font-mono">
             <span
-              className={`w-2 h-2 rounded-full ${
+              className={`w-2.5 h-2.5 rounded-full ${
                 isElectionOpen
-                  ? 'bg-[#FFD426] shadow-[0_0_8px_#FFD426] animate-pulse'
+                  ? 'bg-[#FFD426] shadow-[0_0_10px_#FFD426] animate-pulse'
                   : 'bg-[#525765]'
               }`}
             />
             <span className={`font-bold ${isElectionOpen ? 'text-[#FFD426]' : 'text-[#8B909D]'}`}>
-              {isElectionOpen ? 'POLLS OPEN' : 'POLLS CLOSED'}
+              {isElectionOpen ? 'POLLS OPEN (ACTIVE)' : 'POLLS CLOSED (SEALED)'}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-xs text-[#8B909D]">
-          <span>Current Ballots in Storage: <strong className="font-mono text-[#FFD426]">{encryptedVotesList.length}</strong></span>
-          <span className="font-mono">{isElectionOpen ? 'Accepting encrypted ballots' : 'Ballot recording sealed'}</span>
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+          <div className="md:col-span-6 space-y-2">
+            <span className="text-xs font-mono text-[#8B909D] uppercase tracking-wider block">
+              Current Ballots Recorded On-Chain
+            </span>
+            <div className="text-4xl sm:text-5xl font-mono font-black text-[#FFD426]">
+              {encryptedVotesList.length}
+            </div>
+            <p className="text-xs text-[#8B909D] leading-relaxed">
+              {isElectionOpen
+                ? 'Accepting encrypted Paillier ballots from registered voters.'
+                : 'Ballot collection is sealed. Ready for homomorphic tallying.'}
+            </p>
+          </div>
 
-        <div className="grid grid-cols-2 gap-3 pt-1">
-          <button
-            type="button"
-            onClick={() => setShowStartModal(true)}
-            disabled={isElectionOpen || isTxBusy || !isAdmin}
-            className="btn-primary-gold"
-          >
-            {isTxBusy && showStartModal ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#08090B]" />
-            ) : (
-              <Play className="w-3.5 h-3.5 fill-current" />
-            )}
-            <span>Open Voting</span>
-          </button>
+          <div className="md:col-span-6 flex flex-wrap gap-4 justify-start md:justify-end">
+            <button
+              type="button"
+              onClick={() => setShowStartModal(true)}
+              disabled={isElectionOpen || isTxBusy || !isAdmin}
+              className="btn-pill-gold !min-h-[50px]"
+            >
+              <Play className="w-4 h-4 fill-current" />
+              <span>Open Voting Window</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setShowEndModal(true)}
-            disabled={!isElectionOpen || isTxBusy || !isAdmin}
-            className="btn-destructive-dark"
-          >
-            {isTxBusy && showEndModal ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <Square className="w-3.5 h-3.5 fill-current" />
-            )}
-            <span>Close Voting</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setShowEndModal(true)}
+              disabled={!isElectionOpen || isTxBusy || !isAdmin}
+              className="btn-pill-destructive !min-h-[50px]"
+            >
+              <Square className="w-4 h-4 fill-current" />
+              <span>Close & Seal Voting</span>
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* ── Section 2: Paillier Encryption Keys ────────────────────────── */}
-      <section className="bg-[#0F1115] border border-[#232730] rounded-xl p-6 space-y-5">
-        <div className="flex items-center justify-between border-b border-[#232730] pb-4">
-          <h2 className="text-xs font-mono uppercase tracking-widest text-[#8B909D]">
-            Paillier Cryptographic Keys
-          </h2>
-          <span className={`text-xs font-mono ${publicKey ? 'text-[#FFD426]' : 'text-[#8B909D]'}`}>
-            {publicKey ? 'Key Published On-Chain' : 'Key Not Published'}
+      {/* ── Section 2: Paillier Cryptographic Keys ─────────────────────── */}
+      <section className="p-8 sm:p-10 rounded-3xl bg-[#0F1115] border border-[#232730] space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#232730] gap-4">
+          <div>
+            <span className="text-[10px] font-mono text-[#8B909D] uppercase tracking-widest block mb-1">
+              SECTION 02
+            </span>
+            <h3 className="text-2xl font-black text-white tracking-tight uppercase">
+              Paillier Encryption Parameters
+            </h3>
+          </div>
+          <div className="flex items-center space-x-2 text-xs font-mono">
+            <span className={`w-2 h-2 rounded-full ${publicKey ? 'bg-[#FFD426]' : 'bg-[#525765]'}`} />
+            <span className={publicKey ? 'text-[#FFD426] font-semibold' : 'text-[#8B909D]'}>
+              {publicKey ? 'Public Key Active On-Chain' : 'Key Not Published'}
+            </span>
+          </div>
+        </div>
+
+        {/* Bitlength Selector & Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="lg:col-span-5 space-y-3">
+            <label className="text-xs font-mono uppercase text-[#8B909D] tracking-wider block">
+              Cryptographic Bitlength
+            </label>
+            <div className="inline-flex bg-[#08090B] p-1.5 rounded-full border border-[#232730]">
+              {[512, 1024, 2048].map((bits) => (
+                <button
+                  key={bits}
+                  type="button"
+                  onClick={() => setKeyBitLength(bits)}
+                  className={`px-5 py-2 rounded-full text-xs font-mono transition-all ${
+                    keyBitLength === bits
+                      ? 'bg-[#FFD426] text-[#08090B] font-bold shadow-[0_0_12px_rgba(255,212,38,0.3)]'
+                      : 'text-[#8B909D] hover:text-white'
+                  }`}
+                >
+                  {bits}-bit
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-[#8B909D]">
+              Select bitlength for composite modulus <code className="text-[#FFD426] font-mono">n = p · q</code>. 1024-bit recommended for local development.
+            </p>
+          </div>
+
+          <div className="lg:col-span-7 flex flex-wrap gap-4 justify-start lg:justify-end">
+            <button
+              type="button"
+              onClick={handleGenerateKeys}
+              disabled={isGeneratingKeys || isTxBusy || !isAdmin}
+              className="btn-pill-outline !min-h-[50px]"
+            >
+              {isGeneratingKeys ? (
+                <RefreshCw className="w-4 h-4 animate-spin text-[#FFD426]" />
+              ) : (
+                <Key className="w-4 h-4 text-[#FFD426]" />
+              )}
+              <span>Generate {keyBitLength}-bit Keys</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handlePublishKey}
+              disabled={isTxBusy || (!localPrivateKey && !publicKey) || !isAdmin}
+              className="btn-pill-gold !min-h-[50px]"
+            >
+              {isTxBusy ? <RefreshCw className="w-4 h-4 animate-spin text-[#08090B]" /> : null}
+              <span>Publish Public Key On-Chain</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Key Summary Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          <div className="bg-[#08090B] p-5 rounded-2xl border border-[#232730] space-y-1">
+            <span className="text-[10px] text-[#8B909D] font-mono uppercase tracking-wider block">
+              Modulus n (Public)
+            </span>
+            <span className="font-mono text-sm text-white truncate block font-bold">
+              {publicKey ? truncateCiphertext(publicKey.n.toString(), 28) : 'Not published'}
+            </span>
+          </div>
+          <div className="bg-[#08090B] p-5 rounded-2xl border border-[#232730] space-y-1">
+            <span className="text-[10px] text-[#8B909D] font-mono uppercase tracking-wider block">
+              Private Key (λ, μ)
+            </span>
+            <span className="font-mono text-sm text-[#FFD426] truncate block font-bold">
+              {localPrivateKey ? 'Active in Secure Browser Session' : 'Not Generated'}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Section 3: Voter Admission & Whitelist ─────────────────────── */}
+      <section className="p-8 sm:p-10 rounded-3xl bg-[#0F1115] border border-[#232730] space-y-6">
+        <div className="pb-6 border-b border-[#232730]">
+          <span className="text-[10px] font-mono text-[#8B909D] uppercase tracking-widest block mb-1">
+            SECTION 03
           </span>
+          <h3 className="text-2xl font-black text-white tracking-tight uppercase">
+            Voter Access & Whitelist
+          </h3>
         </div>
 
-        {/* Bitlength Segmented Control */}
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-[#8B909D]">Key Bitlength</span>
-          <div className="flex items-center space-x-1 bg-[#08090B] p-1 rounded-md border border-[#232730]">
-            {[512, 1024, 2048].map((bits) => (
-              <button
-                key={bits}
-                type="button"
-                onClick={() => setKeyBitLength(bits)}
-                className={`px-3 py-1 rounded text-xs font-mono transition-all ${
-                  keyBitLength === bits
-                    ? 'bg-[#16191F] text-[#FFD426] font-bold border border-[#FFD426]/30 shadow-sm'
-                    : 'text-[#8B909D] hover:text-white'
-                }`}
-              >
-                {bits}-bit
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-          <button
-            type="button"
-            onClick={handleGenerateKeys}
-            disabled={isGeneratingKeys || isTxBusy || !isAdmin}
-            className="btn-secondary-dark"
-          >
-            {isGeneratingKeys ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#FFD426]" />
-            ) : (
-              <Key className="w-3.5 h-3.5 text-[#FFD426]" />
-            )}
-            <span>Generate {keyBitLength}-bit Keys</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handlePublishKey}
-            disabled={isTxBusy || (!localPrivateKey && !publicKey) || !isAdmin}
-            className="btn-primary-gold"
-          >
-            {isTxBusy ? <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#08090B]" /> : null}
-            <span>Publish Public Key On-Chain</span>
-          </button>
-        </div>
-
-        {/* Key Summary */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
-          <div className="bg-[#08090B] p-3.5 rounded-md border border-[#232730]">
-            <span className="text-[10px] text-[#8B909D] font-mono uppercase block mb-1">Modulus n</span>
-            <span className="font-mono text-xs text-white truncate block font-medium">
-              {publicKey ? truncateCiphertext(publicKey.n.toString(), 20) : 'Not published'}
-            </span>
-          </div>
-          <div className="bg-[#08090B] p-3.5 rounded-md border border-[#232730]">
-            <span className="text-[10px] text-[#8B909D] font-mono uppercase block mb-1">Private Key (λ, μ)</span>
-            <span className="font-mono text-xs text-[#FFD426] truncate block font-medium">
-              {localPrivateKey ? 'Active in Browser Session' : 'Not Generated'}
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Section 3: Voter Access Whitelist ─────────────────────────── */}
-      <section className="bg-[#0F1115] border border-[#232730] rounded-xl p-6 space-y-5">
-        <h2 className="text-xs font-mono uppercase tracking-widest text-[#8B909D] border-b border-[#232730] pb-4">
-          Voter Access Whitelist
-        </h2>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Single Address */}
-          <form onSubmit={handleAddSingleVoter} className="space-y-3 bg-[#08090B] p-4 rounded-lg border border-[#232730]">
-            <label className="text-xs text-[#8B909D] block font-medium">Single Address Registration</label>
-            <div className="flex space-x-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Single Voter Registration */}
+          <form onSubmit={handleAddSingleVoter} className="space-y-4 bg-[#08090B] p-6 rounded-2xl border border-[#232730]">
+            <label className="text-xs font-mono uppercase text-[#8B909D] tracking-wider block">
+              Single Address Registration
+            </label>
+            <div className="space-y-3">
               <input
                 type="text"
                 placeholder="0x…"
                 value={singleVoterAddress}
                 onChange={(e) => setSingleVoterAddress(e.target.value)}
                 disabled={isTxBusy}
-                className="flex-1 px-3.5 py-2 rounded-md bg-[#0F1115] border border-[#232730] text-white placeholder-[#525765] font-mono text-xs focus:outline-none focus:border-[#FFD426]"
+                className="w-full px-5 py-3.5 rounded-full bg-[#0F1115] border border-[#232730] text-white placeholder-[#525765] font-mono text-xs focus:outline-none focus:border-[#FFD426]"
               />
               <button
                 type="submit"
                 disabled={isTxBusy || !singleVoterAddress || !isAdmin}
-                className="btn-primary-gold min-h-[38px] px-4"
+                className="btn-pill-gold w-full !min-h-[46px] !text-xs"
               >
-                {isTxBusy ? <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#08090B]" /> : <UserPlus className="w-3.5 h-3.5" />}
-                <span>Add</span>
+                {isTxBusy ? <RefreshCw className="w-4 h-4 animate-spin text-[#08090B]" /> : <UserPlus className="w-4 h-4" />}
+                <span>Whitelist Single Address</span>
               </button>
             </div>
           </form>
 
-          {/* Batch Addresses */}
-          <form onSubmit={handleBatchAddVoters} className="space-y-3 bg-[#08090B] p-4 rounded-lg border border-[#232730]">
+          {/* Batch Voter Registration */}
+          <form onSubmit={handleBatchAddVoters} className="space-y-4 bg-[#08090B] p-6 rounded-2xl border border-[#232730]">
             <div className="flex items-center justify-between">
-              <label className="text-xs text-[#8B909D] font-medium">Batch Addresses</label>
+              <label className="text-xs font-mono uppercase text-[#8B909D] tracking-wider">
+                Batch Voter Registration
+              </label>
               <button
                 type="button"
                 onClick={() =>
@@ -714,25 +762,25 @@ export function AdminView({
                   )
                 }
                 disabled={isTxBusy}
-                className="text-[11px] text-[#FFD426] hover:underline font-mono"
+                className="text-xs text-[#FFD426] hover:underline font-mono"
               >
                 Auto-fill test accounts
               </button>
             </div>
             <textarea
-              rows={2}
+              rows={3}
               placeholder="0x7099…&#10;0x3C44…"
               value={batchVoterAddresses}
               onChange={(e) => setBatchVoterAddresses(e.target.value)}
               disabled={isTxBusy}
-              className="w-full px-3.5 py-2 rounded-md bg-[#0F1115] border border-[#232730] text-white placeholder-[#525765] font-mono text-xs focus:outline-none focus:border-[#FFD426] resize-none"
+              className="w-full p-4 rounded-xl bg-[#0F1115] border border-[#232730] text-white placeholder-[#525765] font-mono text-xs focus:outline-none focus:border-[#FFD426] resize-none"
             />
             <button
               type="submit"
               disabled={isTxBusy || !batchVoterAddresses || !isAdmin}
-              className="btn-secondary-dark w-full min-h-[38px]"
+              className="btn-pill-outline w-full !min-h-[46px] !text-xs"
             >
-              {isTxBusy ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Users className="w-3.5 h-3.5 text-[#FFD426]" />}
+              {isTxBusy ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Users className="w-4 h-4 text-[#FFD426]" />}
               <span>Batch Whitelist Addresses</span>
             </button>
           </form>
@@ -740,20 +788,25 @@ export function AdminView({
       </section>
 
       {/* ── Section 4: Homomorphic Tally & Results ─────────────────────── */}
-      <section className="bg-[#0F1115] border border-[#232730] rounded-xl p-6 space-y-5">
-        <div className="flex items-center justify-between border-b border-[#232730] pb-4">
-          <h2 className="text-xs font-mono uppercase tracking-widest text-[#8B909D]">
-            Homomorphic Tally & Results
-          </h2>
-          <div className="flex items-center space-x-2">
-            {/* Scheme Selector */}
-            <div className="flex items-center space-x-1 bg-[#08090B] p-1 rounded-md border border-[#232730]">
+      <section className="p-8 sm:p-10 rounded-3xl bg-[#0F1115] border border-[#232730] space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#232730] gap-4">
+          <div>
+            <span className="text-[10px] font-mono text-[#8B909D] uppercase tracking-widest block mb-1">
+              SECTION 04
+            </span>
+            <h3 className="text-2xl font-black text-white tracking-tight uppercase">
+              Homomorphic Tally & Certified Outcome
+            </h3>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <div className="inline-flex bg-[#08090B] p-1 rounded-full border border-[#232730]">
               <button
                 type="button"
                 onClick={() => setTallyMode('radix')}
-                className={`px-3 py-1 rounded text-xs font-mono transition-all ${
+                className={`px-4 py-1.5 rounded-full text-xs font-mono transition-all ${
                   tallyMode === 'radix'
-                    ? 'bg-[#16191F] text-[#FFD426] font-bold border border-[#FFD426]/30 shadow-sm'
+                    ? 'bg-[#FFD426] text-[#08090B] font-bold'
                     : 'text-[#8B909D] hover:text-white'
                 }`}
               >
@@ -762,23 +815,24 @@ export function AdminView({
               <button
                 type="button"
                 onClick={() => setTallyMode('simple')}
-                className={`px-3 py-1 rounded text-xs font-mono transition-all ${
+                className={`px-4 py-1.5 rounded-full text-xs font-mono transition-all ${
                   tallyMode === 'simple'
-                    ? 'bg-[#16191F] text-[#FFD426] font-bold border border-[#FFD426]/30 shadow-sm'
+                    ? 'bg-[#FFD426] text-[#08090B] font-bold'
                     : 'text-[#8B909D] hover:text-white'
                 }`}
               >
-                Linear
+                Linear (2)
               </button>
             </div>
+
             <button
               type="button"
               onClick={fetchEncryptedVotes}
               disabled={isLoadingVotes}
-              className="p-1.5 rounded-md bg-[#08090B] hover:bg-[#16191F] border border-[#232730] text-[#8B909D] hover:text-white transition-colors"
+              className="p-2.5 rounded-full bg-[#08090B] hover:bg-[#16191F] border border-[#232730] text-[#8B909D] hover:text-white transition-colors"
               title="Refresh ballots from blockchain"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isLoadingVotes ? 'animate-spin text-[#FFD426]' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${isLoadingVotes ? 'animate-spin text-[#FFD426]' : ''}`} />
             </button>
           </div>
         </div>
@@ -791,17 +845,17 @@ export function AdminView({
         </div>
 
         {/* 2-Step Homomorphic Workflow */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <button
             type="button"
             onClick={handleComputeHomomorphicAddition}
             disabled={encryptedVotesList.length === 0 || isAggregating || !isAdmin}
-            className="btn-secondary-dark"
+            className="btn-pill-outline !min-h-[52px]"
           >
             {isAggregating ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#FFD426]" />
+              <RefreshCw className="w-4 h-4 animate-spin text-[#FFD426]" />
             ) : (
-              <Cpu className="w-3.5 h-3.5 text-[#FFD426]" />
+              <Cpu className="w-4 h-4 text-[#FFD426]" />
             )}
             <span>Step 1: Aggregate Ciphertexts</span>
           </button>
@@ -810,12 +864,12 @@ export function AdminView({
             type="button"
             onClick={handleDecryptAndTally}
             disabled={!homomorphicSumCiphertext || !localPrivateKey || isDecrypting || !isAdmin}
-            className="btn-primary-gold"
+            className="btn-pill-gold !min-h-[52px]"
           >
             {isDecrypting ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#08090B]" />
+              <RefreshCw className="w-4 h-4 animate-spin text-[#08090B]" />
             ) : (
-              <Unlock className="w-3.5 h-3.5" />
+              <Unlock className="w-4 h-4" />
             )}
             <span>Step 2: Decrypt & Reveal Results</span>
           </button>
@@ -823,61 +877,63 @@ export function AdminView({
 
         {/* Aggregated Ciphertext Box */}
         {homomorphicSumCiphertext && (
-          <div className="bg-[#08090B] border border-[#232730] rounded-md p-4 font-mono text-xs text-white space-y-2">
+          <div className="bg-[#08090B] border border-[#232730] rounded-2xl p-6 font-mono text-xs text-white space-y-3">
             <span className="text-[10px] text-[#8B909D] uppercase tracking-wider block">
               Aggregated Ciphertext Product (C_total = ∏ cᵢ mod n²)
             </span>
             <div className="break-all text-xs text-[#FFD426] leading-relaxed">
-              {truncateCiphertext(homomorphicSumCiphertext, 44)}
+              {truncateCiphertext(homomorphicSumCiphertext, 68)}
             </div>
             {decryptedSum !== null && (
-              <div className="pt-2 border-t border-[#232730] flex items-center justify-between font-sans text-xs">
+              <div className="pt-3 border-t border-[#232730] flex items-center justify-between font-sans text-xs">
                 <span className="text-[#8B909D]">Decrypted Plaintext Sum:</span>
-                <span className="font-mono font-bold text-lg text-[#FFD426]">{decryptedSum.toString()}</span>
+                <span className="font-mono font-bold text-xl text-[#FFD426]">{decryptedSum.toString()}</span>
               </div>
             )}
           </div>
         )}
 
-        {/* Certified Results Presentation */}
+        {/* Certified Winner Showcase */}
         {tallyResults && tallyResults.length > 0 && (
-          <div className="space-y-4 pt-3 border-t border-[#232730]">
-            {/* Monumental Winner Spotlight Card with Electric Gold Glow */}
-            <div className="rounded-lg bg-[#16191F] border-2 border-[#FFD426] p-6 flex items-center justify-between gap-4 shadow-goldGlow">
-              <div>
-                <div className="flex items-center space-x-1.5 mb-1 text-[#FFD426]">
-                  <Crown className="w-4 h-4 fill-current" />
-                  <span className="text-[10px] font-mono uppercase tracking-widest font-bold">
+          <div className="space-y-6 pt-4 border-t border-[#232730]">
+            {/* Monumental Winner Card with Electric Gold Ambient Glow */}
+            <div className="rounded-3xl bg-[#14171E] border-2 border-[#FFD426] p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-[0_0_40px_rgba(255,212,38,0.25)]">
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2 text-[#FFD426]">
+                  <Crown className="w-5 h-5 fill-current" />
+                  <span className="text-xs font-mono uppercase tracking-widest font-black">
                     Certified Winner
                   </span>
                 </div>
-                <h4 className="text-xl font-bold text-white tracking-tight">{tallyResults[0].name}</h4>
-                <p className="text-xs text-[#8B909D] mt-0.5">{tallyResults[0].role} · {tallyResults[0].platform}</p>
+                <h4 className="text-3xl sm:text-4xl font-black text-white tracking-tight uppercase">
+                  {tallyResults[0].name}
+                </h4>
+                <p className="text-sm text-[#8B909D]">{tallyResults[0].role} · {tallyResults[0].platform}</p>
               </div>
-              <div className="text-right flex-shrink-0">
-                <div className="text-4xl font-mono font-extrabold text-[#FFD426]">{tallyResults[0].votes}</div>
-                <div className="text-[10px] text-[#8B909D] font-mono uppercase tracking-wider">Votes Recorded</div>
+              <div className="sm:text-right flex-shrink-0">
+                <div className="text-5xl sm:text-6xl font-mono font-black text-[#FFD426]">{tallyResults[0].votes}</div>
+                <div className="text-xs text-[#8B909D] font-mono uppercase tracking-wider">Votes Certified</div>
               </div>
             </div>
 
             {/* Candidate Breakdown */}
-            <div className="space-y-3 bg-[#08090B] border border-[#232730] rounded-lg p-5">
+            <div className="space-y-4 bg-[#08090B] border border-[#232730] rounded-2xl p-6 sm:p-8">
               {tallyResults.map((candidate, idx) => {
                 const totalBallots = encryptedVotesList.length || 1;
                 const pct = Math.round((candidate.votes / totalBallots) * 100);
                 return (
-                  <div key={candidate.id} className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-white">{candidate.name}</span>
-                      <span className="font-mono text-[#FFD426]">
+                  <div key={candidate.id} className="space-y-2">
+                    <div className="flex items-center justify-between text-xs sm:text-sm">
+                      <span className="font-bold text-white uppercase tracking-wide">{candidate.name}</span>
+                      <span className="font-mono text-[#FFD426] font-bold">
                         {candidate.votes} <span className="text-[#8B909D] font-normal font-sans">votes ({pct}%)</span>
                       </span>
                     </div>
-                    <div className="w-full bg-[#16191F] rounded-full h-2 overflow-hidden">
+                    <div className="w-full bg-[#16191F] rounded-full h-2.5 overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all duration-700 ${
                           idx === 0
-                            ? 'bg-[#FFD426] shadow-[0_0_8px_#FFD426]'
+                            ? 'bg-[#FFD426] shadow-[0_0_10px_#FFD426]'
                             : 'bg-white/40'
                         }`}
                         style={{ width: `${pct}%` }}
@@ -890,6 +946,8 @@ export function AdminView({
           </div>
         )}
       </section>
+
     </div>
   );
 }
+export default AdminView;
