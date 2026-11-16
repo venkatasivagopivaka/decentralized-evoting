@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, AlertCircle, CheckCircle, Copy, Lock, ShieldAlert, ArrowRight } from 'lucide-react';
+import { RefreshCw, AlertCircle, CheckCircle, Copy, Lock, ShieldAlert, ArrowRight, ShieldCheck } from 'lucide-react';
 import { CandidateCard } from './CandidateCard';
 import { CANDIDATES } from '../utils/constants';
 import {
@@ -167,188 +167,39 @@ export function VoterView({
     : `Cast Ballot for ${selectedCandidate?.name}`;
 
   return (
-    <div className="w-full max-w-[1700px] mx-auto px-6 sm:px-12 lg:px-16 py-12 sm:py-16">
+    <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-16 py-10 sm:py-16">
       
       {/* Section Header: Bold Editorial Typography */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between pb-10 border-b border-[#232730] gap-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between pb-8 border-b border-[#232730] gap-6">
         <div>
           <div className="flex items-center space-x-2.5 text-[11px] font-mono tracking-widest text-[#FFD426] uppercase mb-2">
             <span className="w-2 h-2 rounded-[2px] bg-[#FFD426]" />
             <span>OFFICIAL BALLOT // 2026 GENERAL ELECTION</span>
           </div>
-          <h2 className="text-4xl sm:text-6xl font-black text-white tracking-tighter uppercase leading-none">
+          <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tighter uppercase leading-none">
             Elect Your Representative<span className="text-[#FFD426]">.</span>
           </h2>
         </div>
         <p className="text-sm sm:text-base text-[#8B909D] max-w-md leading-relaxed">
-          Ballots are sealed in the browser with Paillier homomorphic encryption. Individual choices are never visible to miners or administrators.
+          Select a candidate below. Your vote is sealed locally with Paillier homomorphic encryption before submission to Ethereum, ensuring mathematical secrecy.
         </p>
       </div>
 
-      {/* Main Expansive Composition: Left Control & Ciphertext Stream, Right Candidate Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 pt-10">
+      {/* Main Expansive Composition: Left Candidate Gallery (8 cols), Right Sticky Verification Console (4 cols) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 pt-10 items-start">
         
-        {/* Left Column: Ballot Actions & Cryptographic Payload (5 cols) */}
-        <div className="lg:col-span-5 space-y-6">
-          
-          {/* Eligibility Banner */}
-          {!account ? (
-            <div className="p-6 rounded-2xl bg-[#0F1115] border border-[#232730] space-y-3">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#8B909D] block">
-                AUTHENTICATION
-              </span>
-              <h4 className="text-lg font-bold text-white">Wallet Connection Required</h4>
-              <p className="text-xs text-[#8B909D] leading-relaxed">
-                Connect your Ethereum wallet using the header button to verify voter whitelisting and sign your encrypted ballot.
-              </p>
-            </div>
-          ) : !isWhitelisted ? (
-            <div className="p-6 rounded-2xl bg-[#FF5C5C]/10 border border-[#FF5C5C]/30 space-y-2 text-[#FF5C5C]">
-              <div className="flex items-center space-x-2 font-mono text-xs font-bold uppercase tracking-wider">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>Non-Whitelisted Address</span>
-              </div>
-              <p className="text-xs text-white/90 leading-relaxed">
-                <strong className="font-mono text-[#FFD426]">{truncateAddress(account)}</strong> is not registered. Contact the election administrator to obtain voter credentials.
-              </p>
-            </div>
-          ) : hasVoted ? (
-            <div className="p-6 rounded-2xl bg-[#FFD426]/10 border border-[#FFD426]/30 space-y-2 text-[#FFD426]">
-              <div className="flex items-center space-x-2 font-mono text-xs font-bold uppercase tracking-wider">
-                <CheckCircle className="w-4 h-4 flex-shrink-0" />
-                <span>Ballot Sealed On Ethereum</span>
-              </div>
-              <p className="text-xs text-white/90 leading-relaxed">
-                Your encrypted vote has been verified and permanently recorded on the blockchain. Double-voting is strictly prevented.
-              </p>
-            </div>
-          ) : (
-            <div className="p-6 rounded-2xl bg-[#0F1115] border border-[#232730] space-y-2">
-              <div className="flex items-center space-x-2 text-[10px] font-mono text-[#FFD426] uppercase tracking-widest">
-                <span className="w-2 h-2 rounded-full bg-[#FFD426] animate-pulse" />
-                <span>CREDENTIALS VERIFIED</span>
-              </div>
-              <p className="text-xs text-[#8B909D]">
-                Connected as <span className="font-mono text-white font-semibold">{truncateAddress(account)}</span>. Authorized to cast one encrypted ballot.
-              </p>
-            </div>
-          )}
-
-          {/* Cryptographic Seal & Ciphertext Inspection */}
-          {publicKey && !hasVoted && (
-            <div className="p-6 sm:p-7 rounded-2xl bg-[#0F1115] border border-[#232730] space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Lock className="w-4 h-4 text-[#FFD426]" />
-                  <span className="text-xs font-mono uppercase tracking-wider text-white font-bold">
-                    Homomorphic Ciphertext
-                  </span>
-                </div>
-                <button
-                  onClick={handleCopyCiphertext}
-                  disabled={!generatedCiphertext}
-                  className="text-[11px] font-mono text-[#8B909D] hover:text-[#FFD426] flex items-center space-x-1.5 transition-colors"
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>{copied ? 'Copied' : 'Copy'}</span>
-                </button>
-              </div>
-
-              <div className="bg-[#08090B] rounded-xl border border-[#232730] p-4 font-mono text-xs text-[#FFD426] break-all leading-relaxed max-h-36 overflow-y-auto">
-                {isEncrypting
-                  ? 'Generating fresh Paillier encryption…'
-                  : generatedCiphertext
-                  ? truncateCiphertext(generatedCiphertext, 92)
-                  : 'Awaiting encryption key…'}
-              </div>
-
-              <p className="text-[11px] text-[#8B909D] leading-relaxed">
-                Formula: <code className="font-mono text-[#FFD426]">c = g^m · r^n mod n²</code>. Salt <code className="font-mono text-[#FFD426]">r</code> is randomized per ballot, rendering identical votes mathematically indistinguishable.
-              </p>
-            </div>
-          )}
-
-          {/* 4-Stage Explicit Transaction Lifecycle Feedback */}
-          {txStatus.stage === 'submitting' && (
-            <div className="p-5 rounded-2xl bg-[#0F1115] border border-[#232730] text-xs font-mono space-y-1 text-white">
-              <div className="flex items-center space-x-2 text-[#FFD426] font-bold">
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Awaiting Wallet Signature…</span>
-              </div>
-              <p className="text-[#8B909D]">Please confirm the ballot submission in MetaMask.</p>
-            </div>
-          )}
-
-          {txStatus.stage === 'waiting' && (
-            <div className="p-5 rounded-2xl bg-[#0F1115] border border-[#FFD426]/40 text-xs font-mono space-y-2 text-white">
-              <div className="flex items-center space-x-2 text-[#FFD426] font-bold">
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Mining On-Chain Block…</span>
-              </div>
-              <div className="text-[#8B909D] break-all text-[11px]">
-                Tx Hash: <code className="text-[#FFD426] font-semibold">{txStatus.txHash}</code>
-              </div>
-              <p className="text-[11px] text-[#8B909D]">Awaiting mined block confirmation with status 1.</p>
-            </div>
-          )}
-
-          {txStatus.stage === 'confirmed' && (
-            <div className="p-5 rounded-2xl bg-[#FFD426]/10 border border-[#FFD426]/40 text-xs font-mono space-y-1.5 text-[#FFD426]">
-              <div className="font-bold flex items-center space-x-2">
-                <CheckCircle className="w-4 h-4 text-[#FFD426]" />
-                <span>Ballot Successfully Confirmed on Ethereum</span>
-              </div>
-              <span className="text-[#8B909D] break-all block text-[11px]">Tx: {txStatus.txHash}</span>
-            </div>
-          )}
-
-          {txStatus.stage === 'failed' && (
-            <div className="p-5 rounded-2xl bg-[#FF5C5C]/10 border border-[#FF5C5C]/40 text-xs font-mono space-y-1.5 text-[#FF5C5C]">
-              <div className="font-bold flex items-center space-x-2">
-                <ShieldAlert className="w-4 h-4 text-[#FF5C5C]" />
-                <span>Transaction Failed</span>
-              </div>
-              <p className="text-white">{txStatus.error || txStatus.message}</p>
-              {txStatus.txHash && (
-                <span className="text-[#8B909D] break-all block text-[11px]">Tx: {txStatus.txHash}</span>
-              )}
-            </div>
-          )}
-
-          {/* Primary Action Button (Capsule Pill) */}
-          <button
-            onClick={handleCastVote}
-            disabled={!canVote}
-            className={`w-full btn-pill-gold group !min-h-[56px] !text-sm ${
-              !canVote ? '!opacity-40 !cursor-not-allowed !shadow-none' : ''
-            }`}
-          >
-            {isBusy ? (
-              <>
-                <RefreshCw className="w-4 h-4 animate-spin text-[#08090B]" />
-                <span>{buttonLabel}</span>
-              </>
-            ) : (
-              <>
-                <span>{buttonLabel}</span>
-                {canVote && <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />}
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* Right Column: Distinctive Candidate Gallery (7 cols) */}
-        <div className="lg:col-span-7 space-y-5">
+        {/* Left Column: Monumental Candidate Gallery (8 cols) */}
+        <div className="lg:col-span-8 space-y-6">
           <div className="flex items-center justify-between pb-2">
             <span className="text-xs font-mono uppercase tracking-widest text-[#8B909D]">
-              CERTIFIED CANDIDATES
+              CERTIFIED CANDIDATES // {CANDIDATES.length} CHOICES AVAILABLE
             </span>
             <span className="text-xs font-mono text-[#FFD426] font-bold">
-              {CANDIDATES.length} CANDIDATES REGISTERED
+              CLICK TO CHOOSE
             </span>
           </div>
 
-          <div className="grid grid-cols-1 gap-5">
+          <div className="space-y-6">
             {CANDIDATES.map((candidate) => (
               <CandidateCard
                 key={candidate.id}
@@ -359,6 +210,174 @@ export function VoterView({
               />
             ))}
           </div>
+        </div>
+
+        {/* Right Column: Sticky Verification Console & Action Button (4 cols) */}
+        <div className="lg:col-span-4 lg:sticky lg:top-28 space-y-6">
+          
+          {/* Selected Candidate Summary Card */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-[#0F1115] border border-[#232730] space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#FFD426] font-bold">
+                ACTIVE SELECTION
+              </span>
+              <span className="text-xs font-mono text-[#8B909D]">
+                CANDIDATE {selectedCandidate?.number || `0${selectedCandidate?.id + 1}`}
+              </span>
+            </div>
+
+            <div className="space-y-1">
+              <h4 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
+                {selectedCandidate?.name}
+              </h4>
+              <p className="text-xs font-mono text-[#FFD426] uppercase">
+                {selectedCandidate?.role}
+              </p>
+            </div>
+
+            {/* Eligibility Banner */}
+            <div className="pt-2">
+              {!account ? (
+                <div className="p-4 rounded-2xl bg-[#08090B] border border-[#232730] space-y-1.5">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#8B909D] block font-bold">
+                    Wallet Required
+                  </span>
+                  <p className="text-xs text-[#8B909D]">
+                    Connect your wallet using the top bar to verify whitelist eligibility.
+                  </p>
+                </div>
+              ) : !isWhitelisted ? (
+                <div className="p-4 rounded-2xl bg-[#FF5C5C]/10 border border-[#FF5C5C]/30 space-y-1 text-[#FF5C5C]">
+                  <div className="flex items-center space-x-1.5 font-mono text-xs font-bold uppercase">
+                    <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>Not Whitelisted</span>
+                  </div>
+                  <p className="text-xs text-white/90">
+                    <strong className="font-mono text-[#FFD426]">{truncateAddress(account)}</strong> is not authorized to vote.
+                  </p>
+                </div>
+              ) : hasVoted ? (
+                <div className="p-4 rounded-2xl bg-[#FFD426]/10 border border-[#FFD426]/30 space-y-1 text-[#FFD426]">
+                  <div className="flex items-center space-x-1.5 font-mono text-xs font-bold uppercase">
+                    <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>Ballot Sealed</span>
+                  </div>
+                  <p className="text-xs text-white/90">
+                    Your encrypted vote is permanently verified on Ethereum.
+                  </p>
+                </div>
+              ) : (
+                <div className="p-4 rounded-2xl bg-[#08090B] border border-[#232730] space-y-1">
+                  <div className="flex items-center space-x-1.5 text-[10px] font-mono text-[#FFD426] uppercase font-bold">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#FFD426]" />
+                    <span>ELIGIBILITY VERIFIED</span>
+                  </div>
+                  <p className="text-xs text-[#8B909D]">
+                    Authorized address: <span className="font-mono text-white">{truncateAddress(account)}</span>
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Cryptographic Seal & Ciphertext Inspection */}
+            {publicKey && !hasVoted && (
+              <div className="pt-2 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-1.5">
+                    <Lock className="w-3.5 h-3.5 text-[#FFD426]" />
+                    <span className="text-xs font-mono uppercase tracking-wider text-white font-bold">
+                      Paillier Ciphertext
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleCopyCiphertext}
+                    disabled={!generatedCiphertext}
+                    className="text-[11px] font-mono text-[#8B909D] hover:text-[#FFD426] flex items-center space-x-1 transition-colors"
+                  >
+                    <Copy className="w-3 h-3" />
+                    <span>{copied ? 'Copied' : 'Copy'}</span>
+                  </button>
+                </div>
+
+                <div className="bg-[#08090B] rounded-xl border border-[#232730] p-3 font-mono text-xs text-[#FFD426] break-all leading-relaxed max-h-28 overflow-y-auto">
+                  {isEncrypting
+                    ? 'Encrypting ballot locally…'
+                    : generatedCiphertext
+                    ? truncateCiphertext(generatedCiphertext, 44)
+                    : 'Awaiting encryption key…'}
+                </div>
+
+                <p className="text-[10px] text-[#8B909D] leading-relaxed">
+                  Blinded with salt <code className="font-mono text-[#FFD426]">r ∈ ℤ*ₙ</code>. Ciphertext is tallied homomorphically on-chain.
+                </p>
+              </div>
+            )}
+
+            {/* 4-Stage Transaction Feedback */}
+            {txStatus.stage === 'submitting' && (
+              <div className="p-4 rounded-2xl bg-[#08090B] border border-[#232730] text-xs font-mono space-y-1 text-white">
+                <div className="flex items-center space-x-2 text-[#FFD426] font-bold">
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Awaiting Wallet Signature…</span>
+                </div>
+                <p className="text-[#8B909D] text-[11px]">Confirm the transaction in MetaMask.</p>
+              </div>
+            )}
+
+            {txStatus.stage === 'waiting' && (
+              <div className="p-4 rounded-2xl bg-[#08090B] border border-[#FFD426]/40 text-xs font-mono space-y-1 text-white">
+                <div className="flex items-center space-x-2 text-[#FFD426] font-bold">
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Mining On-Chain Block…</span>
+                </div>
+                <div className="text-[#8B909D] break-all text-[10px]">
+                  Tx: <code className="text-[#FFD426]">{txStatus.txHash}</code>
+                </div>
+              </div>
+            )}
+
+            {txStatus.stage === 'confirmed' && (
+              <div className="p-4 rounded-2xl bg-[#FFD426]/10 border border-[#FFD426]/40 text-xs font-mono space-y-1 text-[#FFD426]">
+                <div className="font-bold flex items-center space-x-1.5">
+                  <CheckCircle className="w-4 h-4 text-[#FFD426]" />
+                  <span>Ballot Confirmed On Ethereum</span>
+                </div>
+                <span className="text-[#8B909D] break-all block text-[10px]">Tx: {txStatus.txHash}</span>
+              </div>
+            )}
+
+            {txStatus.stage === 'failed' && (
+              <div className="p-4 rounded-2xl bg-[#FF5C5C]/10 border border-[#FF5C5C]/40 text-xs font-mono space-y-1 text-[#FF5C5C]">
+                <div className="font-bold flex items-center space-x-1.5">
+                  <ShieldAlert className="w-4 h-4 text-[#FF5C5C]" />
+                  <span>Transaction Failed</span>
+                </div>
+                <p className="text-white text-[11px]">{txStatus.error || txStatus.message}</p>
+              </div>
+            )}
+
+            {/* Primary Action Button */}
+            <button
+              onClick={handleCastVote}
+              disabled={!canVote}
+              className={`w-full btn-pill-gold group !min-h-[54px] !text-xs sm:!text-sm ${
+                !canVote ? '!opacity-35 !cursor-not-allowed !shadow-none' : ''
+              }`}
+            >
+              {isBusy ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin text-[#08090B]" />
+                  <span>{buttonLabel}</span>
+                </>
+              ) : (
+                <>
+                  <span>{buttonLabel}</span>
+                  {canVote && <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />}
+                </>
+              )}
+            </button>
+          </div>
+
         </div>
 
       </div>

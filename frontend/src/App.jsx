@@ -37,7 +37,7 @@ export function App() {
   const [activeTab, setActiveTab] = useState('voter'); // 'voter' | 'admin' | 'crypto'
   const [notification, setNotification] = useState(null);
 
-  // Reference to scroll to interactive section
+  // Reference to main interactive action section
   const actionSectionRef = useRef(null);
 
   const showToast = (message, type = 'info') => {
@@ -230,10 +230,35 @@ export function App() {
     }
   }, [contract, account, refreshContractData]);
 
-  const handleNavigateTab = (tab) => {
+  // Smooth, predictable tab navigation without erratic scroll jumps
+  const handleNavbarTabChange = (tab) => {
+    setActiveTab(tab);
+    
+    // Only adjust scroll if user is above the action area (e.g. browsing the hero)
+    if (actionSectionRef.current) {
+      const rect = actionSectionRef.current.getBoundingClientRect();
+      const headerOffset = window.innerWidth >= 768 ? 90 : 120;
+      
+      // If user is scrolled way above the action area, scroll down smoothly
+      if (rect.top > headerOffset + 50) {
+        window.scrollTo({
+          top: window.pageYOffset + rect.top - headerOffset,
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
+
+  // Intentional CTA navigation from Hero section buttons
+  const handleHeroNavigateTab = (tab) => {
     setActiveTab(tab);
     if (actionSectionRef.current) {
-      actionSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+      const rect = actionSectionRef.current.getBoundingClientRect();
+      const headerOffset = window.innerWidth >= 768 ? 90 : 120;
+      window.scrollTo({
+        top: window.pageYOffset + rect.top - headerOffset,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -243,8 +268,9 @@ export function App() {
   const isCorrectNetwork = !chainId || chainId === HARDHAT_CHAIN_ID;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#08090B] text-white font-sans selection:bg-[#FFD426] selection:text-[#08090B] overflow-x-hidden">
-      {/* Editorial Luxury Header */}
+    <div className="min-h-screen flex flex-col bg-[#08090B] text-white font-sans selection:bg-[#FFD426] selection:text-[#08090B] pt-24 md:pt-20">
+      
+      {/* Persistently Sticky / Fixed Luxury Header */}
       <Navbar
         account={account}
         isAdmin={isAdmin}
@@ -254,14 +280,14 @@ export function App() {
         isCorrectNetwork={isCorrectNetwork}
         isElectionOpen={isElectionOpen}
         activeTab={activeTab}
-        setActiveTab={handleNavigateTab}
+        setActiveTab={handleNavbarTabChange}
         hasContract={Boolean(contract)}
       />
 
-      {/* Toast Notification */}
+      {/* Floating Toast Notification */}
       {notification && (
-        <div className="fixed bottom-8 right-8 z-50 animate-in fade-in slide-in-from-bottom-4 duration-200">
-          <div className="flex items-center space-x-3 px-5 py-3.5 rounded-full bg-[#14171E] text-white border border-[#232730] text-xs font-mono font-medium shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
+        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="flex items-center space-x-3 px-5 py-3.5 rounded-full bg-[#14171E] text-white border border-[#232730] text-xs font-mono font-medium shadow-[0_10px_30px_rgba(0,0,0,0.7)]">
             {notification.type === 'success' ? (
               <CheckCircle2 className="w-4 h-4 text-[#FFD426] flex-shrink-0" />
             ) : (
@@ -272,17 +298,17 @@ export function App() {
         </div>
       )}
 
-      {/* Memorable Monumental Hero Section (Reference Images 1, 2, 4) */}
+      {/* Monumental Hero Section */}
       <HeroSection
         isElectionOpen={isElectionOpen}
-        onNavigateTab={handleNavigateTab}
+        onNavigateTab={handleHeroNavigateTab}
         onConnectWallet={handleConnect}
         account={account}
         isAdmin={isAdmin}
       />
 
-      {/* Main Expansive Operational Area */}
-      <main ref={actionSectionRef} className="flex-1 w-full">
+      {/* Main Expansive Content Area */}
+      <main ref={actionSectionRef} className="flex-1 w-full scroll-mt-28">
         {activeTab === 'voter' && (
           <VoterView
             account={account}
@@ -312,9 +338,9 @@ export function App() {
         )}
       </main>
 
-      {/* Expansive Architectural Footer */}
+      {/* Luxury Architectural Footer */}
       <footer className="border-t border-[#232730] bg-[#0A0C0F] py-8">
-        <div className="w-full max-w-[1700px] mx-auto px-6 sm:px-12 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center space-x-3">
             <span className="w-2 h-2 rounded-[2px] bg-[#FFD426]" />
             <span className="font-mono text-xs tracking-wider text-white font-bold uppercase">

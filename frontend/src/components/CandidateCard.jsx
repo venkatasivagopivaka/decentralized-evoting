@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Shield, Sparkles, Binary } from 'lucide-react';
+import { Check, ArrowRight } from 'lucide-react';
 
 export function CandidateCard({
   candidate,
@@ -7,92 +7,83 @@ export function CandidateCard({
   onSelect,
   disabled,
 }) {
-  // Visual icons for distinctive candidate identity
-  const getCandidateIcon = (id) => {
-    switch (id) {
-      case 0:
-        return <Binary className="w-6 h-6 text-[#FFD426]" />;
-      case 1:
-        return <Sparkles className="w-6 h-6 text-[#FFD426]" />;
-      case 2:
-      default:
-        return <Shield className="w-6 h-6 text-[#FFD426]" />;
-    }
-  };
-
   return (
     <div
       onClick={() => !disabled && onSelect(candidate)}
-      className={`relative rounded-2xl p-7 sm:p-8 transition-all duration-250 flex flex-col justify-between overflow-hidden ${
+      className={`group relative rounded-3xl p-8 sm:p-10 lg:p-12 transition-all duration-300 flex flex-col justify-between overflow-hidden ${
         disabled
-          ? 'opacity-35 cursor-not-allowed bg-[#0F1115] border border-[#232730]'
+          ? 'opacity-35 cursor-not-allowed bg-[#0B0D11] border border-[#232730]'
           : isSelected
-          ? 'cursor-pointer bg-[#14171E] border-2 border-[#FFD426] shadow-[0_0_30px_rgba(255,212,38,0.2)] transform -translate-y-1'
-          : 'cursor-pointer bg-[#0F1115] border border-[#232730] hover:bg-[#12151B] hover:border-white/30 hover:-translate-y-0.5'
+          ? 'cursor-pointer bg-[#14171E] border-2 border-[#FFD426] shadow-[0_0_45px_rgba(255,212,38,0.22)] transform -translate-y-1'
+          : 'cursor-pointer bg-[#0B0D11] border border-[#232730] hover:bg-[#101319] hover:border-white/35 hover:-translate-y-1'
       }`}
     >
-      {/* Background Decorative Number Watermark */}
-      <span className="absolute -bottom-4 -right-2 text-7xl sm:text-8xl font-black font-mono text-white/[0.03] select-none pointer-events-none">
+      {/* Selected Indicator Left Vertical Accent Bar */}
+      {isSelected && (
+        <div className="absolute left-0 top-0 bottom-0 w-2.5 bg-[#FFD426] shadow-[0_0_20px_#FFD426]" />
+      )}
+
+      {/* Decorative Oversized Watermark Numeral */}
+      <span className="absolute -bottom-8 -right-4 text-8xl sm:text-9xl lg:text-[160px] font-black font-mono text-white/[0.025] select-none pointer-events-none tracking-tighter">
         {candidate.number || `0${candidate.id + 1}`}
       </span>
 
-      <div className="relative z-10 space-y-6">
-        {/* Top Header: Candidate Index & Custom Radio Selector */}
-        <div className="flex items-start justify-between">
+      <div className="relative z-10 space-y-6 sm:space-y-8">
+        
+        {/* Top Header Row: Candidate Identifier & Selection Pill */}
+        <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className={`w-11 h-11 rounded-xl flex items-center justify-center border ${
-              isSelected ? 'bg-[#FFD426]/10 border-[#FFD426]' : 'bg-[#08090B] border-[#232730]'
-            }`}>
-              {getCandidateIcon(candidate.id)}
-            </div>
-            <div>
-              <span className="text-[10px] font-mono text-[#8B909D] uppercase tracking-widest block">
-                CANDIDATE
-              </span>
-              <span className="font-mono text-xl sm:text-2xl font-black text-[#FFD426]">
-                {candidate.number || `0${candidate.id + 1}`}
-              </span>
-            </div>
+            <span className="font-mono text-xs sm:text-sm font-black text-[#FFD426] tracking-widest uppercase bg-[#FFD426]/10 px-3.5 py-1.5 rounded-full border border-[#FFD426]/30">
+              CANDIDATE {candidate.number || `0${candidate.id + 1}`}
+            </span>
+            <span className="text-xs font-mono uppercase tracking-widest text-[#8B909D] hidden sm:inline">
+              // VERIFIED NOMINEE
+            </span>
           </div>
 
-          {/* Selection Indicator Check */}
-          <div
-            className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${
-              isSelected
-                ? 'bg-[#FFD426] text-[#08090B] shadow-[0_0_12px_#FFD426] scale-105'
-                : 'border border-[#232730] bg-[#08090B]'
-            }`}
-          >
-            {isSelected && <Check className="w-4 h-4 stroke-[3]" />}
+          {/* Distinctive Selection Pill Badge */}
+          <div>
+            {isSelected ? (
+              <div className="inline-flex items-center space-x-2 bg-[#FFD426] text-[#08090B] px-5 py-2 rounded-full font-mono text-xs font-black uppercase tracking-wider shadow-[0_0_18px_#FFD426] scale-105 transition-transform duration-200">
+                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                <span>Selected</span>
+              </div>
+            ) : (
+              <div className="inline-flex items-center space-x-2 bg-[#0F1115] border border-[#232730] group-hover:border-[#FFD426] group-hover:text-white text-[#8B909D] px-5 py-2 rounded-full font-mono text-xs font-bold uppercase tracking-wider transition-all duration-200">
+                <span className="w-2 h-2 rounded-full border border-[#8B909D] group-hover:border-[#FFD426]" />
+                <span>Select Candidate</span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Candidate Name in Confident Editorial Scale */}
-        <div className="space-y-1.5">
-          <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+        {/* Centerpiece: Monumental Candidate Name (Visual Focus) */}
+        <div className="space-y-2 pt-2">
+          <h3 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-white tracking-tighter uppercase leading-[0.92] transition-colors duration-200 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-[#FFD426]">
             {candidate.name}
           </h3>
-          <p className="text-xs font-mono text-[#FFD426] tracking-wide uppercase">
+          <p className="text-xs sm:text-sm font-mono text-[#FFD426] tracking-widest uppercase pt-1">
             {candidate.role}
           </p>
         </div>
 
-        {/* Platform Statement */}
-        <p className="text-sm text-[#8B909D] leading-relaxed font-normal">
-          {candidate.platform}
-        </p>
-      </div>
+        {/* Minimal Hairline Separator */}
+        <div className={`h-[1px] w-full transition-colors duration-200 ${
+          isSelected ? 'bg-[#FFD426]/40' : 'bg-[#232730]'
+        }`} />
 
-      {/* Selected Indicator Bottom Bar */}
-      <div className={`mt-6 pt-4 border-t flex items-center justify-between text-xs font-mono transition-colors duration-200 ${
-        isSelected ? 'border-[#FFD426]/40 text-[#FFD426]' : 'border-[#232730] text-[#525765]'
-      }`}>
-        <span className="uppercase tracking-wider">
-          {isSelected ? 'SELECTED CANDIDATE' : 'CLICK TO SELECT'}
-        </span>
-        <span className="font-bold">
-          {isSelected ? '● ACTIVE' : '○ AVAILABLE'}
-        </span>
+        {/* Bottom Platform Manifesto with Generous Breathing Room */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <p className="text-sm sm:text-base text-[#8B909D] leading-relaxed font-normal max-w-2xl">
+            {candidate.platform}
+          </p>
+
+          <div className="flex items-center space-x-2 font-mono text-xs text-[#8B909D] group-hover:text-[#FFD426] transition-colors flex-shrink-0">
+            <span>{isSelected ? 'Ready to cast' : 'Click to select'}</span>
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+          </div>
+        </div>
+
       </div>
     </div>
   );
